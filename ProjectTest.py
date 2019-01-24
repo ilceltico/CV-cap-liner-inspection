@@ -1,7 +1,7 @@
-
 import cv2
 import numpy as np
 import os
+from matplotlib import pyplot as plt
 
 # hough trasform
 dp = 1
@@ -14,6 +14,9 @@ rMin = 0
 rMax = 0
 
 # ------------------------------------------------------------
+
+# showing histogram for each image?
+showHistogram = False
 
 # image enhancing
 gamma = False
@@ -53,7 +56,7 @@ aMaxSigmaColor = 0
 
 for file in os.listdir('./caps'):
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-    
+
     if gamma:
         table = np.array([255 ** (1 - r) * i ** r for i in np.arange(0, 256)]).astype('uint8')
         img = cv2.LUT(img, table)
@@ -69,7 +72,7 @@ for file in os.listdir('./caps'):
     elif adaptiveBilateral:
         img = cv2.adaptiveBilateralFilter(img, abKernel, aSigmaSpace, maxSigmaColor=aMaxSigmaColor)
     elif nonLocalMean:
-        img = cv2.fastNlMeansDenoising(img, None, h, templateWindowSize, searchWindowSize)
+        img = cv2.fastNlMeansDenoising(img, None, h, templateWindowSize, searchWindowSize)  
 
     cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
@@ -84,6 +87,12 @@ for file in os.listdir('./caps'):
             cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
     cv2.imshow('detected circles', cimg)
+
+    if showHistogram:
+        histr = cv2.calcHist([img], [0], None, [256], [0,256])
+        plt.plot(histr)
+        plt.show()
+
     cv2.waitKey()
 
 cv2.destroyAllWindows()
