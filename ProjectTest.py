@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 # hough trasform
 dp = 1
-minDist = 5
+minDist = 50
 
 # WARNING: last 4 parameters must be inserted below by hand
 p1 = 0
@@ -16,13 +16,17 @@ rMax = 0
 # ------------------------------------------------------------
 
 # showing histogram for each image?
-showHistogram = True
+showHistogram = False
 
 # image enhancing
-gamma = False
-r = 0.6
+linear = True
+lowerPercentile = 10
+upperPercentile = 1
 
-equalized = True
+gamma = True
+r = 1.6
+
+equalized = False
 
 # ------------------------------------------------------------
 
@@ -35,10 +39,10 @@ gKernel = (5, 5)
 sigmaX = 0
 sigmaY = 0
 
-bilateral = True
+bilateral = False
 diameter = -1
-sigmaColor = 10
-sigmaSpace = 10
+sigmaColor = 5
+sigmaSpace = 5
 
 nonLocalMean = False
 h = 10
@@ -56,8 +60,39 @@ aMaxSigmaColor = 0
 
 for file in os.listdir('./caps'):
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+    if linear:
+        hist = cv2.calcHist([img], [0], None, [256], [0,256])
+        rows, cols = img.shape 
+        total = rows * cols
+        temp = 0
+        lower = 0
 
-    if gamma:
+        while float(temp) / float(total) * 100 < lowerPercentile:
+            temp += hist[lower]
+            lower += 1
+
+        temp = 0
+        upper = 255
+
+        while float(temp) / float(total) * 100 < upperPercentile:
+            temp += hist[upper]
+            upper -= 1
+
+        table = [None] * 256
+
+        for i in range(0, 256):
+            new = 255 * (i - lower) / (upper - lower)
+            if new > 255:
+                new = 255
+            if new < 0:
+                new = 0
+            table[i] = new
+
+        for row in range(0, rows):
+            for col in range(0, cols):
+                px = img.item(row, col)
+                img.itemset((row, col), table[px])
+    elif gamma:
         table = np.array([255 ** (1 - r) * i ** r for i in np.arange(0, 256)]).astype('uint8')
         img = cv2.LUT(img, table)
     elif equalized:
