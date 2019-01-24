@@ -69,7 +69,7 @@ for file in os.listdir('./caps'):
     elif adaptiveBilateral:
         img = cv2.adaptiveBilateralFilter(img, abKernel, aSigmaSpace, maxSigmaColor=aMaxSigmaColor)
     elif nonLocalMean:
-        img = cv2.fastNlMeansDenoising(img, h, templatemplateWindowSize, searsearchWindowSize)
+        img = cv2.fastNlMeansDenoising(img, None, h, templateWindowSize, searchWindowSize)
 
     cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
