@@ -16,13 +16,13 @@ rMax = 0
 # ------------------------------------------------------------
 
 # showing histogram for each image?
-showHistogram = False
+showHistogram = True
 
 # image enhancing
 gamma = False
 r = 0.6
 
-equalized = False
+equalized = True
 
 # ------------------------------------------------------------
 
@@ -89,7 +89,7 @@ for file in os.listdir('./caps'):
     cv2.imshow('detected circles', cimg)
 
     if showHistogram:
-        histr = cv2.calcHist([img], [0], None, [256], [0,256])
+        histr = cv2.calcHist([cimg], [0], None, [256], [0,256])
         plt.plot(histr)
         plt.show()
 
