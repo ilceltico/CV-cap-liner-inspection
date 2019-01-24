@@ -37,6 +37,11 @@ diameter = -1
 sigmaColor = 10
 sigmaSpace = 10
 
+nonLocalMean = False
+h = 10
+templateWindowSize = 7
+searchWindowSize = 21
+
 # they say it's for sharpness enhancement and noise removal
 # WARNING: not working because it disappeared
 adaptiveBilateral = False
@@ -63,6 +68,8 @@ for file in os.listdir('./caps'):
         img = cv2.bilateralFilter(img, diameter, sigmaColor, sigmaSpace)
     elif adaptiveBilateral:
         img = cv2.adaptiveBilateralFilter(img, abKernel, aSigmaSpace, maxSigmaColor=aMaxSigmaColor)
+    elif nonLocalMean:
+        img = cv2.fastNlMeansDenoising(img, h, templatemplateWindowSize, searsearchWindowSize)
 
     cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
