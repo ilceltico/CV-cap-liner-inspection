@@ -5,25 +5,25 @@ from matplotlib import pyplot as plt
 
 # hough trasform
 dp = 1
-minDist = 50
-
-# WARNING: last 4 parameters must be inserted below by hand
-p1 = 0
-p2 = 0
-rMin = 0
-rMax = 0
+minDist = 5
+param1 = 100
+param2 = 100
+minRadius = 0
+maxRadius = 0
 
 # ------------------------------------------------------------
 
-# showing histogram for each image?
+# showing histogram
 showHistogram = False
+
+# ------------------------------------------------------------
 
 # image enhancing
 linear = True
 lowerPercentile = 10
 upperPercentile = 1
 
-gamma = True
+gamma = False
 r = 1.6
 
 equalized = False
@@ -44,7 +44,7 @@ diameter = -1
 sigmaColor = 5
 sigmaSpace = 5
 
-nonLocalMean = False
+nonLocalMean = True
 h = 10
 templateWindowSize = 7
 searchWindowSize = 21
@@ -111,7 +111,7 @@ for file in os.listdir('./caps'):
 
     cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
 
-    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minDist)
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, minDist, param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
@@ -122,12 +122,12 @@ for file in os.listdir('./caps'):
             cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
     cv2.imshow('detected circles', cimg)
-
+    
     if showHistogram:
         histr = cv2.calcHist([cimg], [0], None, [256], [0,256])
         plt.plot(histr)
         plt.show()
-
+    
     cv2.waitKey()
 
 cv2.destroyAllWindows()
