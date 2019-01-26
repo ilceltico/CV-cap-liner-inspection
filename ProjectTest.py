@@ -260,7 +260,7 @@ def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage
         time = (t2 - t1)/ cv2.getTickFrequency()
 
         print (file)
-        print ('time: ' + time)
+        print ('time: ' + str(time))
         print ('diameter: ' + str(diameter))
         print ('x: ' + str(x))
         print ('y: ' + str(y))
