@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import os
 from matplotlib import pyplot as plt
+import math
+import random
 
 NOEQ = 0
 LINEAR = 1
@@ -207,17 +209,68 @@ def houghPlot(img, showHistogram, dp, minDist, param1, param2, minRadius, maxRad
             # draw the center of the circle
             cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
-    plt.figure()
+    
     if showHistogram:
+        plt.figure()
         histr = cv2.calcHist([img], [0], None, [256], [0,256])
         plt.subplot(121), plt.plot(histr)
         plt.subplot(122), plt.imshow(cimg)
     else:
-        plt.imshow(cimg)
+        cv2.imshow('aaa', cimg)
     
+def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage):
+    for file in os.listdir('./caps'):
+        t1 = cv2.getTickCount()
 
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        edges = cv2.Canny(img, threshold1, threshold2, apertureSize=apertureSize, L2gradient=L2gradient)
+        circle = np.nonzero(edges)
 
+        num = int(len(circle[0]) / 100 * percentage)
+        points = len(circle[0])
+        dAccumulator = 0.0
+        xAccumulator = 0.0
+        yAccumulator = 0.0        
 
-houghPlot(cv2.imread("caps/d_16.bmp", cv2.IMREAD_GRAYSCALE), True, 1, 3, 100, 100, 0, 0, histEqType = LINEAR)
-houghPlot(cv2.imread("caps/d_16.bmp", cv2.IMREAD_GRAYSCALE), True, 1, 3, 100, 100, 0, 0)
-plt.show()
+        for i in range(0, num):
+            rand = random.randint(0, points - 1)
+            x1 = circle[0][rand]
+            y1 = circle[1][rand]
+            max = 0
+            x2Max = 0
+            y2Max = 0
+            for j in range(0, points):
+                x2 = circle[0][j]
+                y2 = circle[1][j]
+                distance = (x1 - x2) ** 2 + (y1 - y2) ** 2
+                if distance > max:
+                    max = distance
+                    x2Max = x2
+                    y2Max = y2
+            
+            dAccumulator += math.sqrt((x1 - x2Max) ** 2 + (y1 - y2Max) ** 2)
+            xAccumulator += (x1 + x2Max) / 2
+            yAccumulator += (y1 + y2Max) / 2
+
+        diameter = dAccumulator / num
+        x = xAccumulator / num
+        y = yAccumulator / num
+
+        t2 = cv2.getTickCount()
+        time = (t2 - t1)/ cv2.getTickFrequency()
+
+        print (file)
+        print ('time: ' + time)
+        print ('diameter: ' + str(diameter))
+        print ('x: ' + str(x))
+        print ('y: ' + str(y))
+        print ('----------------------------------------')
+        
+        cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        cv2.circle(cimg, (int(y), int(x)), int(diameter / 2), (0, 255, 0), 1)
+        cv2.circle(cimg, (int(y), int(x)), 2, (0, 0, 255), 3)
+
+        cv2.imshow(file, cimg)
+        cv2.waitKey()
+
+circleDetection(180, 160, 3, True, 1)
