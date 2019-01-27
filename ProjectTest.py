@@ -218,7 +218,7 @@ def houghPlot(img, showHistogram, dp, minDist, param1, param2, minRadius, maxRad
     else:
         cv2.imshow('aaa', cimg)
     
-def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage):
+def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage, halfWindow):
     for file in os.listdir('./caps'):
         t1 = cv2.getTickCount()
 
@@ -226,35 +226,60 @@ def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage
         edges = cv2.Canny(img, threshold1, threshold2, apertureSize=apertureSize, L2gradient=L2gradient)
         circle = np.nonzero(edges)
 
-        num = int(len(circle[0]) / 100 * percentage)
+        xCircle = circle[0].tolist()
+        yCircle = circle[1].tolist()
+
         points = len(circle[0])
+        iterations = int(len(circle[0]) / 100 * percentage)
         dAccumulator = 0.0
         xAccumulator = 0.0
-        yAccumulator = 0.0        
+        yAccumulator = 0.0
 
-        for i in range(0, num):
-            rand = random.randint(0, points - 1)
-            x1 = circle[0][rand]
-            y1 = circle[1][rand]
-            max = 0
-            x2Max = 0
-            y2Max = 0
-            for j in range(0, points):
-                x2 = circle[0][j]
-                y2 = circle[1][j]
-                distance = (x1 - x2) ** 2 + (y1 - y2) ** 2
-                if distance > max:
-                    max = distance
-                    x2Max = x2
-                    y2Max = y2
+        if halfWindow == 0:
+            for i in range(0, iterations):
+                rand = random.randint(0, points - 1)
+                x1 = xCircle[rand]
+                y1 = yCircle[rand]
+                max = 0
+                x2Max = 0
+                y2Max = 0
+                for j in range(0, points):
+                    x2 = xCircle[j]
+                    y2 = yCircle[j]
+                    distance = (x1 - x2) ** 2 + (y1 - y2) ** 2
+                    if distance > max:
+                        max = distance
+                        x2Max = x2
+                        y2Max = y2
             
-            dAccumulator += math.sqrt((x1 - x2Max) ** 2 + (y1 - y2Max) ** 2)
-            xAccumulator += (x1 + x2Max) / 2
-            yAccumulator += (y1 + y2Max) / 2
+                dAccumulator += math.sqrt((x1 - x2Max) ** 2 + (y1 - y2Max) ** 2)
+                xAccumulator += (x1 + x2Max) / 2
+                yAccumulator += (y1 + y2Max) / 2
+        else:
+            for i in range(0, iterations):
+                rand = random.randint(0, points - 1)
+                x1 = xCircle[rand]
+                y1 = yCircle[rand]
+                max = 0
+                x2Max = 0
+                y2Max = 0
+                for j in range(points - rand - halfWindow if points - rand - halfWindow >= 0 else 0, points - rand + halfWindow if points - rand + halfWindow < points else points):
+                    x2 = xCircle[j]
+                    y2 = yCircle[j]
+                    distance = (x1 - x2) ** 2 + (y1 - y2) ** 2
+                    if distance > max:
+                        max = distance
+                        x2Max = x2
+                        y2Max = y2
+            
+                dAccumulator += math.sqrt((x1 - x2Max) ** 2 + (y1 - y2Max) ** 2)
+                xAccumulator += x1 + x2Max
+                yAccumulator += y1 + y2Max
 
-        diameter = dAccumulator / num
-        x = xAccumulator / num
-        y = yAccumulator / num
+
+        diameter = dAccumulator / iterations
+        x = xAccumulator / 2 / iterations
+        y = yAccumulator / 2 / iterations
 
         t2 = cv2.getTickCount()
         time = (t2 - t1)/ cv2.getTickFrequency()
@@ -273,4 +298,32 @@ def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage
         cv2.imshow(file, cimg)
         cv2.waitKey()
 
-circleDetection(180, 160, 3, True, 1)
+#def betterCircleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage, windowSize):
+#    for file in os.listdir('./caps'):
+#        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+#        edges = cv2.Canny(img, threshold1, threshold2, apertureSize=apertureSize, L2gradient=L2gradient)
+        
+#        rows, cols = edges.shape
+#        x = 0
+#        y = 0
+
+#        for row in range(0, rows):
+#            for col in range(0, cols):
+#                if edges[row][col] == 255:
+#                    x = row
+#                    y = col
+#                    break
+#            else:
+#                continue
+
+#            break
+
+#        img[x][y] = 0
+
+
+
+
+circleDetection(180, 160, 3, True, 5, 100)
+
+
+
