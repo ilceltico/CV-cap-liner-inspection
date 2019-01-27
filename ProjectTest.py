@@ -149,7 +149,7 @@ maxRadius = 0
 
 #cv2.destroyAllWindows()
 
-def houghPlot(img, showHistogram, dp, minDist, param1, param2, minRadius, maxRadius, histEqType = NOEQ, linearPercentiles = [0,0], gammaR = 1, filterType = NOFILTER, medianKernelDim = 5, gaussianKernelTuple = (5,5), gaussianSigmaX = 0, gaussianSigmaY = 0, bilateralDiameter = -1, bilateralSigmaColor = 5, bilateralSigmaSpace = 5, nonLocalMeansH = 10, nonLocalMeansKernelDim = 7, nonLocalMeansSearchWindowDim = 21):
+def houghPlot(img, windowName, showHistogram, dp, minDist, param1, param2, minRadius, maxRadius, histEqType = NOEQ, linearPercentiles = [0,0], gammaR = 1, filterType = NOFILTER, medianKernelDim = 5, gaussianKernelTuple = (5,5), gaussianSigmaX = 0, gaussianSigmaY = 0, bilateralDiameter = -1, bilateralSigmaColor = 5, bilateralSigmaSpace = 5, nonLocalMeansH = 10, nonLocalMeansKernelDim = 7, nonLocalMeansSearchWindowDim = 21):
     if histEqType == LINEAR:
         hist = cv2.calcHist([img], [0], None, [256], [0,256])
         rows, cols = img.shape 
@@ -214,9 +214,15 @@ def houghPlot(img, showHistogram, dp, minDist, param1, param2, minRadius, maxRad
         plt.figure()
         histr = cv2.calcHist([img], [0], None, [256], [0,256])
         plt.subplot(121), plt.plot(histr)
-        plt.subplot(122), plt.imshow(cimg)
+        plt.subplot(122), plt.imshow(cimg, interpolation = 'bilinear')
     else:
-        cv2.imshow('aaa', cimg)
+        cv2.imshow(windowName, cimg)
+
+#def houghPlot(img, windowName, showHistogram, dp, minDist, param1, param2, minRadius, maxRadius, histEqType = NOEQ, linearPercentiles = [0,0], gammaR = 1, filterType = NOFILTER, medianKernelDim = 5, gaussianKernelTuple = (5,5), gaussianSigmaX = 0, gaussianSigmaY = 0, bilateralDiameter = -1, bilateralSigmaColor = 5, bilateralSigmaSpace = 5, nonLocalMeansH = 10, nonLocalMeansKernelDim = 7, nonLocalMeansSearchWindowDim = 21):
+#houghPlot(cv2.imread("caps/d_16.bmp", cv2.IMREAD_GRAYSCALE), "Im1", False, 1, 1, 600, 100, 0, 0, histEqType = LINEAR, filterType=NOFILTER)
+#houghPlot(cv2.imread("caps/d_16.bmp", cv2.IMREAD_GRAYSCALE), "Im2", False, 1, 3, 100, 100, 0, 0)
+#plt.show()
+#cv2.waitKey(0)
     
 def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage, halfWindow):
     for file in os.listdir('./caps'):
