@@ -376,7 +376,7 @@ def leastSquaresCircleFit(points):
     return xc, yc, r
 
 @profile
-def leastSquaresCircleFitCached(listOfX, listofY):
+def leastSquaresCircleFitCached(x, y):
 
 	#Good
     #x = [p[0] for p in points]
@@ -387,8 +387,6 @@ def leastSquaresCircleFitCached(listOfX, listofY):
 
     #Best
     #xy=np.transpose(points)
-    x=listOfX
-    y=listofY
     numPoints = len(x)
 
     #print("N: " + str(len(points)))
@@ -474,6 +472,72 @@ def leastSquaresCircleFitCached(listOfX, listofY):
 
     return xc, yc, r
 
+def my_column_stack(tup):
+    arrays = [np.asarray(arr) for arr in tup]
+    shape = arrays[0].shape
+    for v in arrays:
+        if v.shape != shape:
+            raise ValueError("All input arrays must have the same shape")
+    res = np.array(arrays).T
+    if len(shape) > 1:
+        return res[0]
+    return res
+
+def leastSquaresCircleMatrix(listOfX, listOfY):
+    #Circle equation:
+    # (x-xc)^2 + (y-yc)^2 = r^2
+    # x^2 - 2x*xc + xc^2 + y^2 - 2y*yc + yc^2 = r^2
+    # 2x*xc + 2y*yc + alpha = x^2 + y^2     where alpha = r^2 - xc^2 - yc^2
+    # A * [xc] = B
+    #     [yc]
+    #     [al]
+    #
+    # A = [2x_1, 2y_1, 1]
+   	#     [2x_2, 2y_2, 1]
+    
+    numPoints = len(listOfX)
+    
+    #a = np.column_stack((np.multiply(listOfX, 2), np.multiply(listOfY, 2), [1]*len(listOfX)))
+    #a_t = np.array([np.multiply(listOfX, 2), np.multiply(listOfY, 2), [1]*numPoints]).reshape(3, numPoints)
+    x2 = np.multiply(listOfX, 2)
+    y2 = np.multiply(listOfY, 2)
+    ones = [1]*len(listOfX)
+    #mytuple = (x2, y2, ones)
+    #a = my_column_stack(mytuple)
+    #a_t_array = np.array([x2, y2, ones])
+    #a_t_array = x2.tolist() + y2.tolist() + ones
+    a_t = np.matrix([x2, y2, ones])
+    a_t = a_t.astype(np.float)
+    #print(a_t)
+    b = np.transpose([np.add(np.square(listOfX), np.square(listOfY))])
+    b = b.astype(np.float)
+    #print(b)
+    
+    # A^T*A * [xc] = A^T*B
+    #         [yc]
+    #         [al]
+    #
+    #    C    [xc] = D
+    #         [yc]
+    #         [al]
+
+    a = np.transpose(a_t)
+    #print(a)
+    c = a_t @ a
+    d = a_t @ b
+
+    xcycal = np.linalg.solve(c, d)
+    xc = xcycal[0]
+    yc = xcycal[1]
+    alpha = xcycal[2]
+    r = math.sqrt(alpha + xc*xc + yc*yc)
+
+    #print(xc, yc, r)
+
+    return xc, yc, r
+
+
+
 def getCircle():
     img = cv2.imread("./caps/d_16.bmp", cv2.IMREAD_GRAYSCALE)
 #    cv2.imshow("Immagine", img)
@@ -528,6 +592,17 @@ x = xy[0]
 y = xy[1]
 #print("Points:")
 #print(points)
+#leastSquaresCircleMatrix([0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],[0.0, 0.25, 1.0, 2.25, 4.0, 6.25, 9.0])
+# t1 = cv2.getTickCount()
+# for i in range(1000):
+#     xc, yc, r = leastSquaresCircleMatrix(x, y)
+# t2 = cv2.getTickCount()
+# time = (t2-t1)/cv2.getTickFrequency()/10000
+# print("Time: " + str(time))
+# print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
+# print("Radius: " + str(r))
+#printCircle(xc, yc, r)
+#sys.exit(1)
 
 print("--------------------------")
 
@@ -540,7 +615,7 @@ print("Time: " + str(time))
 print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
 print("Radius: " + str(r))
 
-printCircle(xc, yc, r)
+#printCircle(xc, yc, r)
 
 
 #circleDetection(180, 160, 3, True, 5, 100)
