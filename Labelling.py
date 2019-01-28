@@ -100,4 +100,8 @@ def bestLabelling(file):
     print ()
     print ('total: ' + str(time1 + time2 + time3))
 
-bestLabelling('d_16.bmp')
+#bestLabelling('d_16.bmp')
+
+a = [('x1', 'x2'), ('y1','y2')]
+
+print (np.transpose(np.transpose(a))[0])
