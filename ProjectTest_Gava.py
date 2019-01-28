@@ -375,11 +375,63 @@ def leastSquaresCircleFit(points):
 
     return xc, yc, r
 
+def leastSquaresCircleFitCached(points):
+    
+    #print("N: " + str(len(points)))
+    x_ = np.sum(x for x, _ in points) / len(points)
+    #print("x_: " + str(x_))
+    y_ = np.sum(y for _, y in points) / len(points)
+    #print("y_: " + str(y_))
+    #print("--------------------------")
+
+    u = []
+    v = []       
+    for x_i, y_i in points:
+        u.append(x_i - x_)
+        v.append(y_i - y_)
+
+    #print("u:")
+    #print(u)
+    #print("--------------------------")
+    #print("v:")
+    #print(v)
+    #print("--------------------------")
+    
+    #cache version
+    usquare = np.square(u)
+    vsquare = np.square(v)
+    suu = sum(usquare)
+    suv = sum(np.multiply(u, v))
+    svv = sum(np.square(v))
+    suuu = sum(np.multiply(u, usquare))
+    svvv = sum(np.multiply(v, vsquare))
+    suvv = sum(np.multiply(u, vsquare))
+    svuu = sum(np.multiply(v, usquare))
+    
+    ucvc = np.linalg.solve(np.array([[suu, suv], [suv, svv]]), np.array([(suuu+suvv)/2, (svvv+svuu)/2]))
+    #print("uc: " + str(ucvc[0]))
+    #print("vc: " + str(ucvc[1]))
+    xc = ucvc[0] + x_
+    yc = ucvc[1] + y_   
+    alfa = ucvc[0]**2 + ucvc[1]**2 + (suu+svv)/len(points)
+    #print("alfa: " + str(alfa))
+    r = math.sqrt(alfa)
+
+    return xc, yc, r
+
 points = [(0.0, 0.0), (0.5, 0.25), (1.0, 1.0), (1.5, 2.25), (2.0, 4.0), (2.5, 6.25), (3.0, 9.0)]
 print("Points:")
 print(points)
 
 print("--------------------------")
+
+t1 = cv2.getTickCount()
+xc, yc, r = leastSquaresCircleFitCached(points)
+t2 = cv2.getTickCount()
+time = (t2-t1)/cv2.getTickFrequency()
+print("Time Cached: " + str(time))
+print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
+print("Radius: " + str(r))
 
 t1 = cv2.getTickCount()
 xc, yc, r = leastSquaresCircleFit(points)
