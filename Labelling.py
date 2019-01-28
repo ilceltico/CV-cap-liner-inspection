@@ -69,48 +69,35 @@ def labelling():
 #        print (pixel)
 #    print ('--------------------')
 
-file = 'd_16.bmp'
+def bestLabelling(file):
+    img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
-img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+    t1 =  cv2.getTickCount()
 
-edges = cv2.Canny(img, 180, 160, apertureSize=3, L2gradient=True)
+    edges = cv2.Canny(img, 180, 160, apertureSize=3, L2gradient=True)
 
-t1 = cv2.getTickCount()
+    t2 = cv2.getTickCount()
 
-retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_GRANA)
+    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_GRANA)
 
-t2 = cv2.getTickCount()
+    t3 = cv2.getTickCount()
 
+    blobs = np.full(retVal - 1, None)
 
-#blobs = [[] for x in range(0, retVal - 1)]
-#rows, cols = edges.shape
+    for i in np.arange(retVal - 1):
+        blobs[i] = np.argwhere(labels == i + 1)
 
-#for row in range (0, rows):
-#    for col in range(0, cols):
-#        temp = labels[row][col]
-#        if temp != 0:
-#            blobs[temp - 1].append((row, col))
+    t4 = cv2.getTickCount()
 
-#for i in range(1, retVal):
-#    blobs[i - 1] = [index for index, pixel in np.ndenumerate(labels) if pixel == i]
+    time1 = (t2 - t1)/ cv2.getTickFrequency()
+    time2 = (t3 - t2)/ cv2.getTickFrequency()
+    time3 = (t4 - t3)/ cv2.getTickFrequency()
 
-#for index, pixel in np.ndenumerate(labels):
-#    if pixel != 0:
-#        blobs[pixel - 1].append(index)
+    print(file)
+    print ('canny: ' + str(time1))
+    print ('labelling: ' + str(time2))
+    print ('blob estraction: ' + str(time3))
+    print ()
+    print ('total: ' + str(time1 + time2 + time3))
 
-#blobs = np.full(retVal - 1, None)
-
-#for i in np.arange(retVal - 1):
-#    temp = []
-#    arg = np.argwhere(blobs == i + 1)
-#    temp.append(arg)
-#    blobs[i] = temp
-
-t3 = cv2.getTickCount()
-time1 = (t2 - t1)/ cv2.getTickFrequency()
-time2 = (t3 - t2)/ cv2.getTickFrequency()
-
-print (time1)
-print (time2)
-
-print (blobs)
+bestLabelling('d_16.bmp')
