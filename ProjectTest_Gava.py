@@ -327,72 +327,51 @@ def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage
 #        img[x][y] = 0
 
 def leastSquaresCircleFit(points):
-    x = []
-    y = []
-    print("N: " + str(len(points)))
-    for x_i, y_i in points:
-        x.append(x_i)
-        y.append(y_i)
     
-    print("--------------------------")
-    print(x)
-    x_ = sum(x) / len(points)
-    print("x_: " + str(x_))
-
-    print("--------------------------")
-
-    print(y)
-    y_ = sum(y) / len(points)
-    print("y_: " + str(y_))
-
-    print("--------------------------")
+    #print("N: " + str(len(points)))
+    x_ = np.sum(x for x, _ in points) / len(points)
+    #print("x_: " + str(x_))
+    y_ = np.sum(y for _, y in points) / len(points)
+    #print("y_: " + str(y_))
+    #print("--------------------------")
 
     u = []
-    v = []
-    for i in range(0, len(points)):
-        u.append(x[i] - x_)
-        v.append(y[i] - y_)
+    v = []       
+    for x_i, y_i in points:
+        u.append(x_i - x_)
+        v.append(y_i - y_)
 
-    print("u:")
-    print(u)
-    print("--------------------------")
-    print("v:")
-    print(v)
-
-    print("--------------------------")
+    #print("u:")
+    #print(u)
+    #print("--------------------------")
+    #print("v:")
+    #print(v)
+    #print("--------------------------")
     
     suu = sum(np.square(u))
-    print("Suu: " + str(suu))
+    #print("Suu: " + str(suu))
     suv = sum(np.multiply(u, v))
-    print("Suv: " + str(suv))
+    #print("Suv: " + str(suv))
     svv = sum(np.square(v))
-    print("Svv: " + str(svv))
+    #print("Svv: " + str(svv))
     suuu = sum(np.multiply(u, np.square(u)))
-    print("Suuu: " + str(suuu))
+    #print("Suuu: " + str(suuu))
     svvv = sum(np.multiply(v, np.square(v)))
-    print("Svvv: " + str(svvv))
+    #print("Svvv: " + str(svvv))
     suvv = sum(np.multiply(u, np.square(v)))
-    print("Suvv: " + str(suvv))
+    #print("Suvv: " + str(suvv))
     svuu = sum(np.multiply(v, np.square(u)))
-    print("Svuu: " + str(svuu))
-
-    print("--------------------------")
-
-    a = np.array([[suu, suv], [suv, svv]])
-    b = np.array([(suuu+suvv)/2, (svvv+svuu)/2])
-    sol = np.linalg.solve(a,b)
-    uc = sol[0]
-    print("uc: " + str(uc))
-    vc = sol[1]
-    print("vc: " + str(vc))
-    xc = uc + x_
-    print("xc: " + str(xc))
-    yc = vc + y_
-    print("yc: " + str(yc))    
-    alfa = uc**2 + vc**2 + (suu+svv)/len(points)
-    print("alfa: " + str(alfa))
+    #print("Svuu: " + str(svuu))
+    #print("--------------------------")
+    
+    ucvc = np.linalg.solve(np.array([[suu, suv], [suv, svv]]), np.array([(suuu+suvv)/2, (svvv+svuu)/2]))
+    #print("uc: " + str(ucvc[0]))
+    #print("vc: " + str(ucvc[1]))
+    xc = ucvc[0] + x_
+    yc = ucvc[1] + y_   
+    alfa = ucvc[0]**2 + ucvc[1]**2 + (suu+svv)/len(points)
+    #print("alfa: " + str(alfa))
     r = math.sqrt(alfa)
-    print("r: " + str(r))
 
     return xc, yc, r
 
