@@ -378,22 +378,47 @@ def leastSquaresCircleFit(points):
 
 @profile
 def leastSquaresCircleFitCached(points):
+
+	#Good
+    #x = [p[0] for p in points]
+    #y = [p[1] for p in points]
+
+    #Better
+    #x,y = zip(*points)
+
+    #Best
+    xy=np.transpose(points)
+    x=xy[0]
+    y=xy[1]
     
     #print("N: " + str(len(points)))
-    x_ = np.sum(x for x, _ in points) / len(points)
+    #x_ = np.sum(x for x, _ in points) / len(points)
+    x_ = np.sum(x)/len(points)
     #print("x_: " + str(x_))
-    y_ = np.sum(y for _, y in points) / len(points)
+    #y_ = np.sum(y for _, y in points) / len(points)
+    y_ = np.sum(y)/len(points)
     #print("y_: " + str(y_))
     #print("--------------------------")
 
+    #Slow
     # u = []
     # v = []       
     # for x_i, y_i in points:
     #     u.append(x_i - x_)
     #     v.append(y_i - y_)
-    u = [x - x_ for x, _ in points]
-    v = [y - y_ for _, y in points]
 
+    #Works only for tuples
+    #u = [x - x_ for x, _ in points]
+    #v = [y - y_ for _, y in points]
+    
+    #Works for both tuples and lists
+    #u = [p[0] - x_ for p in points]
+    #v = [p[1] - y_ for p in points]
+    
+    #Best
+    u = x - x_
+    v = y - y_
+    
     #print("u:")
     #print(u)
     #print("--------------------------")
@@ -404,13 +429,13 @@ def leastSquaresCircleFitCached(points):
     #cache version
     usquare = np.square(u)
     vsquare = np.square(v)
-    suu = sum(usquare)
-    suv = sum(np.multiply(u, v))
-    svv = sum(np.square(v))
-    suuu = sum(np.multiply(u, usquare))
-    svvv = sum(np.multiply(v, vsquare))
-    suvv = sum(np.multiply(u, vsquare))
-    svuu = sum(np.multiply(v, usquare))
+    suu = np.sum(usquare)
+    suv = np.sum(np.multiply(u, v))
+    svv = np.sum(np.square(v))
+    suuu = np.sum(np.multiply(u, usquare))
+    svvv = np.sum(np.multiply(v, vsquare))
+    suvv = np.sum(np.multiply(u, vsquare))
+    svuu = np.sum(np.multiply(v, usquare))
     
     ucvc = np.linalg.solve(np.array([[suu, suv], [suv, svv]]), np.array([(suuu+suvv)/2, (svvv+svuu)/2]))
     #print("uc: " + str(ucvc[0]))
