@@ -326,7 +326,6 @@ def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage
 
 #        img[x][y] = 0
 
-@profile
 def leastSquaresCircleFit(points):
     
     #print("N: " + str(len(points)))
@@ -377,7 +376,7 @@ def leastSquaresCircleFit(points):
     return xc, yc, r
 
 @profile
-def leastSquaresCircleFitCached(points):
+def leastSquaresCircleFitCached(listOfX, listofY):
 
 	#Good
     #x = [p[0] for p in points]
@@ -387,16 +386,17 @@ def leastSquaresCircleFitCached(points):
     #x,y = zip(*points)
 
     #Best
-    xy=np.transpose(points)
-    x=xy[0]
-    y=xy[1]
-    
+    #xy=np.transpose(points)
+    x=listOfX
+    y=listofY
+    numPoints = len(x)
+
     #print("N: " + str(len(points)))
     #x_ = np.sum(x for x, _ in points) / len(points)
-    x_ = np.sum(x)/len(points)
+    x_ = np.sum(x)/numPoints
     #print("x_: " + str(x_))
     #y_ = np.sum(y for _, y in points) / len(points)
-    y_ = np.sum(y)/len(points)
+    y_ = np.sum(y)/numPoints
     #print("y_: " + str(y_))
     #print("--------------------------")
 
@@ -431,18 +431,44 @@ def leastSquaresCircleFitCached(points):
     vsquare = np.square(v)
     suu = np.sum(usquare)
     suv = np.sum(np.multiply(u, v))
-    svv = np.sum(np.square(v))
+    svv = np.sum(vsquare)
     suuu = np.sum(np.multiply(u, usquare))
     svvv = np.sum(np.multiply(v, vsquare))
     suvv = np.sum(np.multiply(u, vsquare))
     svuu = np.sum(np.multiply(v, usquare))
     
-    ucvc = np.linalg.solve(np.array([[suu, suv], [suv, svv]]), np.array([(suuu+suvv)/2, (svvv+svuu)/2]))
+    #ucvc = np.linalg.solve(np.array([[suu, suv], [suv, svv]]), np.array([(suuu+suvv)/2, (svvv+svuu)/2]))
+    # suu * uc + suv * vc = (suuu+suvv)/2
+    # suv * uv + svv * vc = (svvv+svuu)/2
+
+    # ax + by = c
+    # dx + ey = f
+
+    # ax + by - a(dx+ey)/d = c - a*f/d
+    # ax + by - ax - aey/d = c - af/d
+    # y(b - ae/d) = c - af/d
+    # y = (c - af/d)/(b - ae/d) = (dc - af)/(bd - ae)
+
+    # x = (f - ey)/d
+    #a = suu
+    #b = suv
+    #c = (suuu+suvv)/2
+    #d = suv
+    #e = svv
+    #f = (svvv+svuu)/2
+
+    vc = (suv*(suuu+suvv)/2 - suu*(svvv+svuu)/2)/(suv*suv - suu*svv)
+    uc = ((svvv+svuu)/2 - svv*vc)/suv
+
+    xc = uc + x_
+    yc = vc + y_
+    alfa = uc*uc + vc*vc + (suu+svv)/numPoints
+    
     #print("uc: " + str(ucvc[0]))
     #print("vc: " + str(ucvc[1]))
-    xc = ucvc[0] + x_
-    yc = ucvc[1] + y_   
-    alfa = ucvc[0]**2 + ucvc[1]**2 + (suu+svv)/len(points)
+    #xc = ucvc[0] + x_
+    #yc = ucvc[1] + y_   
+    #alfa = ucvc[0]**2 + ucvc[1]**2 + (suu+svv)/len(points)
     #print("alfa: " + str(alfa))
     r = math.sqrt(alfa)
 
@@ -497,21 +523,24 @@ def printCircle(xcentro, ycentro, raggio):
 # print("--------------------------")
 
 points = getCircle()
-print("Points:")
-print(points)
+xy = np.transpose(points)
+x = xy[0]
+y = xy[1]
+#print("Points:")
+#print(points)
 
 print("--------------------------")
 
 t1 = cv2.getTickCount()
-for i in range(1000):
-	xc, yc, r = leastSquaresCircleFitCached(points)
+for i in range(10000):
+	xc, yc, r = leastSquaresCircleFitCached(x, y)
 t2 = cv2.getTickCount()
-time = (t2-t1)/cv2.getTickFrequency()/1000
+time = (t2-t1)/cv2.getTickFrequency()/10000
 print("Time: " + str(time))
 print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
 print("Radius: " + str(r))
 
-#printCircle(xc, yc, r)
+printCircle(xc, yc, r)
 
 
 #circleDetection(180, 160, 3, True, 5, 100)
