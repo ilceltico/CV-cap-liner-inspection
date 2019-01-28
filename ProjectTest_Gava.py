@@ -326,6 +326,7 @@ def circleDetection(threshold1, threshold2, apertureSize, L2gradient, percentage
 
 #        img[x][y] = 0
 
+@profile
 def leastSquaresCircleFit(points):
     
     #print("N: " + str(len(points)))
@@ -375,6 +376,7 @@ def leastSquaresCircleFit(points):
 
     return xc, yc, r
 
+@profile
 def leastSquaresCircleFitCached(points):
     
     #print("N: " + str(len(points)))
@@ -384,11 +386,13 @@ def leastSquaresCircleFitCached(points):
     #print("y_: " + str(y_))
     #print("--------------------------")
 
-    u = []
-    v = []       
-    for x_i, y_i in points:
-        u.append(x_i - x_)
-        v.append(y_i - y_)
+    # u = []
+    # v = []       
+    # for x_i, y_i in points:
+    #     u.append(x_i - x_)
+    #     v.append(y_i - y_)
+    u = [x - x_ for x, _ in points]
+    v = [y - y_ for _, y in points]
 
     #print("u:")
     #print(u)
@@ -421,16 +425,16 @@ def leastSquaresCircleFitCached(points):
 
 def getCircle():
     img = cv2.imread("./caps/d_16.bmp", cv2.IMREAD_GRAYSCALE)
-    cv2.imshow("Immagine", img)
+#    cv2.imshow("Immagine", img)
     edge = cv2.Canny(img, 130, 150)
-    cv2.imshow("Edge", edge)
+#    cv2.imshow("Edge", edge)
     circle = cv2.findNonZero(edge)
     points = []
     for point in circle.tolist():
         points.append((point[0][1], point[0][0]))
 
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+#    cv2.waitKey()
+#    cv2.destroyAllWindows()
     return points
 
 def printCircle(xcentro, ycentro, raggio):
@@ -441,31 +445,31 @@ def printCircle(xcentro, ycentro, raggio):
     cv2.waitKey()
     cv2.destroyAllWindows()
 
-points = [(0.0, 0.0), (0.5, 0.25), (1.0, 1.0), (1.5, 2.25), (2.0, 4.0), (2.5, 6.25), (3.0, 9.0)]
-print("Points:")
-print(points)
+# points = [(0.0, 0.0), (0.5, 0.25), (1.0, 1.0), (1.5, 2.25), (2.0, 4.0), (2.5, 6.25), (3.0, 9.0)]
+# print("Points:")
+# print(points)
 
-print("--------------------------")
+# print("--------------------------")
 
-t1 = cv2.getTickCount()
-xc, yc, r = leastSquaresCircleFitCached(points)
-t2 = cv2.getTickCount()
-time = (t2-t1)/cv2.getTickFrequency()
-print("Time Cached: " + str(time))
-print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
-print("Radius: " + str(r))
+# t1 = cv2.getTickCount()
+# xc, yc, r = leastSquaresCircleFitCached(points)
+# t2 = cv2.getTickCount()
+# time = (t2-t1)/cv2.getTickFrequency()
+# print("Time Cached: " + str(time))
+# print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
+# print("Radius: " + str(r))
 
-print("--------------------------")
+# print("--------------------------")
 
-t1 = cv2.getTickCount()
-xc, yc, r = leastSquaresCircleFit(points)
-t2 = cv2.getTickCount()
-time = (t2-t1)/cv2.getTickFrequency()
-print("Time: " + str(time))
-print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
-print("Radius: " + str(r))
+# t1 = cv2.getTickCount()
+# xc, yc, r = leastSquaresCircleFit(points)
+# t2 = cv2.getTickCount()
+# time = (t2-t1)/cv2.getTickFrequency()
+# print("Time: " + str(time))
+# print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
+# print("Radius: " + str(r))
 
-print("--------------------------")
+# print("--------------------------")
 
 points = getCircle()
 print("Points:")
@@ -474,14 +478,15 @@ print(points)
 print("--------------------------")
 
 t1 = cv2.getTickCount()
-xc, yc, r = leastSquaresCircleFit(points)
+for i in range(1000):
+	xc, yc, r = leastSquaresCircleFitCached(points)
 t2 = cv2.getTickCount()
-time = (t2-t1)/cv2.getTickFrequency()
+time = (t2-t1)/cv2.getTickFrequency()/1000
 print("Time: " + str(time))
 print("Center of the circle: (" + str(xc) + ", " + str(yc) + ")")
 print("Radius: " + str(r))
 
-printCircle(xc, yc, r)
+#printCircle(xc, yc, r)
 
 
 #circleDetection(180, 160, 3, True, 5, 100)
