@@ -69,6 +69,7 @@ def labelling():
 #        print (pixel)
 #    print ('--------------------')
 
+@profile
 def bestLabelling(file):
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
@@ -76,22 +77,33 @@ def bestLabelling(file):
 
     edges = cv2.Canny(img, 180, 160, apertureSize=3, L2gradient=True)
 
+    cv2.imshow('aaa', edges)
+    cv2.waitKey()
+
     t2 = cv2.getTickCount()
 
-    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_GRANA)
+    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
 
     t3 = cv2.getTickCount()
 
-    blobs = np.full(retVal - 1, None)
+    #blobs = np.full(retVal - 1, None)
+    #blobs = [] * (retVal - 1)
+    blobs = []
 
     for i in np.arange(retVal - 1):
-        blobs[i] = np.argwhere(labels == i + 1)
+        #blobs[i] = np.where(labels == i + 1)
+        #blobs.append(np.where(labels == i + 1))
+        #blobs.append([index for index, pixel in np.ndenumerate(labels) if pixel == i + 1])
+        pass
+   
 
+    blobs = []
+    
     t4 = cv2.getTickCount()
 
-    time1 = (t2 - t1)/ cv2.getTickFrequency()
-    time2 = (t3 - t2)/ cv2.getTickFrequency()
-    time3 = (t4 - t3)/ cv2.getTickFrequency()
+    time1 = (t2 - t1) / cv2.getTickFrequency()
+    time2 = (t3 - t2) / cv2.getTickFrequency()
+    time3 = (t4 - t3) / cv2.getTickFrequency()
 
     print(file)
     print ('canny: ' + str(time1))
@@ -100,8 +112,12 @@ def bestLabelling(file):
     print ()
     print ('total: ' + str(time1 + time2 + time3))
 
-#bestLabelling('d_16.bmp')
+    return [np.where(labels == i + 1) for i in np.arange(retVal - 1)]
 
-a = [('x1', 'x2'), ('y1','y2')]
+for i in range(0, 10):
+    bestLabelling('d_16.bmp')
 
-print (np.transpose(np.transpose(a))[0])
+#res = bestLabelling('d_16.bmp')
+
+#for i in res:
+#    print (i)
