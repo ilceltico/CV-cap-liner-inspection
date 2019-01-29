@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\caps"
+    "\\caps",
+    "\\__pycache__"
   ],
-  "SelectedNode": "\\Labelling.py",
+  "SelectedNode": "\\Labelling.py.lprof",
   "PreviewInSolutionExplorer": false
 }

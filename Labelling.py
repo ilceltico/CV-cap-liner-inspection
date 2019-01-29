@@ -69,13 +69,13 @@ def labelling():
 #        print (pixel)
 #    print ('--------------------')
 
-@profile
+#@profile
 def bestLabelling(file):
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
     t1 =  cv2.getTickCount()
 
-    edges = cv2.Canny(img, 180, 160, apertureSize=3, L2gradient=True)
+    edges = cv2.Canny(img, 100, 100, apertureSize=3, L2gradient=False)
 
     cv2.imshow('aaa', edges)
     cv2.waitKey()
@@ -105,17 +105,17 @@ def bestLabelling(file):
     time2 = (t3 - t2) / cv2.getTickFrequency()
     time3 = (t4 - t3) / cv2.getTickFrequency()
 
-    print(file)
-    print ('canny: ' + str(time1))
-    print ('labelling: ' + str(time2))
-    print ('blob estraction: ' + str(time3))
-    print ()
-    print ('total: ' + str(time1 + time2 + time3))
+    #print(file)
+    #print ('canny: ' + str(time1))
+    #print ('labelling: ' + str(time2))
+    #print ('blob estraction: ' + str(time3))
+    #print ()
+    #print ('total: ' + str(time1 + time2 + time3))
 
     return [np.where(labels == i + 1) for i in np.arange(retVal - 1)]
 
-for i in range(0, 10):
-    bestLabelling('d_16.bmp')
+#for i in range(0, 10):
+#    bestLabelling('d_16.bmp')
 
 #res = bestLabelling('d_16.bmp')
 
