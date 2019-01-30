@@ -69,7 +69,7 @@ def labelling():
 #        print (pixel)
 #    print ('--------------------')
 
-#@profile
+@profile
 def bestLabelling(file):
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
@@ -77,8 +77,8 @@ def bestLabelling(file):
 
     edges = cv2.Canny(img, 100, 100, apertureSize=3, L2gradient=False)
 
-    cv2.imshow('aaa', edges)
-    cv2.waitKey()
+    #cv2.imshow('aaa', edges)
+    #cv2.waitKey()
 
     t2 = cv2.getTickCount()
 
@@ -90,20 +90,58 @@ def bestLabelling(file):
     #blobs = [] * (retVal - 1)
     blobs = []
 
-    for i in np.arange(retVal - 1):
-        #blobs[i] = np.where(labels == i + 1)
-        #blobs.append(np.where(labels == i + 1))
-        #blobs.append([index for index, pixel in np.ndenumerate(labels) if pixel == i + 1])
-        pass
+    #for i in np.arange(retVal - 1):
+    #    #blobs[i] = np.where(labels == i + 1)
+    #    #blobs.append(np.where(labels == i + 1))
+    #    blobs.append([index for index, pixel in np.ndenumerate(labels) if pixel == i + 1])
    
 
-    blobs = []
-    
-    t4 = cv2.getTickCount()
+    #blobs = [[]] * (retVal - 1)
 
-    time1 = (t2 - t1) / cv2.getTickFrequency()
-    time2 = (t3 - t2) / cv2.getTickFrequency()
-    time3 = (t4 - t3) / cv2.getTickFrequency()
+    #rows, cols = labels.shape
+
+    #for row in range(0, rows):
+    #    for col in range(0, cols):
+    #        p = labels[row][col]
+    #        if p != 0:
+    #            blobs[p].append((row, col))
+
+    #for i, row in enumerate(labels):
+    #    for j, pixel in enumerate(row):
+    #        if pixel  != 0:
+    #            blobs[pixel - 1].append((i, j))
+
+    #result = [[] for i in range(retVal)]
+    
+    #for i in range(retVal):
+    #    result[i] = (blobsX[i], blobsY[i])
+
+    #return result
+
+
+
+
+
+
+    #blobsX = [[] for i in range(retVal)]
+    #blobsY = [[] for i in range(retVal)]
+
+    #rows, cols = labels.shape
+
+    #for row in range(0, rows):
+    #    for col in range(0, cols):
+    #        p = labels[row][col]
+    #        if p != 0:
+    #            blobsX[p - 1].append(row)
+    #            blobsY[p - 1].append(col)
+    
+    #t4 = cv2.getTickCount()
+
+    #time1 = (t2 - t1) / cv2.getTickFrequency()
+    #time2 = (t3 - t2) / cv2.getTickFrequency()
+    #time3 = (t4 - t3) / cv2.getTickFrequency()
+
+
 
     #print(file)
     #print ('canny: ' + str(time1))
@@ -112,7 +150,70 @@ def bestLabelling(file):
     #print ()
     #print ('total: ' + str(time1 + time2 + time3))
 
-    return [np.where(labels == i + 1) for i in np.arange(retVal - 1)]
+
+
+    nonzero = np.nonzero(labels)
+
+    blobsX = [[] for i in range(retVal)]
+    blobsY = [[] for i in range(retVal)]
+
+    #nonzero = (nonzeroArrays[0].tolist(), nonzeroArrays[1].tolist())
+
+    for i in range(0, len(nonzero[0])):
+        x = nonzero[0][i]
+        y = nonzero[1][i]
+
+        p = labels[x][y]
+
+        blobsX[p - 1].append(x)
+        blobsY[p - 1].append(y)
+
+
+
+    result = [[] for i in range(retVal)]
+    
+    for i in range(retVal):
+        result[i] = (blobsX[i], blobsY[i])
+
+    return result
+
+
+
+
+    
+    #nonzeroN = np.nonzero(labels)
+    #matrix = np.matrix(nonzeroN)
+    ##nonzero = [nonzeroN[0].tolist(), nonzeroN[1].tolist()]
+
+    ##print (nonzero)
+
+    #blobsX = [[] for i in range(retVal)]
+    #blobsY = [[] for i in range(retVal)]
+
+    #for xy in np.nditer(matrix, flags=['external_loop'], order='F'):
+    #    x = xy[0]
+    #    y = xy[1]
+
+    #    #print (xy)
+    #    #print (x)
+
+    #    p = labels[x][y]
+
+    #    blobsX[p - 1].append(x)
+    #    blobsY[p - 1].append(y)
+
+
+
+    #result = [[] for i in range(retVal)]
+    
+    #for i in range(retVal):
+    #    result[i] = (blobsX[i], blobsY[i])
+
+    #return result
+    
+    #a = [np.where(labels == i + 1) for i in np.arange(retVal - 1)]
+
+    #return a
 
 #for i in range(0, 10):
 #    bestLabelling('d_16.bmp')

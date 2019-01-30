@@ -57,37 +57,46 @@ def outliersElimination(circles, thresholds):
 #    a = outliersElimination(circles, thresholds)
 #    #print (a)
 
+@profile
+def test():
+    blobs = Labelling.bestLabelling('d_16.bmp')
 
-blobs = Labelling.bestLabelling('d_16.bmp')
+    #for i in blobs:
+    #    print (i)
 
-#for i in range(0, len(blobs)):
-#    print (i)
-#    print (blobs[i])
+    #for i in range(0, len(blobs)):
+    #    print (i)
+    #    print (blobs[i])
 
-#print (len(blobs))
+    print (len(blobs))
 
-img = cv2.imread('./caps/d_16.bmp', cv2.IMREAD_COLOR)
-cv2.imshow('original', img)
-cv2.waitKey()
+    img = cv2.imread('./caps/d_16.bmp', cv2.IMREAD_COLOR)
+    #cv2.imshow('original', img)
+    #cv2.waitKey()
 
-circles = []
+    circles = []
 
-for blob in blobs:
-    x, y, r, n = ProjectTest_Gava.leastSquaresCircleFitCached(blob[0], blob[1])
-    #print (x)
-    #print (y)
-    #print (r)
+    for blob in blobs:
+        x, y, r, n = ProjectTest_Gava.leastSquaresCircleFitCached(blob[0], blob[1])
+        #print (x)
+        #print (y)
+        #print (r)
 
-    if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-        #cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-        #cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
-        #cv2.imshow('circles', img)
-        #cv2.waitKey()
-        circles.append((x, y, r, n))
+        if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+            #cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
+            #cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            #cv2.imshow('circles', img)
+            #cv2.waitKey()
+            circles.append((x, y, r, n))
 
-print (len(circles))
-x, y, r = outliersElimination(circles, (50, 30))
-cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
-cv2.imshow('circles', img)
-cv2.waitKey()
+    print (len(circles))
+    x, y, r = outliersElimination(circles, (50, 30))
+    #cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
+    #cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+    #cv2.imshow('circles', img)
+    #cv2.waitKey()
+
+
+for i in range(0, 10):
+    test()
+    print (i)
