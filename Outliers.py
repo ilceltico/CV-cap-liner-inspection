@@ -13,6 +13,17 @@ def outliersElimination(circles, thresholds):
     sums = [sum(a) for a in zip(*weighted)]
     finalCircle = [el/sums[3] for el in sums]
 
+    #print (finalCircle)
+
+
+    #splitted = np.split(circles, [3], axis=1)
+    #values = splitted[0].tolist()
+    #weights = [w[0] for w in splitted[1]]
+
+    #res = np.average(values, axis=0, weights=weights)
+
+    #print (res)
+
     #xAccumulator = 0.0
     #yAccumulator = 0.0
     #rAccumulator = 0.0
@@ -31,11 +42,13 @@ def outliersElimination(circles, thresholds):
     #print (newY)
     #print (newR)
 
-    circlesRemaining = []
+    #circlesRemaining = []
 
-    for element in circles:
-        if math.sqrt((element[0] - finalCircle[0]) ** 2 + (element[1] - finalCircle[1]) ** 2) <= thresholds[0] and abs(element[2] - finalCircle[2]) <= thresholds[1]:
-            circlesRemaining.append(element)
+    #for element in circles:
+    #    if math.sqrt((element[0] - finalCircle[0]) ** 2 + (element[1] - finalCircle[1]) ** 2) <= thresholds[0] and abs(element[2] - finalCircle[2]) <= thresholds[1]:
+    #        circlesRemaining.append(element)
+
+    circlesRemaining = [(x, y, r, n) for x, y, r, n in circles if math.sqrt((x - finalCircle[0]) ** 2 + (y - finalCircle[1]) ** 2) <= thresholds[0] and abs(r - finalCircle[2]) <= thresholds[1]]
     
     #print (len(circles))
     #print (circles)
@@ -44,20 +57,30 @@ def outliersElimination(circles, thresholds):
     sums2 = [sum(a) for a in zip(*weighted2)]
     finalCircle2 = [el/sums2[3] for el in sums2]
 
+    #splitted2 = np.split(circlesRemaining, [3], axis=1)
+    #values2 = splitted2[0].tolist()
+    #weights2 = [w[0] for w in splitted2[1]]
+
+    #res2 = np.average(values2, axis=0, weights=weights2)
+
+    #print (res2)
+
     #weightedSums2 = [np.sum([x * n, y * n, r * n, n], axis=0) for x, y, r, n in circles]
     #finalCircle2 = [el/weightedSums2[3] for el in weightedSums2]
+
+    #print (finalCircle2)
 
     return finalCircle2[0], finalCircle2[1], finalCircle2[2]
 
 
-#circles = [(281.3, 390.7, 204.7, 1890), (276.5, 387.4, 201.6, 1993), (285.9, 382.5, 200.4, 2123), (1234.9, 1435.3, 54.7, 127)]
-#thresholds = (10, 10)
+circles = [(281.3, 390.7, 204.7, 1890), (276.5, 387.4, 201.6, 1993), (285.9, 382.5, 200.4, 2123), (281.9, 375.5, 201.4, 2004), (1234.9, 1435.3, 54.7, 127)]
+thresholds = (50, 50)
 
 #for i in range (0, 1):
 #    a = outliersElimination(circles, thresholds)
-#    #print (a)
+    #print (a)
 
-@profile
+#@profile
 def test():
     blobs = Labelling.bestLabelling('d_16.bmp')
 
@@ -97,6 +120,6 @@ def test():
     #cv2.waitKey()
 
 
-for i in range(0, 10):
+for i in range(0, 1):
     test()
-    print (i)
+#    print (i)
