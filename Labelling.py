@@ -69,7 +69,7 @@ def labelling():
 #        print (pixel)
 #    print ('--------------------')
 
-@profile
+#@profile
 def bestLabelling(file):
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
@@ -121,6 +121,13 @@ def bestLabelling(file):
 
 
 
+    #nonzero = np.nonzero(labels)
+    #print (labels[nonzero[0][0]][nonzero[1][0]])
+    ##res1 = [np.where([labels[nonzero[0][i]][nonzero[1][i]] == val + 1 for i in range(0, len(nonzero[0]))]) for val in np.arange(retVal - 1)]
+    #res1 = [(nonzero[0][i],nonzero[1][i]) for i in range(0, len(nonzero[0])) for val in np.arange(retVal - 1) if labels[nonzero[0][i]][nonzero[1][i]] == val + 1 ]
+
+
+    #res2 = [np.where(labels == i + 1) for i in np.arange(retVal - 1)]
 
 
     #blobsX = [[] for i in range(retVal)]
@@ -177,9 +184,8 @@ def bestLabelling(file):
 
     return result
 
-
-
-
+    
+    
     
     #nonzeroN = np.nonzero(labels)
     #matrix = np.matrix(nonzeroN)
