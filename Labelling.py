@@ -221,10 +221,12 @@ def bestLabelling(file):
 
     #return a
 
-#for i in range(0, 10):
-#    bestLabelling('d_16.bmp')
 
-#res = bestLabelling('d_16.bmp')
+if __name__ == '__main__':
+    for i in range(0, 10):
+        bestLabelling('d_16.bmp')
 
-#for i in res:
-#    print (i)
+    #res = bestLabelling('d_16.bmp')
+
+    #for i in res:
+    #    print (i)

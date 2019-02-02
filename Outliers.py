@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 import math
-import Labelling
-import ProjectTest_Gava
+import labelling
+import circledetection
 
 #@profile
 def outliersElimination(circles, thresholds):
@@ -72,17 +72,9 @@ def outliersElimination(circles, thresholds):
 
     return finalCircle2[0], finalCircle2[1], finalCircle2[2]
 
-
-circles = [(281.3, 390.7, 204.7, 1890), (276.5, 387.4, 201.6, 1993), (285.9, 382.5, 200.4, 2123), (281.9, 375.5, 201.4, 2004), (1234.9, 1435.3, 54.7, 127)]
-thresholds = (50, 50)
-
-#for i in range (0, 1):
-#    a = outliersElimination(circles, thresholds)
-    #print (a)
-
 #@profile
 def test():
-    blobs = Labelling.bestLabelling('d_16.bmp')
+    blobs = labelling.bestLabelling('d_16.bmp')
 
     #for i in blobs:
     #    print (i)
@@ -100,7 +92,7 @@ def test():
     circles = []
 
     for blob in blobs:
-        x, y, r, n = ProjectTest_Gava.leastSquaresCircleFitCached(blob[0], blob[1])
+        x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
         #print (x)
         #print (y)
         #print (r)
@@ -119,7 +111,14 @@ def test():
     #cv2.imshow('circles', img)
     #cv2.waitKey()
 
+if __name__ == '__main__':
+    #circles = [(281.3, 390.7, 204.7, 1890), (276.5, 387.4, 201.6, 1993), (285.9, 382.5, 200.4, 2123), (281.9, 375.5, 201.4, 2004), (1234.9, 1435.3, 54.7, 127)]
+    #thresholds = (50, 50)
 
-for i in range(0, 1):
-    test()
-#    print (i)
+    #for i in range (0, 1):
+    #    a = outliersElimination(circles, thresholds)
+    #    print (a)
+
+    for i in range(0, 1):
+        test()
+    #    print (i)

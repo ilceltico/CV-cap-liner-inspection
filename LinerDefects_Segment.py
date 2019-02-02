@@ -73,35 +73,58 @@ import os
 #cv2.imshow('seg2', cimg2)
 #cv2.waitKey()
 
-for file in os.listdir('./caps'):
-    img = cv2.imread('./caps/' + file, cv2.IMREAD_GRAYSCALE)
-    cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    canny = cv2.Canny(img, 50, 100, apertureSize=3, L2gradient=False)
+def findSegments():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('./caps/' + file, cv2.IMREAD_GRAYSCALE)
+        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        canny = cv2.Canny(img, 50, 100, apertureSize=3, L2gradient=False)
 
-    lines = cv2.HoughLines(canny, 1, math.pi/180, 70)
+        segments = cv2.HoughLinesP(canny, 1, math.pi/180, 100)
 
-    rows, cols = img.shape
+        if segments is not none:
+            for segment in segments:
+                cv2.line(cimg, (segment[0][0], segment[0][1]), (segment[0][2], segment[0][3]), (0, 0, 255))
+
+        cv2.imshow('original', img)
+        cv2.imshow('canny', canny)
+        cv2.imshow('defects', cimg)
+        cv2.waitKey()
+
+#@profile
+def findLines():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('./caps/' + file, cv2.IMREAD_GRAYSCALE)
+        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        canny = cv2.Canny(img, 50, 100, apertureSize=3, L2gradient=False)
+
+        lines = cv2.HoughLines(canny, 1, math.pi/180, 70)
+
+        rows, cols = img.shape
     
-    if lines is not None:
-        for line in lines:
-            rho = line[0][0]
-            theta = line[0][1]
-            if theta < math.pi / 4 or theta > 3 * math.pi / 4:
-                x1 = rho / math.cos(theta)
-                y1 = 0
-                x2 = (rho - rows * math.sin(theta)) / math.cos(theta)
-                y2 = rows
-            else:
-                x1 = 0
-                y1 = rho / math.sin(theta)
-                x2 = cols
-                y2 = (rho - cols * math.cos(theta)) / math.sin(theta)
+        if lines is not None:
+            for line in lines:
+                rho = line[0][0]
+                theta = line[0][1]
+                if theta < math.pi / 4 or theta > 3 * math.pi / 4:
+                    x1 = rho / math.cos(theta)
+                    y1 = 0
+                    x2 = (rho - rows * math.sin(theta)) / math.cos(theta)
+                    y2 = rows
+                else:
+                    x1 = 0
+                    y1 = rho / math.sin(theta)
+                    x2 = cols
+                    y2 = (rho - cols * math.cos(theta)) / math.sin(theta)
 
-            cv2.line(cimg, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255))
+                cv2.line(cimg, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255))
 
-    cv2.imshow('original', img)
-    cv2.imshow('canny', canny)
-    cv2.imshow('defects', cimg)
-    cv2.waitKey()
+        cv2.imshow('original', img)
+        cv2.imshow('canny', canny)
+        cv2.imshow('defects', cimg)
+        cv2.waitKey()
 
-cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    for i in range(0, 1):
+        findLines()
+    cv2.destroyAllWindows()
