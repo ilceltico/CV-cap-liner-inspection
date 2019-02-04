@@ -39,14 +39,13 @@ if __name__ == '__main__':
     cv2.imshow("Incomplete Liner Magnitude", incompleteLinerMagnitude)
     cv2.imshow("Missing Liner Magnitude", missingLinerMagnitude)
 
-    temp = cv2.fastNlMeansDenoising(goodCapMagnitude, None, 10, 7, 21)
-    temp = cv2.fastNlMeansDenoising(temp, None, 10, 7, 21)
+    temp = cv2.fastNlMeansDenoising(goodCapMagnitude, None, 18, 7, 21)
     cv2.imshow("temp", temp)
 
     cv2.waitKey()
     cv2.destroyAllWindows()
 
-    blobs = labelling.bestLabelling(temp)
+    blobs = labelling.bestLabellingTestGradient(temp)
 
     #for i in blobs:
     #    print (i)
@@ -70,8 +69,6 @@ if __name__ == '__main__':
         #print (r)
 
         if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-
-
             circles.append((x, y, r, n))
 
     print (len(circles))
