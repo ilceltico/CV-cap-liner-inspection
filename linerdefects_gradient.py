@@ -7,6 +7,7 @@ import random
 import labelling
 import circledetection
 import outliers
+#from sympy import Point
 
 def calcMagnitude(img):
     dx = cv2.Sobel(img, cv2.CV_32F, 1, 0, 3)
@@ -27,8 +28,15 @@ def calcMagnitude(img):
     cv2.destroyAllWindows()
     return res
 
-if __name__ == '__main__':
-    goodCap = cv2.imread("./caps/d_16.bmp", cv2.IMREAD_GRAYSCALE)
+#@profile
+#def checkCollinear(x, y):
+#    points = zip(x, y)
+#    res = Point.is_collinear(*points)
+#    return res
+
+@profile
+def test():
+    goodCap = cv2.imread("./caps/g_04.bmp", cv2.IMREAD_GRAYSCALE)
     incompleteLiner = cv2.imread("./caps/d_18.bmp", cv2.IMREAD_GRAYSCALE)
     missingLiner = cv2.imread("./caps/d_31.bmp", cv2.IMREAD_GRAYSCALE)
     goodCapMagnitude = calcMagnitude(goodCap)
@@ -39,7 +47,7 @@ if __name__ == '__main__':
     cv2.imshow("Incomplete Liner Magnitude", incompleteLinerMagnitude)
     cv2.imshow("Missing Liner Magnitude", missingLinerMagnitude)
 
-    temp = cv2.fastNlMeansDenoising(goodCapMagnitude, None, 18, 7, 21)
+    temp = cv2.fastNlMeansDenoising(goodCapMagnitude, None, 15, 7, 21)
     cv2.imshow("temp", temp)
 
     cv2.waitKey()
@@ -56,20 +64,20 @@ if __name__ == '__main__':
 
     print (len(blobs))
 
-    img = cv2.imread('./caps/d_16.bmp', cv2.IMREAD_COLOR)
+    img = cv2.imread('./caps/g_04.bmp', cv2.IMREAD_COLOR)
     #cv2.imshow('original', img)
     #cv2.waitKey()
 
     circles = []
 
     for blob in blobs:
-        x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-        #print (x)
-        #print (y)
-        #print (r)
-
-        if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-            circles.append((x, y, r, n))
+        #if len(blob[0]) > 1 and checkCollinear(blob[0], blob[1]) == False:
+        #if len(blob[0]) > 1:
+        if len(blob[0]) > 2:
+            x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+            
+            if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                circles.append((x, y, r, n))
 
     print (len(circles))
     x, y, r = outliers.outliersElimination(circles, (100, 100))
@@ -78,3 +86,6 @@ if __name__ == '__main__':
     cv2.imshow('circles', img)
     cv2.waitKey()
     cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    test()
