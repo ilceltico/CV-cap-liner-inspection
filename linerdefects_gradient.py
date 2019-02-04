@@ -43,15 +43,15 @@ def test():
     incompleteLinerMagnitude = calcMagnitude(incompleteLiner)
     missingLinerMagnitude = calcMagnitude(missingLiner)
 
-    cv2.imshow("Good Cap Magnitude", goodCapMagnitude)
-    cv2.imshow("Incomplete Liner Magnitude", incompleteLinerMagnitude)
-    cv2.imshow("Missing Liner Magnitude", missingLinerMagnitude)
+    #cv2.imshow("Good Cap Magnitude", goodCapMagnitude)
+    #cv2.imshow("Incomplete Liner Magnitude", incompleteLinerMagnitude)
+    #cv2.imshow("Missing Liner Magnitude", missingLinerMagnitude)
 
     temp = cv2.fastNlMeansDenoising(goodCapMagnitude, None, 15, 7, 21)
-    cv2.imshow("temp", temp)
+    #cv2.imshow("temp", temp)
 
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    #cv2.waitKey()
+    #cv2.destroyAllWindows()
 
     blobs = labelling.bestLabellingTestGradient(temp)
 
@@ -62,7 +62,7 @@ def test():
     #    print (i)
     #    print (blobs[i])
 
-    print (len(blobs))
+    #print (len(blobs))
 
     img = cv2.imread('./caps/g_04.bmp', cv2.IMREAD_COLOR)
     #cv2.imshow('original', img)
@@ -73,19 +73,20 @@ def test():
     for blob in blobs:
         #if len(blob[0]) > 1 and checkCollinear(blob[0], blob[1]) == False:
         #if len(blob[0]) > 1:
-        if len(blob[0]) > 2:
-            x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+        #if len(blob[0]) > 2:
+        x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
             
-            if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                circles.append((x, y, r, n))
+        if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+            circles.append((x, y, r, n))
 
-    print (len(circles))
+    #print (len(circles))
     x, y, r = outliers.outliersElimination(circles, (100, 100))
     cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
     cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
-    cv2.imshow('circles', img)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    #cv2.imshow('circles', img)
+    #cv2.waitKey()
+    #cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    test()
+    for i in range(0, 10):
+        test()
