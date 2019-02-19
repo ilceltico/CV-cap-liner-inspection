@@ -122,7 +122,7 @@ def test():
     cv2.waitKey()
     cv2.destroyAllWindows()
 
-    blobs = labelling.bestLabellingTestGradient(temp)
+    blobs = labelling.bestLabellingTestGradient(goodCap)
 
     #for i in blobs:
     #    print (i)
@@ -133,7 +133,7 @@ def test():
 
     #print (len(blobs))
 
-    img = cv2.imread('./caps/g_04.bmp', cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(goodCap, cv2.COLOR_GRAY2BGR)
     cv2.imshow('original', img)
     cv2.waitKey()
 

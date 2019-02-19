@@ -8,7 +8,7 @@ def labelling():
 
     img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
-    edges = cv2.Canny(img, 180, 160, apertureSize=3, L2gradient=True)
+    edges = cv2.Canny(img, 160, 180, apertureSize=3, L2gradient=True)
 
     #edges = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
@@ -225,7 +225,7 @@ def bestLabellingTestGradient(img):
 
     t1 =  cv2.getTickCount()
 
-    edges = cv2.Canny(img, 100, 100, apertureSize=3, L2gradient=False)
+    edges = cv2.Canny(img, 40, 100, apertureSize=3, L2gradient=False)   #prima la soglia era 100, 100
 
     t2 = cv2.getTickCount()
 

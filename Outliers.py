@@ -9,6 +9,9 @@ def outliersElimination(circles, thresholds):
     # circles: list of tuple (center x, center y, radius, number of pixel)
     #thresholds: tuple of thresholds (center, radius)
 
+    if len(circles) == 0:
+        return None, None, None
+
     weighted = [[x * n, y * n, r * n, n] for x, y , r, n in circles]
     sums = [sum(a) for a in zip(*weighted)]
     finalCircle = [el/sums[3] for el in sums]
@@ -53,24 +56,27 @@ def outliersElimination(circles, thresholds):
     #print (len(circles))
     #print (circles)
 
-    weighted2 = [[x * n, y * n, r * n, n] for x, y , r, n in circlesRemaining]
-    sums2 = [sum(a) for a in zip(*weighted2)]
-    finalCircle2 = [el/sums2[3] for el in sums2]
+    if len(circlesRemaining) > 0:
+        weighted2 = [[x * n, y * n, r * n, n] for x, y , r, n in circlesRemaining]
+        sums2 = [sum(a) for a in zip(*weighted2)]
+        finalCircle2 = [el/sums2[3] for el in sums2]
 
-    #splitted2 = np.split(circlesRemaining, [3], axis=1)
-    #values2 = splitted2[0].tolist()
-    #weights2 = [w[0] for w in splitted2[1]]
+        #splitted2 = np.split(circlesRemaining, [3], axis=1)
+        #values2 = splitted2[0].tolist()
+        #weights2 = [w[0] for w in splitted2[1]]
 
-    #res2 = np.average(values2, axis=0, weights=weights2)
+        #res2 = np.average(values2, axis=0, weights=weights2)
 
-    #print (res2)
+        #print (res2)
 
-    #weightedSums2 = [np.sum([x * n, y * n, r * n, n], axis=0) for x, y, r, n in circles]
-    #finalCircle2 = [el/weightedSums2[3] for el in weightedSums2]
+        #weightedSums2 = [np.sum([x * n, y * n, r * n, n], axis=0) for x, y, r, n in circles]
+        #finalCircle2 = [el/weightedSums2[3] for el in weightedSums2]
 
-    #print (finalCircle2)
+        #print (finalCircle2)
+        return finalCircle2[0], finalCircle2[1], finalCircle2[2]
 
-    return finalCircle2[0], finalCircle2[1], finalCircle2[2]
+    else:
+        return None, None, None
 
 #@profile
 def test():
