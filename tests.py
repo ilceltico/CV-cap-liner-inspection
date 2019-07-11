@@ -108,7 +108,47 @@ def test_edge():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+def test_outer_with_binarization():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        #hist = cv2.calcHist([img], [0], None, [256], [0,256])
+        #plt.plot(hist)
+        #plt.show()
+
+        ret, thresh1 = cv2.threshold(img, 10, 255, cv2.THRESH_BINARY)
+        #thresh2 = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+        #ret2, thresh3 = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+        #print ('threshold found: ' + str(ret2))
+                
+        cv2.imshow('caps/' + file + ' circles standard', thresh1)
+        #cv2.imshow('caps/' + file + ' circles adaptive', thresh2)
+        #cv2.imshow('caps/' + file + ' circles otsu', thresh3)
+
+        edge_outer_circle = cv2.Canny(thresh1, 127, 254)
+
+        cv2.imshow('caps/' + file + ' circles edges', edge_outer_circle)
+
+        circles = cv2.HoughCircles(thresh1, cv2.HOUGH_GRADIENT, 1, 100, param1=254, param2=20, minRadius=0, maxRadius=0)
+
+        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = np.uint16(np.around(circles))
+        
+        for circle in circles[0,:]:
+            # draw the outer circle
+            cv2.circle(img, (round(circle[0]), round(circle[1])), round(circle[2]), (0,255,0), 2)
+            # draw the center of the circle
+            cv2.circle(img, (round(circle[0]), round(circle[1])), 2, (0,0,255), 3)
+
+        cv2.imshow('caps/' + file + ' circles', img)
+
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
 if __name__ == '__main__':
-    test_inner_circle()
-    test_outer_circle()
+    #test_inner_circle()
+    #test_outer_circle()
     #test_edge()
+    #test_outer_with_binarization()
