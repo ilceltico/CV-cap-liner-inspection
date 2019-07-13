@@ -49,10 +49,12 @@ def pixelAverage():
         #time = (t2 - t1)/ cv2.getTickFrequency()
 
         cv2.imshow("caps/" + file, magnitude)
-        print("caps/" + file + " pixel's average: " + str(average))
+        print("caps/" + file + " pixel's magnitude average: " + str(average))
         print("caps/" + file + " pixel's non zero sum: " + str(sum))
         print("caps/" + file + " pixel's non zero count: " + str(num))
-        print("caps/" + file + " pixel's average2: " + str(average2))
+        print("caps/" + file + " pixel's magnitude average2: " + str(average2))
+        
+        print("caps/" + file + " pixel's average: " + str(np.mean(img)))
         #time = (t2 - t1)/ cv2.getTickFrequency()
         #print ('time: ' + str(time))
         
@@ -75,16 +77,19 @@ def pixelAverageMask(mask):
         #time = (t2 - t1)/ cv2.getTickFrequency()
 
         cv2.imshow("caps/" + file, magnitude)
-        print("caps/" + file + " pixel's average: " + str(average))
+        print("caps/" + file + " pixel's magnitude average: " + str(average))
         print("caps/" + file + " pixel's non zero sum: " + str(sum))
         print("caps/" + file + " pixel's non zero count: " + str(num))
-        print("caps/" + file + " pixel's average2: " + str(average2))
+        print("caps/" + file + " pixel's magnitude average2: " + str(average2))
+
+        print("caps/" + file + " pixel's average: " + str(np.mean(img[mask])))
         #time = (t2 - t1)/ cv2.getTickFrequency()
         #print ('time: ' + str(time))
         
         print ('----------------------------------------')
         cv2.waitKey()
         cv2.destroyAllWindows()
+
 
 def circularmask(h, w, center=None, radius=None):
 
@@ -115,6 +120,10 @@ def test():
     print("Good Cap Magnitude average of pixels: " + str(np.mean(goodCapMagnitude)))
     print("Incomplete Liner Magnitude average of pixels: " + str(np.mean(incompleteLinerMagnitude)))
     print("Missing Liner Magnitude average of pixels: " + str(np.mean(missingLinerMagnitude)))
+
+    print("Good Cap average of pixels: " + str(np.mean(goodCap)))
+    print("Incomplete Liner average of pixels: " + str(np.mean(incompleteLiner)))
+    print("Missing Liner average of pixels: " + str(np.mean(missingLiner)))
 
     temp = cv2.fastNlMeansDenoising(goodCapMagnitude, None, 15, 7, 21)
     cv2.imshow("temp", temp)
