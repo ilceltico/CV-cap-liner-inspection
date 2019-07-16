@@ -147,6 +147,7 @@ def test_outer_with_binarization():
             cv2.destroyAllWindows()
 
 def test_missing_liner():
+    thresh = getThreshold()
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         cv2.imshow('caps/' + file + ' circles', img)
@@ -173,7 +174,7 @@ def test_missing_liner():
 
         #avg = np.mean(img[mask])
         print("caps/" + file + " pixel's average: " + str(avg))
-        if avg >= 60:
+        if avg > thresh:
             print("caps/" + file + " has no liner!!")
         else:
             print("caps/" + file + " has liner")
@@ -181,9 +182,36 @@ def test_missing_liner():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+def getThreshold():
+    thresh = 0
+    prefixed = [filename for filename in os.listdir('./caps') if filename.startswith("g")]
+    for file in prefixed:
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        
+        binary = binarization.binarize(img)
+
+        blobs = labelling.bestLabellingTestGradient(binary)
+
+        circles = []
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                   circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (x, y), r)
+        avg = np.mean(img[mask])
+
+        thresh = thresh + avg
+    
+    return (thresh / len(prefixed)) + 10    #to consider the cap with no liner it must have a big difference with the correct average
+
+
 if __name__ == '__main__':
     #test_inner_circle()
     #test_outer_circle()
     #test_edge()
-    test_outer_with_binarization()
-    #test_missing_liner()
+    #test_outer_with_binarization()
+    test_missing_liner()
+    
