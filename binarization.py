@@ -17,7 +17,7 @@ def binarize(img):
     #cv2.imshow('cap binary (otsu)', thresh_otsu)
         
     kernel = np.ones((7,7), np.uint8)
-    #kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (7,7))    #using an elliptical kernel shape (obtain the same result)
+    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7,7))    #using an elliptical kernel shape (obtain the same result)
     closing = cv2.morphologyEx(thresh_otsu, cv2.MORPH_CLOSE, kernel)
 
     #cv2.imshow('closing', closing)
