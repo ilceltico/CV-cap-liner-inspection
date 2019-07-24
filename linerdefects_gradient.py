@@ -99,6 +99,60 @@ def pixelAverageMask(mask):
         cv2.waitKey()
         cv2.destroyAllWindows()
 
+# called for every image, input: center and radius of inner circle
+def pixelAverageGradientMask(img, center, radius):
+    magnitude1 = calcMagnitude(img)
+    fast = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
+    magnitude2 = calcMagnitude(fast)
+    # edges = cv2.Canny(magnitude, 100, 150, apertureSize=3, L2gradient=True)
+    # cv2.imshow('edges', edges)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
+    if radius is None:
+        print('----')
+    else:    
+        mask = circularmask(576, 768, center, radius)
+        average1 = np.mean(magnitude1[mask])
+        average2 = np.mean(magnitude2[mask])
+        
+        print('average1:' + str(average1))
+        print('average2:' + str(average2))
+
+# call pixelAverageGradientMask
+def averageOnAll():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        cv2.imshow('caps/' + file, img)
+
+        magnitude = calcMagnitude(img)
+        fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
+        cv2.imshow("fast", fast)
+
+        blobs = labelling.bestLabellingTestGradient(fast)
+
+        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < 210 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+                        #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
+                        #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
+            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles', img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        pixelAverageGradientMask(img, (x, y), r)
 
 def circularmask(h, w, center=None, radius=None):
 
@@ -214,7 +268,7 @@ def test():
 
 if __name__ == '__main__':
     #for i in range(0, 10):
-    test()
+    # test()
 
     #for i in range(0, 20):
     #    mask = circularmask(576, 768, center=None, radius=None)
@@ -222,6 +276,8 @@ if __name__ == '__main__':
 
     #    pixelAverage()
 
-    #pixelAverage()
+    # pixelAverage()
     #mask = circularmask(576, 768, center=None, radius=None)
     #pixelAverageMask(mask)
+
+    averageOnAll()
