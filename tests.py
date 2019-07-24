@@ -341,7 +341,7 @@ def test_comparison_old_new_inner_circle():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-def comparison_another_magnitude_old():
+def compare_another_magnitude_old():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         cv2.imshow('caps/' + file, img)
@@ -422,4 +422,4 @@ if __name__ == '__main__':
     #test_inner_liner_magnitude()
     #another_inner_circle()
     #test_comparison_old_new_inner_circle()
-    #comparison_another_magnitude_old()
+    compare_another_magnitude_old()
