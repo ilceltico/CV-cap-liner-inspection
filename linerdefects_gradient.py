@@ -41,16 +41,16 @@ def pixelAverage():
 
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         magnitude = calcMagnitude(img)
-        sum = cv2.sumElems(magnitude)
+        summa = cv2.sumElems(magnitude)
         num = cv2.countNonZero(magnitude)
         average = np.mean(magnitude)
-        average2 = sum[0]/num
+        average2 = summa[0]/num
         #t2 = cv2.getTickCount()
         #time = (t2 - t1)/ cv2.getTickFrequency()
 
         cv2.imshow("caps/" + file, magnitude)
         print("caps/" + file + " pixel's magnitude average: " + str(average))
-        print("caps/" + file + " pixel's non zero sum: " + str(sum))
+        print("caps/" + file + " pixel's non zero sum: " + str(summa))
         print("caps/" + file + " pixel's non zero count: " + str(num))
         print("caps/" + file + " pixel's magnitude average2: " + str(average2))
         
@@ -78,16 +78,16 @@ def pixelAverageMask(mask):
 
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         magnitude = calcMagnitude(img)
-        sum = cv2.sumElems(magnitude[mask])
+        summa = cv2.sumElems(magnitude[mask])
         num = cv2.countNonZero(magnitude[mask])
         average = np.mean(magnitude[mask])
-        average2 = sum[0]/num
+        average2 = summa[0]/num
         #t2 = cv2.getTickCount()
         #time = (t2 - t1)/ cv2.getTickFrequency()
 
         cv2.imshow("caps/" + file, magnitude)
         print("caps/" + file + " pixel's magnitude average: " + str(average))
-        print("caps/" + file + " pixel's non zero sum: " + str(sum))
+        print("caps/" + file + " pixel's non zero sum: " + str(summa))
         print("caps/" + file + " pixel's non zero count: " + str(num))
         print("caps/" + file + " pixel's magnitude average2: " + str(average2))
 
@@ -101,33 +101,72 @@ def pixelAverageMask(mask):
 
 # called for every image, input: center and radius of inner circle
 def pixelAverageGradientMask(img, center, radius):
-    magnitude1 = calcMagnitude(img)
-    fast = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
-    magnitude2 = calcMagnitude(fast)
-    # edges = cv2.Canny(magnitude, 100, 150, apertureSize=3, L2gradient=True)
-    # cv2.imshow('edges', edges)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
     if radius is None:
         print('----')
-    else:    
-        mask = circularmask(576, 768, center, radius)
+    else:
+        magnitude1 = calcMagnitude(img)
+        fast = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
+        magnitude2 = calcMagnitude(fast)
+        edges1 = cv2.Canny(magnitude1, 60, 80, apertureSize=3, L2gradient=True)
+        edges2 = cv2.Canny(magnitude2, 60, 80, apertureSize=3, L2gradient=True)
+
+        # mask = circularmask(576, 768, (center[1], center[0]), radius)
+        mask = circularmask(576, 768, (center[1], center[0]), radius-5)
+
+        # cv2.imshow('magnitude1', magnitude1)
+        # cv2.imshow('magnitude2', magnitude2)
+        # cv2.imshow('edges1', edges1)
+        cv2.imshow('edges2', edges2)
+        # histr = cv2.calcHist([edges2[mask]], [0], None, [256], [0,256])
+        # plt.plot(histr)
+        # plt.show()
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        
         average1 = np.mean(magnitude1[mask])
         average2 = np.mean(magnitude2[mask])
+        average3 = np.mean(edges1[mask])
+        average4 = np.mean(edges2[mask])
         
         print('average1:' + str(average1))
         print('average2:' + str(average2))
+        print('average3:' + str(average3))
+        print('average4:' + str(average4))
+
+        magnitude1 = cv2.cvtColor(magnitude1, cv2.COLOR_GRAY2BGR)
+        magnitude2 = cv2.cvtColor(magnitude2, cv2.COLOR_GRAY2BGR)
+        edges1 = cv2.cvtColor(edges1, cv2.COLOR_GRAY2BGR)
+        edges2 = cv2.cvtColor(edges2, cv2.COLOR_GRAY2BGR)
+
+        # cv2.circle(magnitude1, (int(center[1]), int(center[0])), int(radius+1), (0, 255, 0), 1)
+        # cv2.circle(magnitude1, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+        # cv2.circle(magnitude2, (int(center[1]), int(center[0])), int(radius+1), (0, 255, 0), 1)
+        # cv2.circle(magnitude2, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+        # cv2.circle(edges1, (int(center[1]), int(center[0])), int(radius+1), (0, 255, 0), 1)
+        # cv2.circle(edges1, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+        # cv2.circle(edges2, (int(center[1]), int(center[0])), int(radius+1), (0, 255, 0), 1)
+        # cv2.circle(edges2, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+
+        # cv2.circle(magnitude1, (int(center[1]), int(center[0])), int(radius-5), (0, 255, 0), 1)
+        # cv2.circle(magnitude1, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+        # cv2.circle(magnitude2, (int(center[1]), int(center[0])), int(radius-5), (0, 255, 0), 1)
+        # cv2.circle(magnitude2, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+        # cv2.circle(edges1, (int(center[1]), int(center[0])), int(radius-5), (0, 255, 0), 1)
+        # cv2.circle(edges1, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
+        # cv2.circle(edges2, (int(center[1]), int(center[0])), int(radius-5), (0, 255, 0), 1)
+        # cv2.circle(edges2, (int(center[1]), int(center[0])), 2, (0, 0, 255), 3)
 
 # call pixelAverageGradientMask
 def averageOnAll():
     for file in os.listdir('./caps'):
+        print(file)
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-        cv2.imshow('caps/' + file, img)
+        # cv2.imshow('caps/' + file, img)
 
         magnitude = calcMagnitude(img)
         fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
-        cv2.imshow("fast", fast)
+        # cv2.imshow("fast", fast)
 
         blobs = labelling.bestLabellingTestGradient(fast)
 
@@ -147,12 +186,14 @@ def averageOnAll():
         if not (x is None and y is None and r is None):
             cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
             cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
-            cv2.imshow('caps/' + file + ' circles', img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow('caps/' + file + ' circles', img)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
         
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         pixelAverageGradientMask(img, (x, y), r)
+
+        print('----------------------------------')
 
 def circularmask(h, w, center=None, radius=None):
 
