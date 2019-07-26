@@ -256,6 +256,34 @@ def bestLabellingTestGradient(img):
 
     return result
 
+def bestLabellingGradient(edges):
+
+    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
+
+    t3 = cv2.getTickCount()
+
+    blobs = []
+
+    nonzero = np.nonzero(labels)
+
+    blobsX = [[] for i in range(retVal)]
+    blobsY = [[] for i in range(retVal)]
+
+    for i in range(0, len(nonzero[0])):
+        x = nonzero[0][i]
+        y = nonzero[1][i]
+
+        p = labels[x][y]
+
+        blobsX[p - 1].append(x)
+        blobsY[p - 1].append(y)
+
+    result = [[] for i in range(retVal)]
+    
+    for i in range(retVal):
+        result[i] = (blobsX[i], blobsY[i])
+
+    return result
 
 if __name__ == '__main__':
     for i in range(0, 10):

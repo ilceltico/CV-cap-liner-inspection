@@ -68,8 +68,11 @@ def test_outer_with_binarization():
 
         binary = binarization.binarize(img)
         #cv2.imshow('caps/' + file + ' binary', binary)
+
+        edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
+        cv2.imshow("edges", edges)
         
-        blobs = labelling.bestLabellingTestGradient(binary)
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -82,8 +85,8 @@ def test_outer_with_binarization():
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -189,82 +192,11 @@ def another_inner_circle():
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         cv2.imshow('caps/' + file, img)
 
-        #hist = cv2.calcHist([img], [0], None, [256], [0,256])
-        #plt.plot(hist)
-        #plt.show()
-
-        ##LINEAR STRETCHING
-        #rows = img.shape[0]
-        #cols = img.shape[1]
-        #imgOut = np.zeros((rows, cols), dtype="uint8")
-
-        #max = img.max()
-        #min = img.min()
-        #print("Min: " + str(min) + " ; Max: " + str(max))
-
-        #for row in range(0, rows):
-        #    for col in range(0, cols):
-        #        pixel = img.item(row, col)
-        #        pixelOut = (255 / (max - min))*(pixel - min)
-        #        imgOut.itemset((row, col), pixelOut)
-
-        #cv2.imshow("Stretched image", imgOut)
-        #histr = cv2.calcHist([imgOut], [0], None, [256], [0,256])
-        #plt.plot(histr)
-        #plt.show()
-
-        #ret, thresh_binary = cv2.threshold(imgOut, 10, 255, cv2.THRESH_BINARY)   #10
-        #cv2.imshow('cap binary', thresh_binary)
-
-        #GAMMA CORRECTION
-        #rows = img.shape[0]
-        #cols = img.shape[1]
-        #imgOut = np.zeros((rows, cols), dtype="uint8")
-
-        #r = 1.5
-        #print("r: " + str(r))
-
-        #for row in range(0, rows):
-        #    for col in range(0, cols):
-        #        pixel = img.item(row, col)
-        #        pixelOut = pow(255, 1-r)*pow(pixel, r)
-        #        imgOut.itemset((row, col), pixelOut)
-
-        #cv2.imshow("Enhanced image", imgOut)
-        #histr = cv2.calcHist([imgOut], [0], None, [256], [0,256])
-        #plt.plot(histr)
-        #plt.show()
-
-        #EQUALIZATION
-        #imgOut = cv2.equalizeHist(img)
-        #cv2.imshow("Enhanced image", imgOut)
-        #histr = cv2.calcHist([imgOut], [0], None, [256], [0,256])
-        #plt.plot(histr)
-        #plt.show()
-
-        #ret, thresh_otsu = cv2.threshold(imgOut, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        #print ('threshold found: ' + str(ret)) #print the threshold found with otsu (ret)
-        #cv2.imshow('cap binary (otsu)', thresh_otsu)
-
         fast = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
         cv2.imshow("fast", fast)
 
         magnitude = linerdefects_gradient.calcMagnitude(fast)
         cv2.imshow("magnitude", magnitude)
-
-        #ret, thresh_otsu = cv2.threshold(magnitude, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        #print ('threshold found: ' + str(ret)) #print the threshold found with otsu (ret)
-        #cv2.imshow('cap binary (otsu)', thresh_otsu)
-
-        #kernel = np.ones((3,3),np.uint8)
-        #erosion = cv2.erode(magnitude,kernel,iterations = 1)
-        #cv2.imshow("erosion", erosion)
-
-        ##ret, thresh_binary = cv2.threshold(magnitude, 10, 255, cv2.THRESH_BINARY)   #10
-        ##cv2.imshow('cap binary', thresh_binary)
-        #kernel = np.ones((3,3),np.uint8)
-        #erosion = cv2.erode(thresh_binary,kernel,iterations = 1)
-        #cv2.imshow("erosion", erosion)
 
         edges = cv2.Canny(magnitude, 40, 100, apertureSize=3, L2gradient=False)
         cv2.imshow("edges", edges)
@@ -294,33 +226,43 @@ def another_inner_circle():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-def test_comparison_old_new_inner_circle():
+def best_inner_circle():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-        cv2.imshow('caps/' + file, img)
+        #cv2.imshow('caps/' + file, img)
 
-        magnitude = linerdefects_gradient.calcMagnitude(img)
-        fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
+        #histr = cv2.calcHist([img], [0], None, [256], [0,256])
+        #plt.plot(histr)
+        #plt.show()
 
-        blobs = labelling.bestLabellingTestGradient(fast)
+        #LINEAR STRETCHING
+        imgOut = np.zeros((img.shape[0], img.shape[1]), dtype="uint8")
 
-        imgNew = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = []
+        max = img.max()
+        min = img.min()
+        #print("Min: " + str(min) + " ; Max: " + str(max))
 
-        for blob in blobs:
-            if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+        for row in range(0, img.shape[0]):
+            for col in range(0, img.shape[1]):
+                pixel = img.item(row, col)
+                pixelOut = (255 / (max - min))*(pixel - min)
+                imgOut.itemset((row, col), pixelOut)
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
-        if not (x is None and y is None and r is None):
-            cv2.circle(imgNew, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(imgNew, (int(y), int(x)), 2, (0, 0, 255), 3)
-            cv2.imshow('caps/' + file + ' circles NUOVO', imgNew)
+        #cv2.imshow("Stretched image", imgOut)
+        #histr = cv2.calcHist([imgOut], [0], None, [256], [0,256])
+        #plt.plot(histr)
+        #plt.show()
 
-        blobs = labelling.bestLabellingTestGradient(img)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        #cv2.imshow("gaussian", gaussian)
+
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        #cv2.imshow("edges", edges)
+
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -334,39 +276,16 @@ def test_comparison_old_new_inner_circle():
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-def compare_another_magnitude_old():
+def compare_all_inner_results():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         cv2.imshow('caps/' + file, img)
-
-        # ANOTHER_INNER_CIRCLE
-        fastN = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
-        magnitudeN = linerdefects_gradient.calcMagnitude(fastN)
-
-        blobs = labelling.bestLabellingTestGradient(magnitudeN)
-
-        imgNew = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = []
-
-        for blob in blobs:
-            if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
-
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
-        if not (x is None and y is None and r is None):
-            cv2.circle(imgNew, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(imgNew, (int(y), int(x)), 2, (0, 0, 255), 3)
-            cv2.imshow('caps/' + file + ' circles another', imgNew)
 
         # INNER_CIRCLE
         blobs = labelling.bestLabellingTestGradient(img)
@@ -387,13 +306,13 @@ def compare_another_magnitude_old():
             cv2.circle(imgO, (int(y), int(x)), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', imgO)
 
-        # TEST_INNER_MAGNITUDE
+        # INNER MAGNITUDE
         magnitude = linerdefects_gradient.calcMagnitude(img)
         fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
 
         blobs = labelling.bestLabellingTestGradient(fast)
 
-        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        imgM = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
 
         for blob in blobs:
@@ -407,9 +326,63 @@ def compare_another_magnitude_old():
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
-            cv2.imshow('caps/' + file + ' circles magnitude', img)
+            cv2.circle(imgM, (int(y), int(x)), int(r), (0, 255, 0), 1)
+            cv2.circle(imgM, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles magnitude', imgM)
+
+        # ANOTHER INNER CIRCLE
+        fast = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
+        magnitude = linerdefects_gradient.calcMagnitude(fast)
+
+        blobs = labelling.bestLabellingTestGradient(magnitude)
+
+        imgA = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < 210 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(imgA, (int(y), int(x)), int(r), (0, 255, 0), 1)
+            cv2.circle(imgA, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles another', imgA)
+
+        # BEST INNER CIRCLE
+        imgOut = np.zeros((img.shape[0], img.shape[1]), dtype="uint8")
+
+        max = img.max()
+        min = img.min()
+       
+        for row in range(0, img.shape[0]):
+            for col in range(0, img.shape[1]):
+                pixel = img.item(row, col)
+                pixelOut = (255 / (max - min))*(pixel - min)
+                imgOut.itemset((row, col), pixelOut)
+
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        blobs = labelling.bestLabellingGradient(edges)
+
+        imgB = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < 210 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(imgB, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(imgB, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles best', imgB)
 
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -421,5 +394,5 @@ if __name__ == '__main__':
     #test_missing_liner()
     #test_inner_liner_magnitude()
     #another_inner_circle()
-    #test_comparison_old_new_inner_circle()
-    compare_another_magnitude_old()
+    best_inner_circle()
+    #compare_all_inner_results()
