@@ -91,6 +91,37 @@ def test_outer_with_binarization():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+def outer_circle_with_stretching():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        #LINEAR STRETCHING A LOT MORE EFFICIENT
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+
+        edges = cv2.Canny(gaussian, 100, 200, apertureSize=3, L2gradient=True)
+        cv2.imshow("edges", edges)
+        
+        blobs = labelling.bestLabellingGradient(edges)
+
+        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles', img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
 def test_missing_liner():
     thresh = getThreshold()
     for file in os.listdir('./caps'):
@@ -388,5 +419,6 @@ if __name__ == '__main__':
     #test_missing_liner()
     #test_inner_liner_magnitude()
     #another_inner_circle()
-    best_inner_circle()
+    #best_inner_circle()
     #compare_all_inner_results()
+    outer_circle_with_stretching()
