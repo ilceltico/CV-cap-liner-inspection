@@ -226,6 +226,7 @@ def another_inner_circle():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+#@profile
 def best_inner_circle():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
@@ -236,17 +237,18 @@ def best_inner_circle():
         #plt.show()
 
         #LINEAR STRETCHING
-        imgOut = np.zeros((img.shape[0], img.shape[1]), dtype="uint8")
+        #imgOut = np.zeros((img.shape[0], img.shape[1]), dtype="uint8")
 
-        max = img.max()
-        min = img.min()
-        #print("Min: " + str(min) + " ; Max: " + str(max))
+        #max = img.max()
+        #min = img.min()
+        #for row in range(0, img.shape[0]):
+        #    for col in range(0, img.shape[1]):
+        #        pixel = img.item(row, col)
+        #        pixelOut = (255 / (max - min))*(pixel - min)
+        #        imgOut.itemset((row, col), pixelOut)
 
-        for row in range(0, img.shape[0]):
-            for col in range(0, img.shape[1]):
-                pixel = img.item(row, col)
-                pixelOut = (255 / (max - min))*(pixel - min)
-                imgOut.itemset((row, col), pixelOut)
+        #LINEAR STRETCHING A LOT MORE EFFICIENT
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
 
         #cv2.imshow("Stretched image", imgOut)
         #histr = cv2.calcHist([imgOut], [0], None, [256], [0,256])
@@ -353,16 +355,8 @@ def compare_all_inner_results():
             cv2.imshow('caps/' + file + ' circles another', imgA)
 
         # BEST INNER CIRCLE
-        imgOut = np.zeros((img.shape[0], img.shape[1]), dtype="uint8")
-
-        max = img.max()
-        min = img.min()
-       
-        for row in range(0, img.shape[0]):
-            for col in range(0, img.shape[1]):
-                pixel = img.item(row, col)
-                pixelOut = (255 / (max - min))*(pixel - min)
-                imgOut.itemset((row, col), pixelOut)
+        #LINEAR STRETCHING A LOT MORE EFFICIENT THAN CYCLE
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
 
         gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
         edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
