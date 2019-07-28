@@ -164,9 +164,13 @@ def getThreshold():
     for file in prefixed:
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         
-        binary = binarization.binarize(img)
+        #binary = binarization.binarize(img)
+        #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
 
-        blobs = labelling.bestLabellingTestGradient(binary)
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        edges = cv2.Canny(gaussian, 100, 200, apertureSize=3, L2gradient=True)
+        blobs = labelling.bestLabellingGradient(edges)
 
         circles = []
         for blob in blobs:
@@ -176,8 +180,11 @@ def getThreshold():
                    circles.append((x, y, r, n))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
-        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (x, y), r)
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r)
         avg = np.mean(img[mask])
+        #temp = img.copy()
+        #temp[~mask] = 0
+        #cv2.imshow("temp", temp)
 
         thresh = thresh + avg
     
@@ -412,6 +419,86 @@ def compare_all_inner_results():
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
+def test_all():
+    threshold = getThreshold()
+    print("threshold: " + str(threshold))
+    for file in os.listdir('./caps'):
+        print("--------------------------------------------------------------------")
+        print(file)
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        #LINEAR STRETCHING and GAUSSIAN FILTERING
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+
+        #TASK1
+        print("TASK1")
+        # outline the cap
+        edges = cv2.Canny(gaussian, 100, 200, apertureSize=3, L2gradient=True)
+        
+        blobs = labelling.bestLabellingGradient(edges)
+
+        imgOuter = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    circles.append((x, y, r, n))
+
+        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and rCap is None):
+            cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
+            cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' outer circle (cap)', imgOuter)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+        # print position of the center of the cap, diameter of the cap and answer to: is the liner missing - is the liner incomplete?
+        print("Position of the center of the cap: (" + str(x) + ", " + str(y) + ")")
+        print("Diameter of the cap: " + str(2*rCap))
+        print("Is the liner missing? ")
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
+        avg = np.mean(img[mask])
+        print("caps/" + file + " pixel's average: " + str(avg))
+        if avg > threshold:
+            print("caps/" + file + " has no liner!!")
+            continue
+        else:
+            print("caps/" + file + " has liner")
+        #print("Is the liner incomplete? ")
+
+        #TASK2
+        print("TASK2")
+        # outline the liner
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        
+        blobs = labelling.bestLabellingGradient(edges)
+
+        imgInner = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < 210 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' inner circle (liner)', imgInner)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+            # print position of the center of the liner, diameter of the liner
+            print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
+            print("Diameter of the liner: " + str(2*r))
+
+
 if __name__ == '__main__':
     #test_inner_circle()
     #test_outer_circle()
@@ -421,4 +508,6 @@ if __name__ == '__main__':
     #another_inner_circle()
     #best_inner_circle()
     #compare_all_inner_results()
-    outer_circle_with_stretching()
+    #outer_circle_with_stretching()
+
+    test_all()
