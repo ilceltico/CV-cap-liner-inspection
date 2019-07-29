@@ -483,7 +483,7 @@ def test_all():
             if len(blob[0]) > 2:
                 x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    if r < 210 and r > 170 and x > 0 and y > 0:
+                    if r < rCap - 5 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
@@ -508,6 +508,7 @@ if __name__ == '__main__':
     #another_inner_circle()
     #best_inner_circle()
     #compare_all_inner_results()
+    
     #outer_circle_with_stretching()
 
     test_all()
