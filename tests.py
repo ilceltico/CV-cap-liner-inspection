@@ -421,7 +421,9 @@ def compare_all_inner_results():
 
 def test_all():
     threshold = getThreshold()
+    thresholdDefects = linerdefects_gradient.thresholdInner()
     print("threshold: " + str(threshold))
+    print("threshold: " + str(thresholdDefects))
     for file in os.listdir('./caps'):
         print("--------------------------------------------------------------------")
         print(file)
@@ -467,7 +469,8 @@ def test_all():
             continue
         else:
             print("caps/" + file + " has liner")
-        #print("Is the liner incomplete? ")
+
+
 
         #TASK2
         print("TASK2")
@@ -498,6 +501,15 @@ def test_all():
             print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
             print("Diameter of the liner: " + str(2*r))
 
+        print("Is the liner incomplete?")
+        mask = linerdefects_gradient.circularmask(576, 768, (y, x), r-5)
+        average = np.mean(edges[mask])
+        print('avg:' + str(average))
+
+        if average > thresholdDefects:
+            print('Has defects!')
+        else:
+            print('Has not defects!')
 
 if __name__ == '__main__':
     #test_inner_circle()

@@ -110,13 +110,18 @@ def pixelAverageGradientMask(img, center, radius):
         edges1 = cv2.Canny(magnitude1, 60, 80, apertureSize=3, L2gradient=True)
         edges2 = cv2.Canny(magnitude2, 60, 80, apertureSize=3, L2gradient=True)
 
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        edges3 = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        cv2.imshow('edges3', edges3)
+
         # mask = circularmask(576, 768, (center[1], center[0]), radius)
         mask = circularmask(576, 768, (center[1], center[0]), radius-5)
 
         # cv2.imshow('magnitude1', magnitude1)
         # cv2.imshow('magnitude2', magnitude2)
         # cv2.imshow('edges1', edges1)
-        cv2.imshow('edges2', edges2)
+        # cv2.imshow('edges2', edges2)
         # histr = cv2.calcHist([edges2[mask]], [0], None, [256], [0,256])
         # plt.plot(histr)
         # plt.show()
@@ -128,11 +133,13 @@ def pixelAverageGradientMask(img, center, radius):
         average2 = np.mean(magnitude2[mask])
         average3 = np.mean(edges1[mask])
         average4 = np.mean(edges2[mask])
+        average5 = np.mean(edges3[mask])
         
         print('average1:' + str(average1))
         print('average2:' + str(average2))
         print('average3:' + str(average3))
         print('average4:' + str(average4))
+        print('average5:' + str(average5))
 
         magnitude1 = cv2.cvtColor(magnitude1, cv2.COLOR_GRAY2BGR)
         magnitude2 = cv2.cvtColor(magnitude2, cv2.COLOR_GRAY2BGR)
@@ -164,11 +171,16 @@ def averageOnAll():
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         # cv2.imshow('caps/' + file, img)
 
-        magnitude = calcMagnitude(img)
-        fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
+        # magnitude = calcMagnitude(img)
+        # fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
         # cv2.imshow("fast", fast)
 
-        blobs = labelling.bestLabellingTestGradient(fast)
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+
+        # blobs = labelling.bestLabellingTestGradient(fast)
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -194,6 +206,35 @@ def averageOnAll():
         pixelAverageGradientMask(img, (x, y), r)
 
         print('----------------------------------')
+
+def thresholdInner():
+    thresh = 0
+    prefixed = [filename for filename in os.listdir('./caps') if filename.startswith("g")]
+    for file in prefixed:
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+
+        blobs = labelling.bestLabellingGradient(edges)
+
+        circles = []
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < 210 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        mask = circularmask(img.shape[0], img.shape[1], (y, x), r-5)
+        avg = np.mean(edges[mask])
+        print(file + ' ' + str(avg))
+
+        if avg > thresh:
+            thresh = avg
+
+    return thresh
 
 def circularmask(h, w, center=None, radius=None):
 
