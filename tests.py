@@ -190,6 +190,63 @@ def getThreshold():
     
     return (thresh / len(prefixed)) + 10    #to consider the cap with no liner it must have a big difference with the correct average
 
+def getThresholds():
+    thresholdLiner = 0
+    thresholdDefects = 0
+    prefixed = [filename for filename in os.listdir('./caps') if filename.startswith("g")]
+    for file in prefixed:
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        
+        #binary = binarization.binarize(img)
+        #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
+
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        edges = cv2.Canny(gaussian, 100, 200, apertureSize=3, L2gradient=True)
+
+        blobs = labelling.bestLabellingGradient(edges)
+
+        circles = []
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                   circles.append((x, y, r, n))
+
+        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
+        avg = np.mean(img[mask])
+        #temp = img.copy()
+        #temp[~mask] = 0
+        #cv2.imshow("temp", temp)
+
+        thresholdLiner = thresholdLiner + avg
+
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+
+        blobs = labelling.bestLabellingGradient(edges)
+
+        circles = []
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < rCap - 5 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-5)
+        avg = np.mean(edges[mask])
+        #print(file + ' ' + str(avg))
+        
+        if avg > thresholdDefects:
+            thresholdDefects = avg
+
+    thresholdLiner = thresholdLiner / len(prefixed)
+
+    #to consider the cap with no liner or with defects, it must have a big difference wrt thresholds
+    return thresholdLiner + thresholdLiner/10, thresholdDefects + thresholdDefects/10
+
 def test_inner_liner_magnitude():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
@@ -420,10 +477,9 @@ def compare_all_inner_results():
         cv2.destroyAllWindows()
 
 def test_all():
-    threshold = getThreshold()
-    thresholdDefects = linerdefects_gradient.thresholdInner()
-    print("threshold: " + str(threshold))
-    print("threshold: " + str(thresholdDefects))
+    thresholdLiner, thresholdDefects = getThresholds()
+    print("thresholdLiner: " + str(thresholdLiner))
+    print("thresholdDefects: " + str(thresholdDefects))
     for file in os.listdir('./caps'):
         print("--------------------------------------------------------------------")
         print(file)
@@ -464,13 +520,11 @@ def test_all():
         mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
         avg = np.mean(img[mask])
         print("caps/" + file + " pixel's average: " + str(avg))
-        if avg > threshold:
+        if avg > thresholdLiner:
             print("caps/" + file + " has no liner!!")
             continue
         else:
             print("caps/" + file + " has liner")
-
-
 
         #TASK2
         print("TASK2")
@@ -497,19 +551,19 @@ def test_all():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-            # print position of the center of the liner, diameter of the liner
-            print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
-            print("Diameter of the liner: " + str(2*r))
+        # print position of the center of the liner, diameter of the liner
+        print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
+        print("Diameter of the liner: " + str(2*r))
 
         print("Is the liner incomplete?")
-        mask = linerdefects_gradient.circularmask(576, 768, (y, x), r-5)
-        average = np.mean(edges[mask])
-        print('avg:' + str(average))
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-5)
+        avg = np.mean(edges[mask])
+        #print('avg:' + str(avg))
 
-        if average > thresholdDefects:
-            print('Has defects!')
+        if avg > thresholdDefects:
+            print("caps/" + file + " has defects!")
         else:
-            print('Has not defects!')
+            print("caps/" + file + " has no defects!")
 
 if __name__ == '__main__':
     #test_inner_circle()
@@ -520,7 +574,6 @@ if __name__ == '__main__':
     #another_inner_circle()
     #best_inner_circle()
     #compare_all_inner_results()
-    
     #outer_circle_with_stretching()
 
     test_all()
