@@ -187,8 +187,10 @@ def getThreshold():
         #cv2.imshow("temp", temp)
 
         thresh = thresh + avg
+
+    thresh = thresh / len(prefixed)
     
-    return (thresh / len(prefixed)) + 10    #to consider the cap with no liner it must have a big difference with the correct average
+    return thresh + thresh/10    #to consider the cap with no liner it must have a big difference with the correct average
 
 def getThresholds():
     thresholdLiner = 0
