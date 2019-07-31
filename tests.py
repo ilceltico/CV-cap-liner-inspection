@@ -235,7 +235,7 @@ def getThresholds():
                         circles.append((x, y, r, n))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
-        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-5)
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-10)
         avg = np.mean(edges[mask])
         #print(file + ' ' + str(avg))
         
@@ -477,9 +477,10 @@ def compare_all_inner_results():
         cv2.destroyAllWindows()
 
 def test_all():
-    thresholdLiner, thresholdDefects = getThresholds()
+    #thresholdLiner, thresholdDefects = getThresholds()
+    thresholdLiner = getThreshold()
     print("thresholdLiner: " + str(thresholdLiner))
-    print("thresholdDefects: " + str(thresholdDefects))
+    #print("thresholdDefects: " + str(thresholdDefects))
     for file in os.listdir('./caps'):
         print("--------------------------------------------------------------------")
         print(file)
@@ -510,21 +511,22 @@ def test_all():
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' outer circle (cap)', imgOuter)
+            
+            # print position of the center of the cap, diameter of the cap and answer to: is the liner missing - is the liner incomplete?
+            print("Position of the center of the cap: (" + str(x) + ", " + str(y) + ")")
+            print("Diameter of the cap: " + str(2*rCap))
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-        # print position of the center of the cap, diameter of the cap and answer to: is the liner missing - is the liner incomplete?
-        print("Position of the center of the cap: (" + str(x) + ", " + str(y) + ")")
-        print("Diameter of the cap: " + str(2*rCap))
-        print("Is the liner missing? ")
-        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
-        avg = np.mean(img[mask])
-        print("caps/" + file + " pixel's average: " + str(avg))
-        if avg > thresholdLiner:
-            print("caps/" + file + " has no liner!!")
-            continue
-        else:
-            print("caps/" + file + " has liner")
+            print("Is the liner missing? ")
+            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
+            avg = np.mean(img[mask])
+            print("caps/" + file + " pixel's average: " + str(avg))
+            if avg > thresholdLiner:
+                print("caps/" + file + " has no liner!!")
+                continue
+            else:
+                print("caps/" + file + " has liner")
 
         #TASK2
         print("TASK2")
@@ -533,7 +535,7 @@ def test_all():
         
         blobs = labelling.bestLabellingGradient(edges)
 
-        imgInner = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        imgInner = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         circles = []
 
         for blob in blobs:
@@ -548,22 +550,52 @@ def test_all():
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' inner circle (liner)', imgInner)
+
+            # print position of the center of the liner, diameter of the liner
+            print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
+            print("Diameter of the liner: " + str(2*r))
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-        # print position of the center of the liner, diameter of the liner
-        print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
-        print("Diameter of the liner: " + str(2*r))
+            #DEFECT DETECTION
+            print("Is the liner incomplete?")
+            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-10)
+            
+            #   we can use a pixel average to detect defects and check if it is greater than a threshold
 
-        print("Is the liner incomplete?")
-        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-5)
-        avg = np.mean(edges[mask])
-        #print('avg:' + str(avg))
+            #avg = np.mean(edges[mask])
+            ##print('avg:' + str(avg))
 
-        if avg > thresholdDefects:
-            print("caps/" + file + " has defects!")
-        else:
-            print("caps/" + file + " has no defects!")
+            #if avg > thresholdDefects:
+            #    print("caps/" + file + " has defects!")
+            #else:
+            #    print("caps/" + file + " has no defects!")
+
+            #   or we can check if there are blobs (sufficiently large) in the inner circle (need to perform another edge detection that capture more defect if present)
+            
+            edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
+            #image containing only defects
+            edges[~mask] = 0
+            #cv2.imshow("defect", edges)
+           
+            hasDefects = False
+            detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            for contour in contours:
+                if contour.size > 100 :
+                    hasDefects = True
+                    rect = cv2.minAreaRect(contour)
+                    box = cv2.boxPoints(rect)
+                    box = np.int0(box)
+                    detected_defect = cv2.drawContours(detected_defect, [box], 0, (0,0,255), 1)
+                
+            if not hasDefects :
+                print('caps/' + file + ' has no defects')
+            else:
+                print('caps/' + file + ' has defects')
+                cv2.imshow('caps/' + file + ' detected defects', detected_defect)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     #test_inner_circle()

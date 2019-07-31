@@ -249,6 +249,56 @@ def circularmask(h, w, center=None, radius=None):
     mask = dist_from_center <= radius
     return mask
 
+def detect_liner_defects():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        
+        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+        gaussian = cv2.GaussianBlur(imgOut, (5, 5), 2)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+
+        blobs = labelling.bestLabellingGradient(edges)
+
+        circles = []
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    if r < 210 and r > 170 and x > 0 and y > 0:
+                        circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            mask = circularmask(img.shape[0], img.shape[1], (y, x), r-10)
+
+            edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
+
+            #image containing only defects
+            edges[~mask] = 0
+            cv2.imshow("defect", edges)
+            
+            hasDefects = False
+            detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            for contour in contours:
+                if contour.size > 100 :
+                    hasDefects = True
+                    rect = cv2.minAreaRect(contour)
+                    box = cv2.boxPoints(rect)
+                    box = np.int0(box)
+                    detected_defect = cv2.drawContours(detected_defect, [box], 0, (0,0,255), 1)
+            
+            if not hasDefects :
+                print('caps/' + file + ' has no defects')
+            else:
+                print('caps/' + file + ' has defects')
+                cv2.imshow('detected_defect', detected_defect)  
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
+
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
 #@profile
 def test():
     goodCap = cv2.imread("./caps/g_04.bmp", cv2.IMREAD_GRAYSCALE)
@@ -362,4 +412,5 @@ if __name__ == '__main__':
     #mask = circularmask(576, 768, center=None, radius=None)
     #pixelAverageMask(mask)
 
-    averageOnAll()
+    #averageOnAll()
+    detect_liner_defects()
