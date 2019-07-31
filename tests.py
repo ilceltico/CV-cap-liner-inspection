@@ -486,6 +486,13 @@ def test_all():
         print(file)
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
+        #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
+        #if not binarization.is_circle(img) :
+        #    print('the cap in ' + file + ' is not a circle')
+        #    continue
+        #else:
+        #    print('The cap in ' + file + ' is a circle')
+
         #LINEAR STRETCHING and GAUSSIAN FILTERING
         imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
         gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
