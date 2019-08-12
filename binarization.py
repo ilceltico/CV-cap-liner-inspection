@@ -55,7 +55,25 @@ def is_circle(img):
     perimeter = cv2.arcLength(cnt, True)
     #perimeter = cv2.arcLength(cnt, False)
 
-    #print('perimeter: ' + str(perimeter))
+    # erosion
+    #kernel = np.ones((3,3),np.uint8)
+    #erosion = cv2.erode(binary, kernel, iterations=1)
+    #contour = binary - erosion
+    #cv2.imshow('contour', contour)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    #perimeter = len(np.nonzero(contour)[0])
+
+    # dilation
+    #kernel = np.ones((3,3),np.uint8)
+    #dilation = cv2.dilate(binary, kernel, iterations=1)
+    #contour = dilation - binary
+    #cv2.imshow('contour', contour)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    #perimeter = len(np.nonzero(contour)[0])
+
+    print('perimeter: ' + str(perimeter))
 
     #   baricenter (centroids). Can be computed as m10 / m00 and m01 / m00, knowing that m10 and m01 are sum(i) and sum(j), and m00 is the area.
     #cx = M['m10']/M['m00']
