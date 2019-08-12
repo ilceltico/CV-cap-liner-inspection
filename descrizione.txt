@@ -1,0 +1,59 @@
+TASK0 (?):
+    - check if the cap image is a circle
+
+    Il controllo del fatto che il tappo nell'immagine sia un cerchio non è richiesto dalla consegna del progetto esplicitamente. Tuttavia, può avere senso effettuarlo 
+    come step preliminare, prima di iniziare ad eseguire i compiti richiesti.
+    Per poter determinare se l'oggetto contenuto nell'immagine è effettivamente un cerchio ci si è basati sul concetto di "fattore forma" (compactness, slide 37 
+    in "blob analysis"). Esso è definito come C = P^2 / A (perimetro al quadrato diviso per l'area) e definisce una quantità senza dimensione e pertanto invariante 
+    rispetto alla scala dell'oggetto. A partire dalle formule necessarie a calcolare il perimetro (circonferenza, 2pi*r) e l'area di un cerchio(pi*r^2), il fattore 
+    forma di un cerchio risulta essere 4pi.
+    
+    Per fare questo controllo è stata definita la funzione is_circle(image) nel modulo binarization.py. Per prima cosa si binarizza l'immagine del tappo 
+    (binary = binarize(image)), in modo da ottenere un unico blob (binary large object) del tappo. 
+    La binarizzazione è stata effettuata in due step:
+        - thresholding dell'immagine (che ha un istogramma bimodale) utilizzando OTSU per la determinazione della soglia.
+        - closing con un kernel 7x7 in modo da chiudere i "buchi" lasciati dal thresholding. Infatti, dopo la prima operazione, non tutti i pixel appartenenti al tappo
+        hanno valore assegnato a 255 (foreground). Ciò è dovuto al fatto che il bordo del liner interno al tappo ha (in alcuni casi) pixel con valore sotto-soglia che 
+        vengono quindi assegnati al background (0).
+    
+    Una volta ottenuta l'immagine binarizzata, contenente il blob del tappo, si vuole determinare il suo fattore forma C, per verificare che esso sia un cerchio. 
+    Per calcolarlo è necessario ricavare perimetro e area del blob. Per la seconda è sufficiente contare il numero di pixel che non sono a 0 (background), i.e. tutti 
+    quelli a 255 (foreground). Per quanto riguarda il perimetro invece ci sono più modi:
+        - si determina il bordo (interno o esterno, rispettivamente con erosion + sottrazione img - erosion oppure con dilation + sottrazione tra dilation - img), 
+        contando poi il numero di elementi di esso.
+        - si determina il perimetro del blob contando direttamente i pixel facenti parte del contorno (i.e. i pixel che hanno almeno un vicino appartenente al background).
+        In questo caso, come descritto nelle slide 33, 34, 35, 36 del pacchetto "blob analysis" occorre poi effettuare distinzioni in base alla tipologia di "vicinato" di
+        un pixel considerata (4-neighbourhood o 8-neighbourhood), in quanto si ottengono differenti contorni (C4 o C8).
+    
+    Nel nostro progetto abbiamo utilizzato una funzione di opencv per il calcolo del perimetro: cv2.arcLength(contorno, boolean). Essa riceve come parametri un "contorno"
+    e un booleano. Il primo è inteso come una curva che unisce tutti i punti di un bordo che hanno la stessa intensità e può essere determinato a partire dall'immagine 
+    binaria utilizzando: contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE). Nel nostro caso avremo un unico contorno (contours[0]).
+    Il secondo è un booleano che specifica se il contorno è chiuso o meno.
+
+    Infine, ottenuti perimetro e area, si calcola il fattore forma per determinare la circolarità del tappo. In particolare, normalizzando il calcolo per 4pi, si ha che
+    il risultato, arrotondato all'intero più vicino, deve essere 1 per poter assumere che il blob contenuto nell'immagine abbia forma circolare.
+
+
+TASK1: 
+    - outline the cap, print position of the center of the cap and the diameter 
+
+    Hough Transform vs Nostro metodo
+
+    Per quanto riguarda l'evidenziazione del tappo (i.e. del bordo esterno) si hanno più strade percorribili. In primis, occorre identificare il bordo del tappo:
+        - a partire dall'immagine binaria si può effettuare edge detection con Canny in modo da ottenere l'edge del tappo (test_outer_with_binarization())
+        - a partire dall'immagine iniziale si può effettuare un primo step di processamento dell'immagine tramite linear stretching, in modo da migliorarne il contrasto.
+        Quindi, una volta ottenuta l'immagine migliorata si utilizza un filtro gaussiano 5x5 per ripulirla dal rumore e, infine, si effettua edge detection con Canny.
+        (outer_circle_with_stretching())
+
+    Una volta ottenuto il bordo con uno dei metodi descritti è possibile utilizzare il nostro metodo di interpolazione per ottenere le informazioni relative al centro e
+    al raggio del cerchio e la funzione cv2.circle() per disegnarlo.
+    
+    - answer to: is the liner missing - is the liner incomplete?
+
+TASK2: 
+    - outline the liner
+
+    - print position of the center of the liner and diameter 
+
+TASK3 (OPTIONAL):
+    - outline the defect

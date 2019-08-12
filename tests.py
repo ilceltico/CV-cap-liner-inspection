@@ -122,6 +122,97 @@ def outer_circle_with_stretching():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+def test_outer_circle_with_erosion():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        binary = binarization.binarize(img)
+        
+        kernel = np.ones((3,3),np.uint8)
+
+        # erosion
+        erosion = cv2.erode(binary, kernel, iterations=1)
+        contour = binary - erosion
+        
+        blobs = labelling.bestLabellingGradient(contour)
+
+        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles', img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+def test_outer_circle_with_dilation():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        binary = binarization.binarize(img)
+        
+        kernel = np.ones((3,3),np.uint8)
+
+        # dilation
+        dilation = cv2.dilate(binary, kernel, iterations=1)
+        contour = dilation - binary
+        
+        blobs = labelling.bestLabellingGradient(contour)
+
+        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+            if len(blob[0]) > 2:
+                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                    circles.append((x, y, r, n))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        if not (x is None and y is None and r is None):
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+            cv2.imshow('caps/' + file + ' circles', img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+def test_outer_circle_with_contours():
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        binary = binarization.binarize(img)
+        # Contours are simply a curve joining all the points (along the boundary), having same color or intensity.
+        #first argument: image
+        #second argument: contour retrieval mode.
+        #third argument: contour approximation method. Two possibilities: 
+        #   cv2.CHAIN_APPROX_NONE: all the boundary points are stored.
+        #   cv2.CHAIN_APPROX_SIMPLE: removes all redundant points and compresses the contour, saving memory. E.g. for a line store only the two end points.
+        contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cnt = contours[0]
+
+        img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        img = cv2.drawContours(img, [cnt], 0, (0,255,0), 1)
+
+        #center of the circle
+
+        M = cv2.moments(cnt)
+        #baricenter (centroids). Can be computed as m10 / m00 and m01 / m00, knowing that m10 and m01 are sum(i) and sum(j), and m00 is the area.
+        cx = M['m10']/M['m00']
+        cy = M['m01']/M['m00']
+        print("center of the circle: (" + str(cy) + ", " + str(cx) + ")")
+
+        cv2.imshow('caps/' + file + ' circles', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
 def test_missing_liner():
     thresh = getThreshold()
     for file in os.listdir('./caps'):
@@ -616,5 +707,8 @@ if __name__ == '__main__':
     #best_inner_circle()
     #compare_all_inner_results()
     #outer_circle_with_stretching()
+    test_outer_circle_with_contours()
+    #test_outer_circle_with_erosion()
+    #test_outer_circle_with_dilation()
 
-    test_all()
+    #test_all()
