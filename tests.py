@@ -209,6 +209,12 @@ def test_outer_circle_with_contours():
         cy = M['m01']/M['m00']
         print("center of the circle: (" + str(cy) + ", " + str(cx) + ")")
 
+        pointX = cnt[0][0][0]
+        pointY = cnt[0][0][1]
+        radius = math.sqrt((pointX - cx)**2 + (pointY - cy)**2)
+        print("radius: " + str(radius))
+        cv2.circle(img, (np.round(cx).astype("int"), np.round(cy).astype("int")), 2, (0, 0, 255), 3)
+
         cv2.imshow('caps/' + file + ' circles', img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -707,8 +713,8 @@ if __name__ == '__main__':
     #best_inner_circle()
     #compare_all_inner_results()
     #outer_circle_with_stretching()
-    test_outer_circle_with_contours()
     #test_outer_circle_with_erosion()
     #test_outer_circle_with_dilation()
+    #test_outer_circle_with_contours()
 
-    #test_all()
+    test_all()
