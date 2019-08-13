@@ -14,7 +14,9 @@ def test_inner_circle():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
-        blobs = labelling.bestLabellingTestGradient(img)
+        edges = cv2.Canny(img, 40, 100, apertureSize=3, L2gradient=False)
+
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -25,13 +27,13 @@ def test_inner_circle():
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
-                        #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
-                        #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -40,7 +42,9 @@ def test_outer_circle():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
-        blobs = labelling.bestLabellingTestGradient(img)
+        edges = cv2.Canny(img, 40, 100, apertureSize=3, L2gradient=False)
+
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -51,13 +55,13 @@ def test_outer_circle():
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r > 200 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
-                        #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
-                        #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -228,7 +232,9 @@ def test_missing_liner():
         binary = binarization.binarize(img)
         #cv2.imshow('caps/' + file + ' binary', binary)
 
-        blobs = labelling.bestLabellingTestGradient(binary)
+        edges = cv2.Canny(binary, 40, 100, apertureSize=3, L2gradient=False)
+
+        blobs = labelling.bestLabellingGradient(edges)
 
         circles = []
         for blob in blobs:
@@ -239,7 +245,7 @@ def test_missing_liner():
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (x, y), r)
+            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r)
             avg = np.mean(img[mask])
         else:
             #mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], center=None, radius=None)
@@ -357,9 +363,9 @@ def test_inner_liner_magnitude():
         cv2.imshow("fast", fast)
 
         edges = cv2.Canny(fast, 40, 100, apertureSize=3, L2gradient=False)
-        cv2.imshow("edges", edges)
+        #cv2.imshow("edges", edges)
 
-        blobs = labelling.bestLabellingTestGradient(fast)
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -370,13 +376,13 @@ def test_inner_liner_magnitude():
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
-                        #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
-                        #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -387,18 +393,18 @@ def another_inner_circle():
         cv2.imshow('caps/' + file, img)
 
         fast = cv2.fastNlMeansDenoising(img, None, 7, 7, 21)
-        cv2.imshow("fast", fast)
+        #cv2.imshow("fast", fast)
 
         magnitude = linerdefects_gradient.calcMagnitude(fast)
-        cv2.imshow("magnitude", magnitude)
+        #cv2.imshow("magnitude", magnitude)
 
         edges = cv2.Canny(magnitude, 40, 100, apertureSize=3, L2gradient=False)
-        cv2.imshow("edges", edges)
+        #cv2.imshow("edges", edges)
 
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
         
-        blobs = labelling.bestLabellingTestGradient(magnitude)
+        blobs = labelling.bestLabellingGradient(edges)
 
         img = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = []
@@ -409,13 +415,13 @@ def another_inner_circle():
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
-                        #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
-                        #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -498,8 +504,8 @@ def compare_all_inner_results():
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(imgO, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(imgO, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(imgO, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(imgO, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles', imgO)
 
         # INNER MAGNITUDE
@@ -517,13 +523,13 @@ def compare_all_inner_results():
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
-                        #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
-                        #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
+                        #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(imgM, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(imgM, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(imgM, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(imgM, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles magnitude', imgM)
 
         # ANOTHER INNER CIRCLE
@@ -544,8 +550,8 @@ def compare_all_inner_results():
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
-            cv2.circle(imgA, (int(y), int(x)), int(r), (0, 255, 0), 1)
-            cv2.circle(imgA, (int(y), int(x)), 2, (0, 0, 255), 3)
+            cv2.circle(imgA, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+            cv2.circle(imgA, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' circles another', imgA)
 
         # BEST INNER CIRCLE
@@ -686,7 +692,8 @@ def test_all():
            
             hasDefects = False
             detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            #contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             for contour in contours:
                 if contour.size > 100 :
                     hasDefects = True

@@ -39,21 +39,61 @@ TASK1:
 
     Hough Transform vs Nostro metodo
 
-    Per quanto riguarda l'evidenziazione del tappo (i.e. del bordo esterno) si hanno più strade percorribili. In primis, occorre identificare il bordo del tappo:
+    In primis, occorre identificare il bordo del tappo:
+        - a partire dall'immagine binaria, si calcoli il bordo esterno come descritto precedentemente con erosion + sottrazione img - erosion, con dilation + sottrazione
+        dilation - img (test_outer_circle_with_erosion() - test_outer_circle_with_dilation())
         - a partire dall'immagine binaria si può effettuare edge detection con Canny in modo da ottenere l'edge del tappo (test_outer_with_binarization())
         - a partire dall'immagine iniziale si può effettuare un primo step di processamento dell'immagine tramite linear stretching, in modo da migliorarne il contrasto.
         Quindi, una volta ottenuta l'immagine migliorata si utilizza un filtro gaussiano 5x5 per ripulirla dal rumore e, infine, si effettua edge detection con Canny.
         (outer_circle_with_stretching())
 
-    Una volta ottenuto il bordo con uno dei metodi descritti è possibile utilizzare il nostro metodo di interpolazione per ottenere le informazioni relative al centro e
-    al raggio del cerchio e la funzione cv2.circle() per disegnarlo.
+    Una volta ottenuto il bordo con uno dei metodi descritti, dopo aver scomposto l'immagine ottenuta del bordo in blobs con bestLabellingGradient, è possibile utilizzare
+    il nostro metodo di interpolazione per ottenere le informazioni relative al centro e al raggio del cerchio e la funzione cv2.circle() per disegnarlo.
     
-    - answer to: is the liner missing - is the liner incomplete?
+    Un'altra possibilità per l'evidenziazione del bordo del tappo è che, a partire dall'immagine binaria, si calcoli il bordo esterno con 
+    contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE). Una volta ottenuto l'unico contorno possibile, si può disegnarlo sull'immagine con:
+        cnt = contours[0]
+        img = cv2.drawContours(img, [cnt], 0, (0,255,0), 3)
+    Tuttavia, così facendo non si ottiene alcuna informazione su raggio/centro richiesti. E' possibile però determinare tali informazioni agevolmente calcolando il 
+    baricentro del blob e la distanza di un punto del contorno da esso.
+	(test_outer_circle_with_contours())
+
+    - answer to: is the liner missing?
+    
+	Si utilizza il metodo getThreshold() per trovare un valore di soglia oltre il quale il tappo viene considerato senza liner interno. Infatti il tappo senza liner 
+	ha una luminosità media diversa.
+	Il metodo, per ogni immagine "buona" (g), applica una maschera in modo da considerare solamente i pixel interni al tappo e calcola la media di essi. La soglia finale
+	è data dalla media di ogni media + un delta percentuale (soglia finale/10).
+	
+	Trovata la soglia, per ogni immagine si calcola la media dei pixel interni al tappo (applicando sempre una maschera) e se il valore è superiore ad essa il tappo viene
+	considerato senza liner. In tal caso, il TASK2 viene saltato (riguarda il liner interno, che non c'è appunto).
 
 TASK2: 
-    - outline the liner
+    - outline the liner, print position of the center of the liner and diameter
 
-    - print position of the center of the liner and diameter 
+	Dobbiamo ottenere il bordo del liner interno. Per farlo, a partire dall'immagine originale si possono seguire più strade:
+		- si calcola il magnitude, si fa denoising con Non-local Means Filter (cv2.fastNlMeansDenoising()) ed edge detection con Canny. Quindi si interpola il cerchio 
+		scomponendo l'immagine ottenuta nei vari blobs (bestLabellingTestGradient) e considerando solo quelli con raggio inferiore a quello del cerchio esterno. 
+		(test_inner_liner_magnitude())
+		- si fa denoising con Non-local Means Filter (cv2.fastNlMeansDenoising()), si calcola il magnitude ed edge detection con Canny. Quindi si interpola il cerchio 
+		scomponendo l'immagine ottenuta nei vari blobs (bestLabellingTestGradient) e considerando solo quelli con raggio inferiore a quello del cerchio esterno. 
+		(another_inner_circle())
+		- stretching lineare per migliorare il contrasto dell'immagine, si applica un filtro gaussiano 5x5 per rimuovere rumore e si fa edge detection con Canny. Quindi si 
+		interpola il cerchio scomponendo l'immagine ottenuta nei vari blobs (bestLabellingTestGradient) e considerando solo quelli con raggio inferiore a quello del cerchio
+		esterno.
+		(best_inner_circle())
+
+TASK1: 
+    - answer to: is the liner incomplete?
+
+	Per controllare che il liner sia completo si calcola la maschera per il liner interno (cerchio trovato con TASK2). Quindi, a partire dal gaussiano dell'immagine stretchata, 
+	si fa edge detection con Canny. Si hanno due possibilità:
+		- si calcola una soglia (getThresholds() calcola due soglie, una per il liner mancante, una per il liner incompleto): se la media dei pixel nel liner è sopra soglia
+		allora ha dei difetti.
+		- si verifica se vi sono dei blobs sufficientemente grandi. Se ci sono, allora il liner ha dei difetti.
 
 TASK3 (OPTIONAL):
     - outline the defect
+
+	Una volta determinato se il liner ha difetti o meno, punto opzionale richiede di evidenziarli. Per farlo si ricorre ancora a cv2.findContours() per trovare i vari blobs. Per
+	ogni blob sufficientemente grande trovato, viene disegnato un rettangolo orientato di grandezza minima che lo contiene (cv2.minAreaRect() e cv2.boxPoints()) e lo si disegna. 
