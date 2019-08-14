@@ -644,6 +644,9 @@ def test_all():
         print("TASK2")
         # outline the liner
         edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        #cv2.imshow("edges", edges)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
         
         blobs = labelling.bestLabellingGradient(edges)
 
@@ -654,7 +657,7 @@ def test_all():
             if len(blob[0]) > 2:
                 x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    if r < rCap - 5 and r > 170 and x > 0 and y > 0:
+                    if r < rCap - 5 and r > 150:
                         circles.append((x, y, r, n))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
@@ -689,6 +692,13 @@ def test_all():
             #image containing only defects
             edges[~mask] = 0
             #cv2.imshow("defect", edges)
+
+            # dilation to make the defect more evident
+            kernel = np.ones((3,3),np.uint8)
+            edges = cv2.dilate(edges, kernel, iterations=1)
+            #cv2.imshow("defect", edges)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
            
             hasDefects = False
             detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
