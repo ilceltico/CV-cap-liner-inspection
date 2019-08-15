@@ -221,50 +221,45 @@ def bestLabelling(file):
 
     #return a
 
-def bestLabellingTestGradient(img):
+#def bestLabellingTestGradient(img):
 
-    t1 =  cv2.getTickCount()
+#    t1 =  cv2.getTickCount()
 
-    edges = cv2.Canny(img, 40, 100, apertureSize=3, L2gradient=False)   #prima la soglia era 100, 100
+#    edges = cv2.Canny(img, 40, 100, apertureSize=3, L2gradient=False)   #prima la soglia era 100, 100
 
-    t2 = cv2.getTickCount()
+#    t2 = cv2.getTickCount()
 
-    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
+#    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
+#    retVal -= 1
+#    t3 = cv2.getTickCount()
 
-    t3 = cv2.getTickCount()
+#    nonzero = np.nonzero(labels)
 
-    blobs = []
+#    blobsX = [[] for i in range(retVal)]
+#    blobsY = [[] for i in range(retVal)]
 
-    nonzero = np.nonzero(labels)
+#    for i in range(0, len(nonzero[0])):
+#        x = nonzero[0][i]
+#        y = nonzero[1][i]
 
-    blobsX = [[] for i in range(retVal)]
-    blobsY = [[] for i in range(retVal)]
+#        p = labels[x][y]
 
-    for i in range(0, len(nonzero[0])):
-        x = nonzero[0][i]
-        y = nonzero[1][i]
+#        blobsX[p - 1].append(x)
+#        blobsY[p - 1].append(y)
 
-        p = labels[x][y]
-
-        blobsX[p - 1].append(x)
-        blobsY[p - 1].append(y)
-
-    result = [[] for i in range(retVal)]
+#    result = []
     
-    for i in range(retVal):
-        result[i] = (blobsX[i], blobsY[i])
+#    for i in range(retVal):
+#        result.append((blobsX[i], blobsY[i]))
 
-    return result
+#    return result
 
 def bestLabellingGradient(edges):
 
     retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
 
-    t3 = cv2.getTickCount()
-
-    blobs = []
-
     nonzero = np.nonzero(labels)
+    retVal -= 1
 
     blobsX = [[] for i in range(retVal)]
     blobsY = [[] for i in range(retVal)]
@@ -278,10 +273,10 @@ def bestLabellingGradient(edges):
         blobsX[p - 1].append(x)
         blobsY[p - 1].append(y)
 
-    result = [[] for i in range(retVal)]
+    result = []
     
     for i in range(retVal):
-        result[i] = (blobsX[i], blobsY[i])
+        result.append((blobsX[i], blobsY[i]))
 
     return result
 
