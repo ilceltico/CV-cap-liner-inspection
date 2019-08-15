@@ -455,6 +455,9 @@ def leastSquaresCircleFitCached(x, y):
     #e = svv
     #f = (svvv+svuu)/2
 
+    if suv*suv - suu*svv == 0 or suv == 0:
+        return float('NaN'), float('NaN'), float('NaN')
+
     vc = (suv*(suuu+suvv)/2 - suu*(svvv+svuu)/2)/(suv*suv - suu*svv)
     uc = ((svvv+svuu)/2 - svv*vc)/suv
 
@@ -470,7 +473,7 @@ def leastSquaresCircleFitCached(x, y):
     #print("alfa: " + str(alfa))
     r = math.sqrt(alfa)
 
-    return xc, yc, r, numPoints
+    return xc, yc, r
 
 def my_column_stack(tup):
     arrays = [np.asarray(arr) for arr in tup]
