@@ -23,10 +23,10 @@ def test_inner_circle():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
@@ -51,10 +51,10 @@ def test_outer_circle():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r > 200 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
@@ -83,9 +83,9 @@ def test_outer_with_binarization():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    circles.append((x, y, r, n))
+                    circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -114,9 +114,9 @@ def outer_circle_with_stretching():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    circles.append((x, y, r, n))
+                    circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -145,9 +145,9 @@ def test_outer_circle_with_erosion():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    circles.append((x, y, r, n))
+                    circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -176,9 +176,9 @@ def test_outer_circle_with_dilation():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    circles.append((x, y, r, n))
+                    circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -239,9 +239,9 @@ def test_missing_liner():
         circles = []
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                   circles.append((x, y, r, n))
+                   circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -278,9 +278,9 @@ def getThreshold():
         circles = []
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                   circles.append((x, y, r, n))
+                   circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r)
@@ -314,9 +314,9 @@ def getThresholds():
         circles = []
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                   circles.append((x, y, r, n))
+                   circles.append((x, y, r, len(blob[0])))
 
         x, y, rCap = outliers.outliersElimination(circles, (20, 20))
         mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
@@ -334,10 +334,10 @@ def getThresholds():
         circles = []
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < rCap - 5 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-10)
@@ -355,12 +355,12 @@ def getThresholds():
 def test_inner_liner_magnitude():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-        cv2.imshow('caps/' + file, img)
+        # cv2.imshow('caps/' + file, img)
 
         magnitude = linerdefects_gradient.calcMagnitude(img)
-        cv2.imshow("magnitude", magnitude)
+        # cv2.imshow("magnitude", magnitude)
         fast = cv2.fastNlMeansDenoising(magnitude, None, 10, 7, 21)
-        cv2.imshow("fast", fast)
+        # cv2.imshow("fast", fast)
 
         edges = cv2.Canny(fast, 40, 100, apertureSize=3, L2gradient=False)
         #cv2.imshow("edges", edges)
@@ -372,10 +372,10 @@ def test_inner_liner_magnitude():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
@@ -411,10 +411,10 @@ def another_inner_circle():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
@@ -471,10 +471,10 @@ def best_inner_circle():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -497,10 +497,10 @@ def compare_all_inner_results():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -519,10 +519,10 @@ def compare_all_inner_results():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
@@ -543,10 +543,10 @@ def compare_all_inner_results():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -567,10 +567,10 @@ def compare_all_inner_results():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -614,9 +614,9 @@ def test_all():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    circles.append((x, y, r, n))
+                    circles.append((x, y, r, len(blob[0])))
 
         x, y, rCap = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and rCap is None):
@@ -655,10 +655,10 @@ def test_all():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < rCap - 5 and r > 150:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
         if not (x is None and y is None and r is None):
@@ -725,7 +725,7 @@ if __name__ == '__main__':
     #test_outer_circle()
     #test_outer_with_binarization()
     #test_missing_liner()
-    #test_inner_liner_magnitude()
+    test_inner_liner_magnitude()
     #another_inner_circle()
     #best_inner_circle()
     #compare_all_inner_results()
@@ -734,4 +734,4 @@ if __name__ == '__main__':
     #test_outer_circle_with_dilation()
     #test_outer_circle_with_contours()
 
-    test_all()
+    # test_all()
