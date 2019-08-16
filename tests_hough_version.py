@@ -383,7 +383,7 @@ def test_all():
         # outline the liner
         imgInner = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         #   maxRadius should be (like in tests.py) rCap-5. But it is a too large value with HoughCircles (images d_20, g_01, g_06 has problems).
-        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=150, maxRadius=rCap-5)
+        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=150, maxRadius=rCap-50)
 
         circles = np.uint16(np.around(circles))
         #draw only the first (better) circle
