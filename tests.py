@@ -725,7 +725,7 @@ if __name__ == '__main__':
     #test_outer_circle()
     #test_outer_with_binarization()
     #test_missing_liner()
-    test_inner_liner_magnitude()
+    #test_inner_liner_magnitude()
     #another_inner_circle()
     #best_inner_circle()
     #compare_all_inner_results()
@@ -734,4 +734,4 @@ if __name__ == '__main__':
     #test_outer_circle_with_dilation()
     #test_outer_circle_with_contours()
 
-    # test_all()
+    test_all()
