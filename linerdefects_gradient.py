@@ -113,15 +113,51 @@ def pixelAverageGradientMask(img, center, radius):
         imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
         gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
         edges3 = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
-        cv2.imshow('edges3', edges3)
+        kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+        kernel2 = np.array([[1, -2 , 1], [-2, 4, -2], [1, -2, 1]])
+        kernel3 = np.array([[0, -1, 0], [-1, 9, -1], [0, -1, 0]])
+        sharpened = cv2.filter2D(img, -1, kernel)
+        
+        magnitude3 = calcMagnitude(sharpened)
+
+        sharpened2 = cv2.filter2D(magnitude2, -1, kernel)
+
+        sharpened_k1 = cv2.filter2D(magnitude2, -1, kernel)
+        sharpened_k2 = cv2.filter2D(magnitude2, -1, kernel2)
+        sharpened_k3 = cv2.filter2D(magnitude2, -1, kernel3)
 
         # mask = circularmask(576, 768, (center[1], center[0]), radius)
         mask = circularmask(576, 768, (center[1], center[0]), radius-5)
 
         # cv2.imshow('magnitude1', magnitude1)
-        # cv2.imshow('magnitude2', magnitude2)
+        cv2.imshow('magnitude2', magnitude2)
         # cv2.imshow('edges1', edges1)
         # cv2.imshow('edges2', edges2)
+        # cv2.imshow('edges3', edges3)
+        # cv2.imshow('magnitude3', magnitude3)
+        # cv2.imshow('sharpened2', sharpened2)
+
+        # aw = cv2.addWeighted(magnitude2, 4, cv2.blur(magnitude2, (30, 30)), -4, 128)
+        # cv2.imshow('sss', aw)
+
+        cv2.imshow('magnitude_k1', sharpened_k1)
+        # cv2.imshow('magnitude_k2', sharpened_k2)
+        # cv2.imshow('magnitude_k3', sharpened_k3)
+
+        sharpened_k1_2 = cv2.filter2D(fast, -1, kernel)
+        sharpened_k2_2 = cv2.filter2D(fast, -1, kernel2)
+        sharpened_k3_2 = cv2.filter2D(fast, -1, kernel3)
+
+        magnitude_k1 = calcMagnitude(sharpened_k1_2)
+        magnitude_k2 = calcMagnitude(sharpened_k2_2)
+        magnitude_k3 = calcMagnitude(sharpened_k3_2)
+
+        # cv2.imshow('magnitude_k1', magnitude_k1)
+        # cv2.imshow('magnitude_k2', magnitude_k2)
+        # cv2.imshow('magnitude_k3', magnitude_k3)
+
+
+
         # histr = cv2.calcHist([edges2[mask]], [0], None, [256], [0,256])
         # plt.plot(histr)
         # plt.show()
@@ -187,10 +223,10 @@ def averageOnAll():
 
         for blob in blobs:
             if len(blob[0]) > 2:
-                x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < 210 and r > 170 and x > 0 and y > 0:
-                        circles.append((x, y, r, n))
+                        circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
                         #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
 
@@ -412,5 +448,5 @@ if __name__ == '__main__':
     #mask = circularmask(576, 768, center=None, radius=None)
     #pixelAverageMask(mask)
 
-    #averageOnAll()
-    detect_liner_defects()
+    averageOnAll()
+    # detect_liner_defects()
