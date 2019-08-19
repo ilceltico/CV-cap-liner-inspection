@@ -36,67 +36,13 @@ def outer_circle_with_stretching():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
-        #LINEAR STRETCHING A LOT MORE EFFICIENT
+        #LINEAR STRETCHING
         imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
 
         gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
 
         cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
-
-        circles = np.uint16(np.around(circles))
-        #draw only the first (better) circle
-        circle = circles[0][0]
-        # draw the outer circle
-        cv2.circle(cimg,(circle[0],circle[1]),circle[2],(0,255,0),1)
-        # draw the center of the circle
-        cv2.circle(cimg,(circle[0],circle[1]),2,(0,0,255),3)
-            
-        cv2.imshow('./caps/' + file + ': detected circles', cimg)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-def test_outer_circle_with_erosion():
-    for file in os.listdir('./caps'):
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-
-        binary = binarization.binarize(img)
-        
-        kernel = np.ones((3,3),np.uint8)
-
-        # erosion
-        erosion = cv2.erode(binary, kernel, iterations=1)
-        #contour = binary - erosion
-        
-        cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = cv2.HoughCircles(erosion, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
-
-        circles = np.uint16(np.around(circles))
-        #draw only the first (better) circle
-        circle = circles[0][0]
-        # draw the outer circle
-        cv2.circle(cimg,(circle[0],circle[1]),circle[2],(0,255,0),1)
-        # draw the center of the circle
-        cv2.circle(cimg,(circle[0],circle[1]),2,(0,0,255),3)
-            
-        cv2.imshow('./caps/' + file + ': detected circles', cimg)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-def test_outer_circle_with_dilation():
-    for file in os.listdir('./caps'):
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-
-        binary = binarization.binarize(img)
-        
-        kernel = np.ones((3,3),np.uint8)
-
-        # dilation
-        dilation = cv2.dilate(binary, kernel, iterations=1)
-        #contour = dilation - binary
-        
-        cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = cv2.HoughCircles(dilation, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
 
         circles = np.uint16(np.around(circles))
         #draw only the first (better) circle
@@ -443,7 +389,7 @@ def test_sharpening():
         #contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         for contour in contours:
-            if contour.size > 100 :
+            if contour.size > 200 :
                 hasDefects = True
                 rect = cv2.minAreaRect(contour)
                 box = cv2.boxPoints(rect)
@@ -550,7 +496,7 @@ def test_all():
         #    print("caps/" + file + " has no defects!")
 
         #   or we can check if there are blobs (sufficiently large) in the inner circle (need to perform another edge detection that capture more defect if present)
-            
+
         edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
         #image containing only defects
         edges[~mask] = 0
@@ -593,5 +539,6 @@ if __name__ == '__main__':
     #test_outer_circle_with_erosion()
     #test_outer_circle_with_dilation()
     #test_outer_circle_with_contours()
+
     test_sharpening()
-    test_all()
+    #test_all()

@@ -588,10 +588,10 @@ def test_sharpening():
         #gaussian = cv2.GaussianBlur(sharpened, (5,5), 2, 2)
 
         #approach2: convolution with a high-pass filter
-        #kernel = np.array([[-1,-1,-1], [-1,9,-1],[-1,-1,-1]]) 
-        #sharpened = cv2.filter2D(imgOut, -1, kernel)
-        ##cv2.imshow("sharpened", sharpened)
-        #gaussian = cv2.GaussianBlur(sharpened, (9,9), 2, 2)
+        kernel = np.array([[-1,-1,-1], [-1,9,-1],[-1,-1,-1]]) 
+        sharpened = cv2.filter2D(imgOut, -1, kernel)
+        #cv2.imshow("sharpened", sharpened)
+        gaussian = cv2.GaussianBlur(sharpened, (9,9), 2, 2)
         
         #TASK1
         print("TASK1")
@@ -696,7 +696,7 @@ def test_sharpening():
             #contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             for contour in contours:
-                if contour.size > 100 :
+                if contour.size > 200 :
                     hasDefects = True
                     rect = cv2.minAreaRect(contour)
                     box = cv2.boxPoints(rect)
@@ -863,5 +863,5 @@ if __name__ == '__main__':
     #test_outer_circle_with_erosion()
     #test_outer_circle_with_dilation()
     #test_outer_circle_with_contours()
-    test_sharpening()
+    #test_sharpening()
     test_all()
