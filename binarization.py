@@ -9,7 +9,7 @@ def binarize(img):
     # plt.plot(hist)
     # plt.show()
 
-    ret, thresh_binary = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU+cv2.THRESH_TOZERO)
+    # ret, thresh_binary = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU+cv2.THRESH_TOZERO)
 
     #Otsu's Thresholding
     ret, thresh_otsu = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -57,7 +57,7 @@ def is_circle(img):
 
     #   area
     #area_contour = M['m00']
-    area_non_zero = len(np.nonzero(binary)[0])
+    #area_non_zero = len(np.nonzero(binary)[0])
 
     #print('area_contour: ' + str(area_contour))
     #print('area_non_zero: ' + str(area_non_zero))
@@ -69,7 +69,7 @@ def is_circle(img):
 
     #Haralick's Circularity
 
-    moments = cv2.moments(binary)
+    moments = cv2.moments(cnt)
     # print(cv2.moments(img)["m00"])
     # print(cv2.moments(binary)["m00"])
     # print(len(binary))
@@ -78,22 +78,22 @@ def is_circle(img):
     i_b = int(moments["m10"] / moments["m00"])
     j_b = int(moments["m01"] / moments["m00"])
     # print([i_b, j_b])
-    ar = cnt-np.full_like(cnt,[i_b, j_b])
+    diff = cnt-np.full_like(cnt,[i_b, j_b])
     # print(ar)
-    ar = (ar).reshape(len(ar),2)
+    diff = (diff).reshape(len(diff),2)
     # print(ar)
     # print(np.linalg.norm(ar, axis=1))
     # print(len(ar[0]))
-    distances_from_bary = np.linalg.norm(ar, axis=1)
+    distances_from_bary = np.linalg.norm(diff, axis=1)
     average_distance = np.sum(distances_from_bary) / len(distances_from_bary);
     # print(average_distance)
     # print(area_non_zero)
     # print(moments["m00"])
 
-    std_dev = np.sum(np.square(distances_from_bary - average_distance)) / len(distances_from_bary);
+    variance = np.sum(np.square(distances_from_bary - average_distance)) / len(distances_from_bary);
     # print(std_dev)
 
-    haralick_circularity = average_distance / std_dev
+    haralick_circularity = average_distance / variance
     print('Circularity: ' + str(haralick_circularity))
 
 

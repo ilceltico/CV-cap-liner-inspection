@@ -877,5 +877,5 @@ if __name__ == '__main__':
     #test_outer_circle_with_dilation()
     #test_outer_circle_with_contours()
     #test_sharpening()
-    test_is_circle()
-    #test_all()
+    #test_is_circle()
+    test_all()
