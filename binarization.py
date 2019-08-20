@@ -20,12 +20,12 @@ def binarize(img):
         
     #Morphological Closing operation
     kernel = np.ones((7,7), np.uint8)
-    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7,7))    #using an elliptical kernel shape (obtain the same result (not always, sometimes this is worse))
+    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9,9))    #using an elliptical kernel shape (obtain the same result)
     closing = cv2.morphologyEx(thresh_otsu, cv2.MORPH_CLOSE, kernel)
 
-    # cv2.imshow('closing', closing)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('closing', closing)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     return closing
 
@@ -155,6 +155,6 @@ def is_circle(img):
 
 
 if __name__ == '__main__':
-    img = cv2.imread('caps/d_19.bmp', cv2.IMREAD_GRAYSCALE)
-    #binarize(img)
-    is_circle(img)
+    for file in os.listdir('./caps'):
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        binarize(img)
