@@ -850,6 +850,19 @@ def test_all():
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
 
+def test_is_circle():
+    for file in os.listdir('./caps'):
+        print("--------------------------------------------------------------------")
+        print(file)
+        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
+        if not binarization.is_circle(img) :
+           print('the cap in ' + file + ' is NOT a circle!')
+           break
+        else:
+           print('The cap in ' + file + ' is a circle')
+
 if __name__ == '__main__':
     #test_inner_circle()
     #test_outer_circle()
@@ -864,4 +877,5 @@ if __name__ == '__main__':
     #test_outer_circle_with_dilation()
     #test_outer_circle_with_contours()
     #test_sharpening()
-    test_all()
+    test_is_circle()
+    #test_all()

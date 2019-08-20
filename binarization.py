@@ -5,25 +5,27 @@ import os
 from matplotlib import pyplot as plt
 
 def binarize(img):
-    #hist = cv2.calcHist([img], [0], None, [256], [0,256])
-    #plt.plot(hist)
-    #plt.show()
+    # hist = cv2.calcHist([img], [0], None, [256], [0,256])
+    # plt.plot(hist)
+    # plt.show()
 
-    #ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU+cv2.THRESH_TOZERO)
+    ret, thresh_binary = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU+cv2.THRESH_TOZERO)
 
+    #Otsu's Thresholding
     ret, thresh_otsu = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     #print ('threshold found: ' + str(ret)) #print the threshold found with otsu (ret)
                 
     #cv2.imshow('cap binary', thresh_binary)
     #cv2.imshow('cap binary (otsu)', thresh_otsu)
         
+    #Morphological Closing operation
     kernel = np.ones((7,7), np.uint8)
-    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7,7))    #using an elliptical kernel shape (obtain the same result)
+    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7,7))    #using an elliptical kernel shape (obtain the same result (not always, sometimes this is worse))
     closing = cv2.morphologyEx(thresh_otsu, cv2.MORPH_CLOSE, kernel)
 
-    #cv2.imshow('closing', closing)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+    # cv2.imshow('closing', closing)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     return closing
 
@@ -37,11 +39,18 @@ def is_circle(img):
     #third argument: contour approximation method. Two possibilities: 
     #   cv2.CHAIN_APPROX_NONE: all the boundary points are stored.
     #   cv2.CHAIN_APPROX_SIMPLE: removes all redundant points and compresses the contour, saving memory. E.g. for a line store only the two end points.
-    contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #Should find 4-connected perimeters
 
     cnt = contours[0]
-    #M = cv2.moments(cnt)
-    #print(M)
+    # M = cv2.moments(cnt)
+    # print(M)
+    # vis = np.zeros((len(img),len(img[0])), np.uint8)
+    # cv2.drawContours( vis, contours, (-1, 2)[3 <= 0], (128,255,255),
+    #         1, cv2.LINE_AA, hierarchy, abs(3) )
+    # cv2.imshow('contours', vis)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     #   area
     #area_contour = M['m00']
@@ -86,7 +95,14 @@ def is_circle(img):
     #print('area_contour - perimeter: ' + str(np.round(perimeter**2 / area_contour)/(4*math.pi)))
     #print('area_non_zero - perimeter: ' + str((perimeter**2 / area_non_zero)/(4*math.pi)))
     
-    if np.round((perimeter**2 / area_non_zero)/(4*math.pi)).astype("int") == 1 :
+    # if np.round((perimeter**2 / area_non_zero)/(4*math.pi)).astype("int") == 1 :
+    #     #print('the cap is a circle')
+    #     return True
+    # else:
+    #     return False
+
+    tolerance = 0.12
+    if np.abs((perimeter**2 / area_non_zero)/(4*math.pi) - 1) <= tolerance :
         #print('the cap is a circle')
         return True
     else:
