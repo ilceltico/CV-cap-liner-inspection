@@ -889,7 +889,6 @@ def test():
         circles = []
 
         for blob in blobs:
-            if len(blob[0]) > 2:
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     circles.append((x, y, r, len(blob[0])))
@@ -927,6 +926,12 @@ def test():
         gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
         #cv2.imshow('gaussian', gaussian)
 
+        #bilateral = cv2.bilateralFilter(gaussian, 3, 45, 45)
+        #cv2.imshow('bilateral', bilateral)
+
+        fast = cv2.fastNlMeansDenoising(gaussian, None, 3, 7, 7)
+        #cv2.imshow('fast', fast)
+
         #Sharpening ===> NEED TO CHANGE AT LINE 964 with r < rCap - 50 because sharpening enhance part of the image (see edge detection output (line 951))
 
         #approach1. Critic images with bad liner detection: d_18
@@ -948,7 +953,7 @@ def test():
         #TASK2
         print("TASK2")
         # outline the liner
-        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        edges = cv2.Canny(fast, 45, 100, apertureSize=3, L2gradient=True)
         cv2.imshow("edges", edges)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -959,7 +964,6 @@ def test():
         circles = []
 
         for blob in blobs:
-            if len(blob[0]) > 2:
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     if r < rCap - 5 and r > 150:
@@ -993,7 +997,7 @@ def test():
 
             #   or we can check if there are blobs (sufficiently large) in the inner circle (need to perform another edge detection that capture more defect if present)
             
-            edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
+            edges = cv2.Canny(fast, 20, 100, apertureSize=3, L2gradient=True)
             #image containing only defects
             edges[~mask] = 0
             cv2.imshow("defect", edges)
