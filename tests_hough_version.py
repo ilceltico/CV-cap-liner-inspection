@@ -18,7 +18,7 @@ def test_outer_with_binarization():
         #cv2.imshow('caps/' + file + ' binary', binary)
 
         cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
+        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1000, param1=200, param2=10, minRadius=0, maxRadius=0)
 
         circles = np.uint16(np.around(circles))
         #draw only the first (better) circle
@@ -27,6 +27,13 @@ def test_outer_with_binarization():
         cv2.circle(cimg,(circle[0],circle[1]),circle[2],(0,255,0),1)
         # draw the center of the circle
         cv2.circle(cimg,(circle[0],circle[1]),2,(0,0,255),3)
+        
+        #to draw all circles
+        #for circle in circles[0,:]:
+        #    # draw the outer circle
+        #    cv2.circle(cimg,(circle[0],circle[1]),circle[2],(0,255,0),1)
+        #    # draw the center of the circle
+        #    cv2.circle(cimg,(circle[0],circle[1]),2,(0,0,255),3)
             
         cv2.imshow('./caps/' + file + ': detected circles', cimg)
         cv2.waitKey(0)
@@ -250,23 +257,49 @@ def best_inner_circle():
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
-        #LINEAR STRETCHING
-        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
-
-        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+        binary = binarization.binarize(img)
+        mask = binary.copy().astype(bool)
         
-        cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=170, maxRadius=210)
+        # outline the cap
+        imgOuter = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1000, param1=200, param2=10, minRadius=0, maxRadius=0)
+
+        circles = np.uint16(np.around(circles))
+        #draw only the first (better) circle
+        circle = circles[0][0]
+        rCap = circle[2]
+        # draw the outer circle
+        cv2.circle(imgOuter,(circle[0],circle[1]),rCap,(0,255,0),1)
+        # draw the center of the circle
+        cv2.circle(imgOuter,(circle[0],circle[1]),2,(0,0,255),3)
+
+        cv2.imshow('caps/' + file + ' outer circle (cap)', imgOuter)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        #LINEAR STRETCHING and GAUSSIAN FILTERING
+        #linear stretching only on the mask (cap)
+        stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
+        stretched[~mask] = 0
+        gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
+        #cv2.imshow('caps/' + file + ' gaussian', gaussian)
+        edges = cv2.Canny(gaussian, 50, 100)
+        cv2.imshow('caps/' + file + ' edges', edges)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
+        imgInner = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=rCap-50)
 
         circles = np.uint16(np.around(circles))
         #draw only the first (better) circle
         circle = circles[0][0]
         # draw the outer circle
-        cv2.circle(cimg,(circle[0],circle[1]),circle[2],(0,255,0),1)
+        cv2.circle(imgInner,(circle[0],circle[1]),circle[2],(0,255,0),1)
         # draw the center of the circle
-        cv2.circle(cimg,(circle[0],circle[1]),2,(0,0,255),3)
+        cv2.circle(imgInner,(circle[0],circle[1]),2,(0,0,255),3)
             
-        cv2.imshow('./caps/' + file + ': detected circles', cimg)
+        cv2.imshow('./caps/' + file + ': inner circle (liner)', imgInner)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -561,7 +594,7 @@ def test():
         print("TASK1")
         # outline the cap
         imgOuter = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
+        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1000, param1=200, param2=10, minRadius=0, maxRadius=0)
 
         circles = np.uint16(np.around(circles))
         #draw only the first (better) circle
@@ -597,29 +630,33 @@ def test():
         #cv2.imshow('stretched', stretched)
 
         #without sharpening
-        #critic images with bad liner detection: d_18, d_20
-        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+        gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
         #cv2.imshow('gaussian', gaussian)
         #edges = cv2.Canny(gaussian, 50, 100)
         #cv2.imshow('edges', edges)
 
         #Sharpening
-        #approach1. Critic images with bad liner detection: d_18, d_20
+        # g_02 and g_06 not precise
         #gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
         #sharpened = cv2.addWeighted(stretched, 1.5, gaussian, -0.5, 0)
         ##cv2.imshow("sharpened", sharpened)
-        #gaussian = cv2.GaussianBlur(sharpened, (7,7), 2, 2)
+        #gaussian = cv2.GaussianBlur(sharpened, (9,9), 2.5, 2.5)
         #edges = cv2.Canny(gaussian, 50, 100)
         #cv2.imshow('edges', edges)
 
-        #approach2: convolution with a high-pass filter
-        #critic images with bad liner detection: almost all, some very very bad result with false defect detection, very wrong liner
-        #kernel = np.array([[-1,-1,-1], [-1,9,-1],[-1,-1,-1]]) 
+        #approach2: convolution with a high-pass filter -> very precise but more heavy: gaussian + sharpening + bilateral/non-local mean
+        #kernel = np.array([[-1,-1,-1], [-1,11,-1],[-1,-1,-1]]) 
         #sharpened = cv2.filter2D(stretched, -1, kernel)
-        ##cv2.imshow("sharpened", sharpened)
-        #gaussian = cv2.GaussianBlur(sharpened, (9,9), 2, 2)
-        #edges = cv2.Canny(gaussian, 50, 100)
-        #cv2.imshow('edges', edges)
+        #cv2.imshow("sharpened", sharpened)
+        #gaussian = cv2.GaussianBlur(sharpened, (7,7), 2.5, 2.5)
+        #fast = cv2.fastNlMeansDenoising(sharpened, None, 35, 7, 21) # 25 7 21
+        #cv2.imshow("fast", fast)
+        #bilateral = cv2.bilateralFilter(sharpened, 7, 150, 150)
+        #cv2.imshow("bilateral", bilateral)
+        #edgesF = cv2.Canny(fast, 100, 200)
+        #cv2.imshow('edgesF', edgesF)
+        #edgesB = cv2.Canny(bilateral, 100, 200)
+        #cv2.imshow('edgesB', edgesB)
 
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -628,8 +665,8 @@ def test():
         print("TASK2")
         # outline the liner
         imgInner = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        #   maxRadius should be (like in tests.py) rCap-5. But it is a too large value with HoughCircles (images d_20, g_01, g_06 has problems).
-        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=150, maxRadius=rCap-50)
+        #   maxRadius should be (like in tests.py) rCap-5. But it is a too large value with HoughCircles (because Canny is not perfomed with L2gradient=True parameter).
+        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=rCap-50)
 
         circles = np.uint16(np.around(circles))
         #draw only the first (better) circle
@@ -666,9 +703,9 @@ def test():
         edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
         #image containing only defects
         edges[~mask] = 0
-        cv2.imshow("defect", edges)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.imshow("defect", edges)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
         # dilation to make the defect more evident
         kernel = np.ones((3,3),np.uint8)
