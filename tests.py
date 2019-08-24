@@ -929,7 +929,7 @@ def test():
         #bilateral = cv2.bilateralFilter(gaussian, 3, 45, 45)
         #cv2.imshow('bilateral', bilateral)
 
-        fast = cv2.fastNlMeansDenoising(gaussian, None, 3, 7, 7)
+        #fast = cv2.fastNlMeansDenoising(gaussian, None, 3, 7, 7)
         #cv2.imshow('fast', fast)
 
         #Sharpening ===> NEED TO CHANGE AT LINE 964 with r < rCap - 50 because sharpening enhance part of the image (see edge detection output (line 951))
@@ -953,7 +953,7 @@ def test():
         #TASK2
         print("TASK2")
         # outline the liner
-        edges = cv2.Canny(fast, 45, 100, apertureSize=3, L2gradient=True)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
         cv2.imshow("edges", edges)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -966,7 +966,8 @@ def test():
         for blob in blobs:
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
-                    if r < rCap - 5 and r > 150:
+                    #if r < rCap - 5 and r > 150:
+                    if r < 0.75*rCap:
                         circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
@@ -983,7 +984,7 @@ def test():
 
             #DEFECT DETECTION
             print("Is the liner incomplete?")
-            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-15)
+            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.9*r)
             
             #   we can use a pixel average to detect defects and check if it is greater than a threshold
 
@@ -997,7 +998,7 @@ def test():
 
             #   or we can check if there are blobs (sufficiently large) in the inner circle (need to perform another edge detection that capture more defect if present)
             
-            edges = cv2.Canny(fast, 20, 100, apertureSize=3, L2gradient=True)
+            edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
             #image containing only defects
             edges[~mask] = 0
             cv2.imshow("defect", edges)
