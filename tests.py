@@ -967,7 +967,7 @@ def test():
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
                     #if r < rCap - 5 and r > 150:
-                    if r < 0.75*rCap:
+                    if r < 0.99*rCap:
                         circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
@@ -984,7 +984,7 @@ def test():
 
             #DEFECT DETECTION
             print("Is the liner incomplete?")
-            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.9*r)
+            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.95*r)
             
             #   we can use a pixel average to detect defects and check if it is greater than a threshold
 
@@ -998,7 +998,7 @@ def test():
 
             #   or we can check if there are blobs (sufficiently large) in the inner circle (need to perform another edge detection that capture more defect if present)
             
-            edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
+            edges = cv2.Canny(gaussian, 20, 110, apertureSize=3, L2gradient=True)
             #image containing only defects
             edges[~mask] = 0
             cv2.imshow("defect", edges)
