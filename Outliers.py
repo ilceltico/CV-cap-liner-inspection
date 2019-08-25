@@ -13,10 +13,14 @@ def outliersElimination(circles, thresholds):
         return None, None, None
 
     weighted = [[x * n, y * n, r * n, n] for x, y , r, n in circles]
+    #print('weighted: ' + str(weighted))
+    #print('zip(*weighted): ' + str(set(zip(*weighted))))
     sums = [sum(a) for a in zip(*weighted)]
-    finalCircle = [el/sums[3] for el in sums]
+    #print('sums: ' + str(sums))
+    meanCircle = [el/sums[3] for el in sums]
+    #print('meanCircle: ' + str(meanCircle))
 
-    #print (finalCircle)
+    #print (meanCircle)
 
 
     #splitted = np.split(circles, [3], axis=1)
@@ -48,32 +52,34 @@ def outliersElimination(circles, thresholds):
     #circlesRemaining = []
 
     #for element in circles:
-    #    if math.sqrt((element[0] - finalCircle[0]) ** 2 + (element[1] - finalCircle[1]) ** 2) <= thresholds[0] and abs(element[2] - finalCircle[2]) <= thresholds[1]:
+    #    if math.sqrt((element[0] - meanCircle[0]) ** 2 + (element[1] - meanCircle[1]) ** 2) <= thresholds[0] and abs(element[2] - meanCircle[2]) <= thresholds[1]:
     #        circlesRemaining.append(element)
 
-    circlesRemaining = [(x, y, r, n) for x, y, r, n in circles if math.sqrt((x - finalCircle[0]) ** 2 + (y - finalCircle[1]) ** 2) <= thresholds[0] and abs(r - finalCircle[2]) <= thresholds[1]]
+    #Eliminates circles with a center that is too far from the mean center according to threshold[0] 
+    # or a radius too different from the mean radius according to threshold[1]
+    circlesRemaining = [(x, y, r, n) for x, y, r, n in circles if math.sqrt((x - meanCircle[0]) ** 2 + (y - meanCircle[1]) ** 2) <= thresholds[0] and abs(r - meanCircle[2]) <= thresholds[1]]
     
     #print (len(circles))
     #print (circles)
 
     if len(circlesRemaining) > 0:
-        weighted2 = [[x * n, y * n, r * n, n] for x, y , r, n in circlesRemaining]
-        sums2 = [sum(a) for a in zip(*weighted2)]
-        finalCircle2 = [el/sums2[3] for el in sums2]
+        weightedRemaining = [[x * n, y * n, r * n, n] for x, y , r, n in circlesRemaining]
+        sumsRemaining = [sum(a) for a in zip(*weightedRemaining)]
+        finalCircle = [el/sums2[3] for el in sums2]
 
         #splitted2 = np.split(circlesRemaining, [3], axis=1)
         #values2 = splitted2[0].tolist()
-        #weights2 = [w[0] for w in splitted2[1]]
+        #weightedRemaining = [w[0] for w in splitted2[1]]
 
         #res2 = np.average(values2, axis=0, weights=weights2)
 
         #print (res2)
 
         #weightedSums2 = [np.sum([x * n, y * n, r * n, n], axis=0) for x, y, r, n in circles]
-        #finalCircle2 = [el/weightedSums2[3] for el in weightedSums2]
+        #finalCircle = [el/weightedSums2[3] for el in weightedSums2]
 
-        #print (finalCircle2)
-        return finalCircle2[0], finalCircle2[1], finalCircle2[2]
+        #print (finalCircle)
+        return finalCircle[0], finalCircle[1], finalCircle[2]
 
     else:
         return None, None, None
@@ -98,7 +104,7 @@ def test():
     circles = []
 
     for blob in blobs:
-        x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+        x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
         #print (x)
         #print (y)
         #print (r)
@@ -108,7 +114,7 @@ def test():
             #cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
             #cv2.imshow('circles', img)
             #cv2.waitKey()
-            circles.append((x, y, r, n))
+            circles.append((x, y, r, len(blob[0])))
 
     print (len(circles))
     x, y, r = outliersElimination(circles, (50, 30))

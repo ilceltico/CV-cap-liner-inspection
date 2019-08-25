@@ -257,8 +257,10 @@ def bestLabelling(file):
 def bestLabellingGradient(edges):
 
     retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
-
+  
     nonzero = np.nonzero(labels)
+    #print(nonzero)
+    #print(retVal)
     retVal -= 1
 
     blobsX = [[] for i in range(retVal)]
