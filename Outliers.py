@@ -65,7 +65,7 @@ def outliersElimination(circles, thresholds):
     if len(circlesRemaining) > 0:
         weightedRemaining = [[x * n, y * n, r * n, n] for x, y , r, n in circlesRemaining]
         sumsRemaining = [sum(a) for a in zip(*weightedRemaining)]
-        finalCircle = [el/sums2[3] for el in sums2]
+        finalCircle = [el/sumsRemaining[3] for el in sumsRemaining]
 
         #splitted2 = np.split(circlesRemaining, [3], axis=1)
         #values2 = splitted2[0].tolist()
