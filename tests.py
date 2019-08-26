@@ -862,7 +862,7 @@ def test():
 
         #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
         if not binarization.is_circle(img) :
-            print('the cap in ' + file + ' is not a circle')
+            print('The cap in ' + file + ' is NOT a circle')
             continue
         else:
             print('The cap in ' + file + ' is a circle')
@@ -870,12 +870,12 @@ def test():
         binary = binarization.binarize(img)
         #cv2.imshow('binary', binary)
 
-        #if we use directly binary as mask we obtain an image with a line in the middle, here a test
+        #if we use directly binary as mask we obtain an image with a line in the middle, here's a test
         #temp = img.copy()
         #temp[~binary] = 0
         #cv2.imshow('temp', temp)
 
-        #we need to convert it to a boolean mask (as linerdefects_gradient.circularmask does: it create a circular boolean mask)
+        #we need to convert it to a boolean mask (as linerdefects_gradient.circularmask does: it creates a circular boolean mask)
         mask = binary.copy().astype(bool)
         
         #TASK1

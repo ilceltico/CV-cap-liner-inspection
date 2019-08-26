@@ -1,0 +1,1 @@
+binarization.isCircle esegue la binarizzazione ma spesso, dopo averla eseguita, ci serve l'immagine binarizzata: propongo di definire la funzione come applicabile soltanto a immagini già binarizzate. Potremmo anche semplicemente fare una funzione che calcola la Haralick's Circularity. Insomma serve del gran refactoring.
