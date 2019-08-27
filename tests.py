@@ -1027,18 +1027,33 @@ def test():
 
             #image containing only defects
             edges[~mask] = 0
-            cv2.imshow("defect", edges)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            #cv2.imshow("defect", edges)
+            liner = np.zeros((img.shape[0],img.shape[1]), dtype=np.uint8)
+            cv2.circle(liner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(0.95*r).astype("int"), (255, 255, 255), 2)
+            #cv2.imshow("liner", liner)
+            #liner_defects = liner + edges
+            #cv2.imshow("liner+defects", liner_defects)
+            nonzero = np.nonzero(liner)
+            liner = list(zip(nonzero[0],nonzero[1]))
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
 
             hasDefects = False
             detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             blobs = labelling.bestLabellingGradient(edges)
             for blob in blobs:
-                blob = np.array(list(zip(blob[1],blob[0])))
-                if blob.size > r/5 :
+                temp = list(zip(blob[0],blob[1]))
+                common = list(set(liner).intersection(temp))
+                max_distance = 0
+                for pixel in common:
+                    for pixel2 in common:
+                        distance = math.sqrt((pixel[0]-pixel2[0])**2 + (pixel[1]-pixel2[1])**2)
+                        if distance > max_distance:
+                            max_distance = distance
+
+                if len(common) >= 2 and max_distance > r/10:
                     hasDefects = True
-                    rect = cv2.minAreaRect(blob)
+                    rect = cv2.minAreaRect(np.array(list(zip(blob[1], blob[0]))))
                     rectDim = rect[1]
                     #Increase the smaller dimension of the rect, to make it more visible.
                     if rectDim[0] < rectDim[1]:
