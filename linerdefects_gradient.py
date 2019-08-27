@@ -224,14 +224,14 @@ def averageOnAll():
         for blob in blobs:
             if len(blob[0]) > 2:
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, len(blob[0])))
                         #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
                         #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
-        if not (x is None and y is None and r is None):
+        if not (x is None or y is None or rCap is None):
             cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
             cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
             # cv2.imshow('caps/' + file + ' circles', img)
@@ -258,7 +258,7 @@ def thresholdInner():
         for blob in blobs:
             if len(blob[0]) > 2:
                 x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
 
@@ -299,12 +299,12 @@ def detect_liner_defects():
         for blob in blobs:
             if len(blob[0]) > 2:
                 x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-                if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, n))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
-        if not (x is None and y is None and r is None):
+        if not (x is None or y is None or rCap is None):
             mask = circularmask(img.shape[0], img.shape[1], (y, x), r-10)
 
             edges = cv2.Canny(gaussian, 20, 100, apertureSize=3, L2gradient=True)
@@ -375,14 +375,14 @@ def test():
     for blob in blobs:
         if len(blob[0]) > 2:
             x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-            if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+            if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                 if r < 210 and r > 170 and x > 0 and y > 0:
                     circles.append((x, y, r, n))
                     #cv2.circle(img, (int(y), int(x)), int(r), (0, 0, 255), 1)
                     #cv2.circle(img, (int(y), int(x)), 2, (0, 255, 0), 1)
 
     x, y, r = outliers.outliersElimination(circles, (20, 20))
-    if not (x is None and y is None and r is None):
+    if not (x is None or y is None or rCap is None):
         cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
         cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
         cv2.imshow('caps circles', img)

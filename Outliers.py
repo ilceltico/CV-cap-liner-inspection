@@ -109,7 +109,7 @@ def test():
         #print (y)
         #print (r)
 
-        if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+        if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
             #cv2.circle(img, (int(y), int(x)), int(r), (0, 255, 0), 1)
             #cv2.circle(img, (int(y), int(x)), 2, (0, 0, 255), 3)
             #cv2.imshow('circles', img)

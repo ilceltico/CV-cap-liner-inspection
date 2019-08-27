@@ -92,6 +92,9 @@ TASK1:
 		allora ha dei difetti.
 		- si verifica se vi sono dei blobs sufficientemente grandi. Se ci sono, allora il liner ha dei difetti.
 
+    __Facciamo un controllo che può trovare trovare dei difetti che non sono lineari (abbiamo pochi esempi): si potrebbe utilizzare
+    la regeressione lineare e calcolare coefficiente di correlazione.
+
 TASK3 (OPTIONAL):
     - outline the defect
 
