@@ -988,6 +988,40 @@ def test():
         imgInner = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         circles = []
 
+        #Blob division for outliersElimination
+        # for blob in blobs:
+        #         blobX = blob[0]
+        #         blobY = blob[1]
+        #         length = len(blobX)
+        #         length = int(length/5)+1
+        #         for i in range(0,10):
+        #             imgProva = imgInner.copy()
+        #             color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
+        #             for j in range(0, length):
+        #                 if j+i*length < len(blobX):
+        #                     imgProva[blobX[j+i*length]][blobY[j+i*length]] = color
+
+        #             if length-1 + i*length >= len(blobX):
+        #             	maxIndex = len(blobX)-1
+        #             else:
+        #             	maxIndex = length-1 + i*length
+        #             x, y, r = circledetection.leastSquaresCircleFitCached(blobX[i*length:maxIndex+1], blobY[i*length:maxIndex+1])
+        #             if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
+        #             #if r < rCap - 5 and r > 150:
+        #                 if r < 0.99*rCap:
+        #                     circles.append((x, y, r, len(blobX[i*length:maxIndex])))
+                    
+        #                     cv2.circle(imgProva, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
+        #                     cv2.circle(imgProva, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+        #                     cv2.imshow('prova', imgProva)
+        #                     cv2.waitKey(0)
+        #                     cv2.destroyAllWindows()
+
+        # print(circles)
+        # for circle in circles:
+        #     cv2.circle(imgInner, (np.round(circle[1]).astype("int"), np.round(circle[0]).astype("int")), np.round(circle[2]).astype("int"), (0, 255, 0), 1)
+        #     cv2.circle(imgInner, (np.round(circle[1]).astype("int"), np.round(circle[0]).astype("int")), 2, (0, 0, 255), 3)
+
         for blob in blobs:
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
