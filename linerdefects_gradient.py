@@ -423,7 +423,7 @@ def test():
     #    #if len(blob[0]) > 1:
     #    if len(blob[0]) > 2:
     #        x, y, r, n = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-    #        if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+    #        if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
     #            circles.append((x, y, r, n))
 
     ##print (len(circles))

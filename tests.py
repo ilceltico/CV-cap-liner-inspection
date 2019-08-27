@@ -282,7 +282,7 @@ def getThreshold():
             # for blob in blobs:
             #     if len(blob[0]) > 2:
             #         x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
-            #         if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+            #         if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
             #            circles.append((x, y, r, len(blob[0])))
 
             # x, y, r = outliers.outliersElimination(circles, (20, 20))
@@ -594,7 +594,8 @@ def test_sharpening():
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
         #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
-        #if not binarization.is_circle(img) :
+        # binary = binarization.binarize(img)
+        #if not binarization.is_circle(binary) :
         #    print('the cap in ' + file + ' is not a circle')
         #    continue
         #else:
@@ -744,7 +745,8 @@ def test_all():
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
         #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
-        #if not binarization.is_circle(img) :
+        # binary = binarization.binarize(img)
+        #if not binarization.is_circle(binary) :
         #    print('the cap in ' + file + ' is not a circle')
         #    continue
         #else:
@@ -881,16 +883,15 @@ def test():
         print("--------------------------------------------------------------------")
         print(file)
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        binary = binarization.binarize(img)
+        #cv2.imshow('binary', binary)
 
         #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
-        if not binarization.is_circle(img) :
+        if not binarization.is_circle(binary) :
             print('The cap in ' + file + ' is NOT a circle')
             continue
         else:
             print('The cap in ' + file + ' is a circle')
-
-        binary = binarization.binarize(img)
-        #cv2.imshow('binary', binary)
 
         #if we use directly binary as mask we obtain an image with a line in the middle, here's a test
         #temp = img.copy()
@@ -1096,9 +1097,10 @@ def test_is_circle():
         print("--------------------------------------------------------------------")
         print(file)
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        binary = binarization.binarize(img)
 
         #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
-        if not binarization.is_circle(img) :
+        if not binarization.is_circle(binary) :
            print('the cap in ' + file + ' is NOT a circle!')
            break
         else:

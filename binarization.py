@@ -29,8 +29,8 @@ def binarize(img):
 
     return closing
 
-def is_circle(img):
-    binary = binarize(img)
+def is_circle(binary):
+    # binary = binarize(img)
     #cv2.imshow('binary', binary)
 
     # Contours are simply a curve joining all the points (along the boundary), having same color or intensity.
