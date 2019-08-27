@@ -999,31 +999,32 @@ def test():
             #   or we can check if there are blobs (sufficiently large) in the inner circle (need to perform another edge detection that capture more defect if present)
             
             edges = cv2.Canny(gaussian, 20, 110, apertureSize=3, L2gradient=True)
+
             #image containing only defects
             edges[~mask] = 0
             cv2.imshow("defect", edges)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-            # dilation to make the defect more evident
-            kernel = np.ones((3,3),np.uint8)
-            edges = cv2.dilate(edges, kernel, iterations=1)
-            #cv2.imshow("defect", edges)
-            #cv2.waitKey(0)
-            #cv2.destroyAllWindows()
-           
             hasDefects = False
             detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            #contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-            for contour in contours:
-                if contour.size > 100 :
+            blobs = labelling.bestLabellingGradient(edges)
+            for blob in blobs:
+                blob = np.array(list(zip(blob[1],blob[0])))
+                if blob.size > 100 :
                     hasDefects = True
-                    rect = cv2.minAreaRect(contour)
+                    rect = cv2.minAreaRect(blob)
+                    rectDim = rect[1]
+                    #Increase the smaller dimension of the rect, to make it more visible.
+                    if rectDim[0] < rectDim[1]:
+                        rectDim = (rectDim[0]*2, rectDim[1]*1)
+                    else:
+                    	rectDim = (rectDim[0]*1, rectDim[1]*2)
+                    rect = (rect[0], rectDim, rect[2])
                     box = cv2.boxPoints(rect)
                     box = np.int0(box)
                     detected_defect = cv2.drawContours(detected_defect, [box], 0, (0,0,255), 1)
-                
+
             if not hasDefects :
                 print('caps/' + file + ' has no defects')
             else:
@@ -1031,6 +1032,40 @@ def test():
                 cv2.imshow('caps/' + file + ' detected defects', detected_defect)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
+
+            # # dilation to make the defect more evident
+            # kernel = np.ones((3,3),np.uint8)
+            # edges = cv2.dilate(edges, kernel, iterations=1)
+            # cv2.imshow("defect", edges)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+           
+            # hasDefects = False
+            # detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            # #contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            # contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            # # contours2, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            # # for i in range(0, len(contours)):
+            # # 	print(contours[i].size)
+            # # 	print(contours2[i].size)
+            # # 	print(cv2.contourArea(contours[i]))
+            # # 	print(cv2.contourArea(contours2[i]))
+
+            # for contour in contours:
+            #     if contour.size > 100 :
+            #         hasDefects = True
+            #         rect = cv2.minAreaRect(contour)
+            #         box = cv2.boxPoints(rect)
+            #         box = np.int0(box)
+            #         detected_defect = cv2.drawContours(detected_defect, [box], 0, (0,0,255), 1)
+                
+            # if not hasDefects :
+            #     print('caps/' + file + ' has no defects')
+            # else:
+            #     print('caps/' + file + ' has defects')
+            #     cv2.imshow('caps/' + file + ' detected defects', detected_defect)
+            #     cv2.waitKey(0)
+            #     cv2.destroyAllWindows()
 
 def test_is_circle():
     for file in os.listdir('./caps'):

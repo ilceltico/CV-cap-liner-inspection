@@ -1,1 +1,7 @@
 binarization.isCircle esegue la binarizzazione ma spesso, dopo averla eseguita, ci serve l'immagine binarizzata: propongo di definire la funzione come applicabile soltanto a immagini già binarizzate. Potremmo anche semplicemente fare una funzione che calcola la Haralick's Circularity. Insomma serve del gran refactoring.
+
+Il big codice che c'è in test e test_hough_version è inutile che sia duplicato. Ho fatto dei cambiamenti solo a test, do per scontato che per il resto siano identici, per cui nel refactoring ci sarà un solo codice che chiamerà o hough o leastSquares, in base a ciò che chiede l'utente.
+
+getThreshold, all'inizio, ok che simula un learning di qualche tipo, ma fatto così non è carinissimo. Dovremmo prendere tutte le immagini missing, trovare la media intensità di grigio, stessa cosa con tutte le immagini in cui il liner c'è, e trovare un punto nel mezzo come soglia.
+
+Alcune volte facciamo dei controlli su not isNan o simili, tipicamente su raggio, x e y di una circonferenza. Mi pare però che controlliamo sempre nel modo sbagliato, ovvero controlliamo che non siano tutti NaN, ma accettiamo che lo siano 2 su 3 per esempio. Non bisogna controllare che nessuno di quelli sia NaN??
