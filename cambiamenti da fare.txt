@@ -7,3 +7,7 @@ getThreshold, all'inizio, ok che simula un learning di qualche tipo, ma fatto co
 Alcune volte facciamo dei controlli su not isNan o simili, tipicamente su raggio, x e y di una circonferenza. Mi pare però che controlliamo sempre nel modo sbagliato, ovvero controlliamo che non siano tutti NaN, ma accettiamo che lo siano 2 su 3 per esempio. Non bisogna controllare che nessuno di quelli sia NaN??
 
 Difetti del liner: migliorare il riconoscimento: deve essere una linea (circa), che va da parte a parte del liner, e che divide il liner stesso in due semi-liner con media dei pixel differente (assenza di liner = più chiaro).
+
+Riga 660 di tests_hough_version: qui stiamo invertendo 2 volte le coordinate x e y dei cerchi, non serve.
+
+labelling.bestLabellingGradient: labels è un immagine sotto forma di matrice, quindi il primo indice indica le righe, quindi le y dell'immagine. Necessaria inversione delle coordinate dei blob. Questo si porta dietro anche riga 1013 di tests ( blob = np.array(list(zip(blob[1],blob[0])))), perchè qui l'inversione non sarà più necessaria. Si porta dietro anche tutte le righe in cui vengono usati i blob prodotti da questa funzione.
