@@ -169,33 +169,60 @@ def test_missing_liner():
         cv2.destroyAllWindows()
 
 def getThreshold():
-    thresh = 0
-    prefixed = [filename for filename in os.listdir('./caps') if filename.startswith("g")]
-    for file in prefixed:
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+    #First element is the average of perfect caps, second element of missing liners
+    average = [0,0]
+    i = 0
+    for fileStart in ['g', 'd_31']:
+        prefixed = [filename for filename in os.listdir('./caps') if filename.startswith(fileStart)]
+        for file in prefixed:
+            img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         
-        #binary = binarization.binarize(img)
-        #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
+            #binary = binarization.binarize(img)
+            #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
 
-        imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
-        gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
-        
-        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
-        circles = np.uint16(np.around(circles))
-        #draw only the first (better) circle
-        circle = circles[0][0]
+            # imgOut = ((255 / (img.max() - img.min()))*(img.astype(np.float)-img.min())).astype(np.uint8)
+            # gaussian = cv2.GaussianBlur(imgOut, (5,5), 2)
+            # edges = cv2.Canny(gaussian, 100, 200, apertureSize=3, L2gradient=True)
+            # blobs = labelling.bestLabellingGradient(edges)
 
-        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (circle[0], circle[1]), circle[2])
-        avg = np.mean(img[mask])
-        #temp = img.copy()
-        #temp[~mask] = 0
-        #cv2.imshow("temp", temp)
+            # circles = []
+            # for blob in blobs:
+            #     if len(blob[0]) > 2:
+            #         x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+            #         if not math.isnan(x) or not math.isnan(y) or not math.isnan(r):
+            #            circles.append((x, y, r, len(blob[0])))
 
-        thresh = thresh + avg
+            # x, y, r = outliers.outliersElimination(circles, (20, 20))
+            # mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r)
+            # avg = np.mean(img[mask])
+            # temp = img.copy()
+            # temp[~mask] = 255
+            # cv2.imshow("leastCircles Mask", temp)
 
-    thresh = thresh / len(prefixed)
+            binary = binarization.binarize(img)
+            mask = binary.copy().astype(bool)
+            avg = np.mean(img[mask])
+            #temp2 = img.copy()
+            #temp2[~mask] = 255
+            #cv2.imshow("binarization Mask", temp2)
+
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
+
+            average[i] = average[i] + avg
     
-    return thresh + thresh/10    #to consider the cap with no liner it must have a big difference with the correct average
+        average[i] = average[i] / len(prefixed)
+
+        i = i+1
+
+    #print('Good caps average: ' + str(average[0]))
+    #print('Missing liners average: ' + str(average[1]))
+
+    thresh = (average[0] + average[1])/2
+    #print('Threshold: ' + str(thresh))
+
+    return thresh
+    #return thresh + thresh/10    #to consider the cap with no liner it must have a big difference with the correct average
 
 def getThresholds():
     thresholdLiner = 0
