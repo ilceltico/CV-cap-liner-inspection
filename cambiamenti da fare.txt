@@ -5,3 +5,5 @@ Il big codice che c'è in test e test_hough_version è inutile che sia duplicato. 
 getThreshold, all'inizio, ok che simula un learning di qualche tipo, ma fatto così non è carinissimo. Dovremmo prendere tutte le immagini missing, trovare la media intensità di grigio, stessa cosa con tutte le immagini in cui il liner c'è, e trovare un punto nel mezzo come soglia.
 
 Alcune volte facciamo dei controlli su not isNan o simili, tipicamente su raggio, x e y di una circonferenza. Mi pare però che controlliamo sempre nel modo sbagliato, ovvero controlliamo che non siano tutti NaN, ma accettiamo che lo siano 2 su 3 per esempio. Non bisogna controllare che nessuno di quelli sia NaN??
+
+Difetti del liner: migliorare il riconoscimento: deve essere una linea (circa), che va da parte a parte del liner, e che divide il liner stesso in due semi-liner con media dei pixel differente (assenza di liner = più chiaro).

@@ -1011,7 +1011,7 @@ def test():
             blobs = labelling.bestLabellingGradient(edges)
             for blob in blobs:
                 blob = np.array(list(zip(blob[1],blob[0])))
-                if blob.size > 100 :
+                if blob.size > r/5 :
                     hasDefects = True
                     rect = cv2.minAreaRect(blob)
                     rectDim = rect[1]
