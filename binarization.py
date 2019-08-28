@@ -93,7 +93,7 @@ def is_circle(binary):
     variance = np.sum(np.square(distances_from_bary - average_distance)) / len(distances_from_bary);
     # print(std_dev)
 
-    haralick_circularity = average_distance / variance
+    haralick_circularity = average_distance / np.sqrt(variance)
     print('Circularity: ' + str(haralick_circularity))
 
 
@@ -157,4 +157,4 @@ def is_circle(binary):
 if __name__ == '__main__':
     for file in os.listdir('./caps'):
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
-        binarize(img)
+        is_circle(binarize(img))

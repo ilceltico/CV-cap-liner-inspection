@@ -1030,7 +1030,7 @@ def test():
                         circles.append((x, y, r, len(blob[0])))
 
         x, y, r = outliers.outliersElimination(circles, (20, 20))
-        if not (x is None or y is None or rCap is None):
+        if not (x is None or y is None or r is None):
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' inner circle (liner)', imgInner)
