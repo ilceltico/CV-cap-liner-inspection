@@ -2,6 +2,11 @@ import numpy as np
 import cv2
 import math
 import os
+import binarization
+import linerdefects_gradient
+import labelling
+import circledetection
+import outliers
 
 #img1 = cv2.imread('./caps/d_17.bmp', cv2.IMREAD_GRAYSCALE)
 #img2 = cv2.imread('./caps/d_19.bmp', cv2.IMREAD_GRAYSCALE)
@@ -95,14 +100,54 @@ def findLines():
     for file in os.listdir('./caps'):
         img = cv2.imread('./caps/' + file, cv2.IMREAD_GRAYSCALE)
         cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-        canny = cv2.Canny(img, 50, 100, apertureSize=3, L2gradient=False)
 
-        lines = cv2.HoughLines(canny, 1, math.pi/180, 70)
+        binary = binarization.binarize(img)
+        mask = binary.copy().astype(bool)
+        edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
 
-        rows, cols = img.shape
-    
-        if lines is not None:
-            for line in lines:
+        blobs = labelling.bestLabellingGradient(edges)
+
+        imgOuter = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
+                    circles.append((x, y, r, len(blob[0])))
+
+        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+
+        stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
+        stretched[~mask] = 0
+        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+
+        blobs = labelling.bestLabellingGradient(edges)
+        
+
+        imgInner = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        circles = []
+
+        for blob in blobs:
+                x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
+                    #if r < rCap - 5 and r > 150:
+                    if r < 0.99*rCap:
+                        circles.append((x, y, r, len(blob[0])))
+
+        x, y, r = outliers.outliersElimination(circles, (20, 20))
+
+        if not (x is None or y is None or rCap is None):
+            mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.95*r)
+            edges[~mask] = 0
+
+            lines = cv2.HoughLines(edges, 1, math.pi/180, 70)
+
+            rows, cols = img.shape
+        
+            if lines is not None:
+                # for line in lines:
+                line = lines[0]
                 rho = line[0][0]
                 theta = line[0][1]
                 if theta < math.pi / 4 or theta > 3 * math.pi / 4:
@@ -118,10 +163,10 @@ def findLines():
 
                 cv2.line(cimg, (int(x1), int(y1)), (int(x2), int(y2)), (0, 0, 255))
 
-        cv2.imshow('original', img)
-        cv2.imshow('canny', canny)
-        cv2.imshow('defects', cimg)
-        cv2.waitKey()
+            # cv2.imshow('original', img)
+            cv2.imshow('canny', edges)
+            cv2.imshow('defects', cimg)
+            cv2.waitKey()
 
 
 if __name__ == '__main__':
