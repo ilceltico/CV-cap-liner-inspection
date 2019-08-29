@@ -742,24 +742,40 @@ def test():
         imgInner = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
 
-        circles = np.uint16(np.around(circles))
-        #draw only the first (better) circle
-        circle = circles[0][0]
-        # draw the outer circle
-        cv2.circle(imgInner,(circle[0],circle[1]),circle[2],(0,255,0),1)
-        # draw the center of the circle
-        cv2.circle(imgInner,(circle[0],circle[1]),2,(0,0,255),3)
-        cv2.imshow('caps/' + file + ' inner circle (liner)', imgInner)
+        #circles = np.uint16(np.around(circles))
+        ##draw only the first (better) circle
+        #circle = circles[0][0]
+        ## draw the outer circle
+        #cv2.circle(imgInner,(circle[0],circle[1]),circle[2],(0,255,0),1)
+        ## draw the center of the circle
+        #cv2.circle(imgInner,(circle[0],circle[1]),2,(0,0,255),3)
+        #cv2.imshow('caps/' + file + ' inner circle (liner)', imgInner)
+
+        sum_x = 0
+        sum_y = 0
+        sum_r = 0
+        for i in range(0, 2):
+            sum_x += circles[0][i][1]
+            sum_y += circles[0][i][0]
+            sum_r += circles[0][i][2]
+
+        x = sum_x/2
+        y = sum_y/2
+        r_liner = sum_r/2
+
+        cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r_liner).astype("int"), (0, 255, 0), 1)
+        cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
+        cv2.imshow('./caps/' + file + ': detected circle (liner) EDGES MEAN CIRCLE', imgInner)
 
         # print position of the center of the liner, diameter of the liner
-        print("Position of the center of the liner: (" + str(circle[1]) + ", " + str(circle[0]) + ")")
-        print("Diameter of the liner: " + str(2*circle[2]))
+        print("Position of the center of the liner: (" + str(x) + ", " + str(y) + ")")
+        print("Diameter of the liner: " + str(2*r_liner))
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
         #DEFECT DETECTION
         print("Is the liner incomplete?")
-        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (circle[0], circle[1]), 0.95*circle[2])
+        mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.95*r_liner)
 
         #   we can use a pixel average to detect defects and check if it is greater than a threshold
 
@@ -778,14 +794,14 @@ def test():
         edges[~mask] = 0
         #cv2.imshow("defect", edges)
         liner = np.zeros((img.shape[0],img.shape[1]), dtype=np.uint8)
-        cv2.circle(liner, (np.round(circle[0]).astype("int"), np.round(circle[1]).astype("int")), np.round(0.95*circle[2]).astype("int"), (255, 255, 255), 2)
+        cv2.circle(liner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(0.95*r_liner).astype("int"), (255, 255, 255), 2)
         #cv2.imshow("liner", liner)
         liner_defects = liner + edges
-        cv2.imshow("liner+defects", liner_defects)
+        #cv2.imshow("liner+defects", liner_defects)
         nonzero = np.nonzero(liner)
         liner = list(zip(nonzero[0],nonzero[1]))
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
         hasDefects = False
         detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -800,7 +816,7 @@ def test():
                     if distance > max_distance:
                         max_distance = distance
 
-            if len(common) >= 2 and max_distance > circle[2]/10:
+            if len(common) >= 2 and max_distance > r_liner/10:
                 hasDefects = True
                 rect = cv2.minAreaRect(np.array(list(zip(blob[1], blob[0]))))
                 rectDim = rect[1]
