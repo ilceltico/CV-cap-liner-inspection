@@ -683,12 +683,12 @@ def test():
         
         #   draw only the first (better) circle
         #circle = circles[0][0]
-        #rCap = circle[2]
+        #r_cap = circle[2]
         ## draw the outer circle
-        #cv2.circle(imgOuter,(circle[0],circle[1]),rCap,(0,255,0),1)
+        #cv2.circle(imgOuter,(circle[0],circle[1]),r_cap,(0,255,0),1)
         ## draw the center of the circle
         #cv2.circle(imgOuter,(circle[0],circle[1]),2,(0,0,255),3)
-        #cv2.imshow('caps/' + file + ' inner circle (liner)', imgOuter)
+        #cv2.imshow('caps/' + file + ' outer circle (cap)', imgOuter)
 
         #   take only the radius from the Hough result and compute the radius
         sum_x = 0
@@ -702,7 +702,7 @@ def test():
         x = sum_x/3
         y = sum_y/3
 
-        #compute the radius as the mean distance between points and the center (found with Hough)
+        # compute the radius as the mean distance between points and the center (found with Hough)
         edges = cv2.Canny(binary, 100, 200, L2gradient=True)
         pixels_x, pixels_y = np.nonzero(edges)
 
@@ -784,7 +784,7 @@ def test():
         edges[~mask] = 0
         #cv2.imshow("defect", edges)
         liner = np.zeros((img.shape[0],img.shape[1]), dtype=np.uint8)
-        cv2.circle(liner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(0.9*circle[2]).astype("int"), (255, 255, 255), 2)
+        cv2.circle(liner, (np.round(circle[0]).astype("int"), np.round(circle[1]).astype("int")), np.round(0.95*circle[2]).astype("int"), (255, 255, 255), 2)
         #cv2.imshow("liner", liner)
         liner_defects = liner + edges
         cv2.imshow("liner+defects", liner_defects)
@@ -871,13 +871,14 @@ def compare_inner():
         #linear stretching only on the mask (cap)
         stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
         stretched[~mask] = 0
-        gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
-        
+        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+        edges = cv2.Canny(gaussian, 45, 100, L2gradient=True)
+
         imgInner = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-        circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.9*r_cap).astype("int"))
+        circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.95*r_cap).astype("int"))
         circles = np.uint16(np.around(circles))
 
-        out_mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.9*r_cap)
+        out_mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.95*r_cap)
 
         x = circles[0][0][1]
         y = circles[0][0][0]
@@ -891,26 +892,24 @@ def compare_inner():
         
         #sum_x = 0
         #sum_y = 0
-        sum_r = 0
-        for i in range(0, 3):
-        #    x = circles[0][i][1]
-        #    y = circles[0][i][0]
-            r = circles[0][i][2]
-        #    sum_x += x
-        #    sum_y += y
-            sum_r += r
+        #sum_r = 0
+        #for i in range(0, 3):
+        #    sum_x += circles[0][i][1]
+        #    sum_y += circles[0][i][0]
+        #    sum_r += circles[0][i][2]
 
         #x = sum_x/3
         #y = sum_y/3
+        #r = sum_r/3
+
         x = circles[0][0][1]
         y = circles[0][0][0]
-        r = sum_r/3
+        r = circles[0][0][2]
+
         in_mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), 0.95*r)
-        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
-        edges = cv2.Canny(gaussian, 45, 100, L2gradient=True)
         edges[~out_mask] = 0
         edges[in_mask] = 0
-        #cv2.imshow('liner', edges)
+        cv2.imshow('liner', edges)
 
         if len(np.nonzero(edges)[0]) == 0:  #skip d_31
             continue
@@ -923,20 +922,7 @@ def compare_inner():
         cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
         cv2.circle(cimg, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r_liner).astype("int"), (0, 255, 0), 1)
         cv2.circle(cimg, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
-        cv2.imshow('./caps/' + file + ': detected circle (liner) NEW METHOD', cimg)
-
-        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
-        edges = cv2.Canny(gaussian, 45, 100, L2gradient=True)
-        imgInner = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
-
-        circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.95*r_cap).astype("int"))
-        circles = np.uint16(np.around(circles))
-        x = circles[0][0][1]
-        y = circles[0][0][0]
-        r = circles[0][0][2]
-        cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
-        cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
-        cv2.imshow('./caps/' + file + ': detected circle (liner) EDGES', imgInner)
+        cv2.imshow('./caps/' + file + ': detected circle (liner) INTERPOLATED', cimg)
         
         cv2.waitKey(0)
         cv2.destroyAllWindows()

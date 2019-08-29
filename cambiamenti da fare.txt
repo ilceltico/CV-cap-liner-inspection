@@ -11,3 +11,7 @@ Difetti del liner: migliorare il riconoscimento: deve essere una linea (circa), 
 Riga 660 di tests_hough_version: qui stiamo invertendo 2 volte le coordinate x e y dei cerchi, non serve.
 
 labelling.bestLabellingGradient: labels è un immagine sotto forma di matrice, quindi il primo indice indica le righe, quindi le y dell'immagine. Necessaria inversione delle coordinate dei blob. Questo si porta dietro anche riga 1013 di tests ( blob = np.array(list(zip(blob[1],blob[0])))), perchè qui l'inversione non sarà più necessaria. Si porta dietro anche tutte le righe in cui vengono usati i blob prodotti da questa funzione.
+
+POSIZIONI DELLE FUNZIONI DOPO IL REFACTOR DA SISTEMARE NELLA RELAZIONE:
+	- binarization.is_circle() in Haralick Circularity 
+	- tests.getThreshold() in Check if the liner is missing
