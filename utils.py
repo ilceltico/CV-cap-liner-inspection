@@ -77,20 +77,21 @@ def is_circle(binary):
         return False
 
 
-
 def get_blobs(edges):
     """
     """
 
-    retVal, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
+    ret_val, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
   
     nonzero = np.nonzero(labels)
     #print(nonzero)
     #print(retVal)
-    retVal -= 1
 
-    blobsX = [[] for i in range(retVal)]
-    blobsY = [[] for i in range(retVal)]
+    # subtraction as ret_val contains also background label
+    ret_val -= 1
+
+    blobs_x = [[] for i in range(ret_val)]
+    blobs_y = [[] for i in range(ret_val)]
 
     for i in range(0, len(nonzero[0])):
         x = nonzero[1][i]
@@ -98,18 +99,18 @@ def get_blobs(edges):
 
         p = labels[x][y]
 
-        blobsX[p - 1].append(x)
-        blobsY[p - 1].append(y)
+        blobs_x[p - 1].append(x)
+        blobs_y[p - 1].append(y)
 
     result = []
     
-    for i in range(retVal):
-        result.append((blobsX[i], blobsY[i]))
+    for i in range(ret_val):
+        result.append((blobs_x[i], blobs_y[i]))
 
     return result
 
 
-def circularmask(image_height, image_width, center=None, radius=None):
+def circular_mask(image_height, image_width, center=None, radius=None):
     """
     """
 
@@ -132,8 +133,8 @@ def get_missing_liner_threshold():
 	#First element is the average of perfect caps, second element of missing liners
     average = [0,0]
     i = 0
-    for fileStart in ['g', 'd_31']:
-        prefixed = [filename for filename in os.listdir('./caps') if filename.startswith(fileStart)]
+    for file_start in ['g', 'd_31']:
+        prefixed = [filename for filename in os.listdir('./caps') if filename.startswith(file_start)]
         for file in prefixed:
             img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
 
