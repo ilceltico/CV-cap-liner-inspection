@@ -84,6 +84,22 @@ def outliersElimination(circles, thresholds):
     else:
         return None, None, None
 
+def outliersElimination_test(circles, thresholds):
+    if len(circles) == 0:
+        return None
+
+    weighted = [[x * n, y * n, r * n, n] for x, y, r, n, _ in circles]
+    sums = [sum(a) for a in zip(*weighted)]
+    meanCircle = [el/sums[3] for el in sums]
+    
+    circlesRemaining = [(x, y, r, n, blob) for x, y, r, n, blob in circles if math.sqrt((x - meanCircle[0]) ** 2 + (y - meanCircle[1]) ** 2) <= thresholds[0] and abs(r - meanCircle[2]) <= thresholds[1]]
+    
+
+    if len(circlesRemaining) > 0:
+        return circlesRemaining
+    else:
+        return None
+
 #@profile
 def test():
     blobs = labelling.bestLabelling('d_16.bmp')

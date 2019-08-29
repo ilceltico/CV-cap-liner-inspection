@@ -44,8 +44,7 @@ def leastSquaresCookVersion(x, y):
     #print("Center: (" + str(xCenter) + "," + str(yCenter) + "), radius: " + str(radius))
 
     cooks_distances = results.get_influence().summary_frame().cooks_d
-    print(sorted(cooks_distances, reverse=True))
-
+    # print(sorted(cooks_distances, reverse=True))
 
 
 
