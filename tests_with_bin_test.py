@@ -6,7 +6,7 @@ import math
 import random
 import labelling
 import circledetection
-import outliers
+import outliers_with_bin_test
 import linerdefects_gradient
 import binarization
 
@@ -30,7 +30,7 @@ def test_inner_circle():
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -58,7 +58,7 @@ def test_outer_circle():
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -87,7 +87,7 @@ def test_outer_with_binarization():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -118,7 +118,7 @@ def outer_circle_with_stretching():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -149,7 +149,7 @@ def test_outer_circle_with_erosion():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -180,7 +180,7 @@ def test_outer_circle_with_dilation():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -243,7 +243,7 @@ def test_missing_liner():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                    circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r)
             avg = np.mean(img[mask])
@@ -285,7 +285,7 @@ def getThreshold():
             #         if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
             #            circles.append((x, y, r, len(blob[0])))
 
-            # x, y, r = outliers.outliersElimination(circles, (20, 20))
+            # x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
             # mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r)
             # avg = np.mean(img[mask])
             # temp = img.copy()
@@ -340,7 +340,7 @@ def getThresholds():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                    circles.append((x, y, r, len(blob[0])))
 
-        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        x, y, rCap = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), rCap)
         avg = np.mean(img[mask])
         #temp = img.copy()
@@ -361,7 +361,7 @@ def getThresholds():
                     if r < rCap - 5 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         mask = linerdefects_gradient.circularmask(img.shape[0], img.shape[1], (y, x), r-10)
         avg = np.mean(edges[mask])
         #print(file + ' ' + str(avg))
@@ -401,7 +401,7 @@ def test_inner_liner_magnitude():
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -440,7 +440,7 @@ def another_inner_circle():
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -479,7 +479,7 @@ def best_inner_circle():
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -505,7 +505,7 @@ def compare_all_inner_results():
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgO, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgO, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -529,7 +529,7 @@ def compare_all_inner_results():
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 0, 255), 1)
                         #cv2.circle(img, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 255, 0), 1)
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgM, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgM, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -551,7 +551,7 @@ def compare_all_inner_results():
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgA, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgA, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -575,7 +575,7 @@ def compare_all_inner_results():
                     if r < 210 and r > 170 and x > 0 and y > 0:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgB, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgB, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -632,7 +632,7 @@ def test_sharpening():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        x, y, rCap = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -674,7 +674,7 @@ def test_sharpening():
                     if r < rCap - 5 and r > 150:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -772,7 +772,7 @@ def test_all():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        x, y, rCap = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -814,7 +814,7 @@ def test_all():
                     if r < rCap - 5 and r > 150:
                         circles.append((x, y, r, len(blob[0])))
 
-        x, y, r = outliers.outliersElimination(circles, (20, 20))
+        x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -916,7 +916,7 @@ def test():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        x, y, rCap = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -1024,7 +1024,7 @@ def test():
         #     cv2.circle(imgInner, (np.round(circle[1]).astype("int"), np.round(circle[0]).astype("int")), np.round(circle[2]).astype("int"), (0, 255, 0), 1)
         #     cv2.circle(imgInner, (np.round(circle[1]).astype("int"), np.round(circle[0]).astype("int")), 2, (0, 0, 255), 3)
 
-        x, y, r = outliers.outliers_elimination_with_bins(img.shape, circles, ((72,85), 36))
+        x, y, r = outliers_with_bin_test.outliers_elimination_with_bins(img.shape, circles, ((72,85), 36))
 
         # for blob in blobs:
         #         x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
@@ -1033,7 +1033,7 @@ def test():
         #             if r < 0.99*rCap:
         #                 circles.append((x, y, r, len(blob[0])))
 
-        # x, y, r = outliers.outliersElimination(circles, (20, 20))
+        # x, y, r = outliers_with_bin_test.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or r is None):
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(r).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgInner, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -1182,8 +1182,8 @@ def new_circle_detection():
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
                     circles.append((x, y, r, len(blob[0])))
 
-        # x, y, rCap = outliers.outliersElimination(circles, (20, 20))
-        x, y, rCap = outliers.outliers_elimination_with_bins(img.shape, circles, ((3,5), 3))
+        # x, y, rCap = outliers_with_bin_test.outliersElimination(circles, (20, 20))
+        x, y, rCap = outliers_with_bin_test.outliers_elimination_with_bins(img.shape, circles, ((3,5), 3))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)

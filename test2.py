@@ -73,7 +73,9 @@ def test():
     thresholdLiner = getThreshold()
     print("thresholdLiner: " + str(thresholdLiner))
     #print("thresholdDefects: " + str(thresholdDefects))
-    for file in os.listdir('./caps'):
+    prefixed = [file for file in os.listdir('./caps') if file.startswith('g_01') or file.startswith('g_06')]
+    for file in prefixed:
+#    for file in os.listdir('./caps'):
         print("--------------------------------------------------------------------")
         print(file)
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
@@ -108,27 +110,28 @@ def test():
         for blob in blobs:
                 x, y, r = circledetection.leastSquaresCircleFitCached(blob[0], blob[1])
                 if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
-                    circles.append((x, y, r, len(blob[0]), blob))
+                    circles.append((x, y, r, len(blob[0])))
+                    # circles.append((x, y, r, len(blob[0]), blob))
 
-        circles_remaining = outliers.outliersElimination_test(circles, (20,20))
+        # circles_remaining = outliers.outliersElimination_test(circles, (20,20))
 
-        blob_x = [x for circle in circles_remaining for x in circle[4][0]]
-        blob_y = [y for circle in circles_remaining for y in circle[4][1]]
+        # blob_x = [x for circle in circles_remaining for x in circle[4][0]]
+        # blob_y = [y for circle in circles_remaining for y in circle[4][1]]
 
-        x, y, rCap, cook_d = circledetection_cook_version.leastSquaresCookVersion(blob_x, blob_y)
+        # x, y, rCap, cook_d = circledetection_cook_version.leastSquaresCookVersion(blob_x, blob_y)
 
-        blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
-        blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
+        # blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
+        # blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
 
-        blob_x = blob_x[int(len(blob_x) / 20):]
-        blob_y = blob_y[int(len(blob_y) / 20):]
+        # blob_x = blob_x[int(len(blob_x) / 20):]
+        # blob_y = blob_y[int(len(blob_y) / 20):]
 
-        x, y, rCap, cook_d = circledetection_cook_version.leastSquaresCookVersion(blob_x, blob_y)
+        # x, y, rCap, cook_d = circledetection_cook_version.leastSquaresCookVersion(blob_x, blob_y)
 
 
         
 
-        # x, y, rCap = outliers.outliersElimination(circles, (20, 20))
+        x, y, rCap = outliers.outliersElimination(circles, (20, 20))
         if not (x is None or y is None or rCap is None):
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(rCap).astype("int"), (0, 255, 0), 1)
             cv2.circle(imgOuter, (np.round(y).astype("int"), np.round(x).astype("int")), 2, (0, 0, 255), 3)
@@ -251,10 +254,34 @@ def test():
         blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
         blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
 
-        blob_x = blob_x[int(len(blob_x) / 20):]
-        blob_y = blob_y[int(len(blob_y) / 20):]
+        normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
 
-        x, y, r, cook_d = circledetection_cook_version.leastSquaresCookVersion(blob_x, blob_y)
+        imgCook = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        for i in range(0, len(blob_x)):
+            imgCook[blob_x[i],blob_y[i]] = (normalizedCooks[i],100,0)
+
+        cv2.imshow('imgCook', imgCook)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        eliminationFraction = 10
+
+        blob_x = blob_x[int(len(blob_x) / eliminationFraction):]
+        blob_y = blob_y[int(len(blob_y) / eliminationFraction):]
+
+        cook_d = cook_d[int(len(cook_d) / eliminationFraction):]
+
+        normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
+        imgCook = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        for i in range(0, len(blob_x)):
+            imgCook[blob_x[i],blob_y[i]] = (normalizedCooks[i],100,0)
+
+        cv2.imshow('imgCook', imgCook)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+        x, y, r = circledetection.leastSquaresCircleFitCached(blob_x, blob_y)
 
 
 
