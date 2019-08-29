@@ -4,7 +4,13 @@ import cv2
 HARALICK_THRESHOLD = 200
 
 def binarize(img):
-    """
+    """ Divides the image in two regions, using Otsu's algorithm.
+
+    Parameters:
+        img: the image.
+
+    Returns:
+        A binarized image.
     """
 
     # Show bimodal histogram
@@ -29,7 +35,13 @@ def binarize(img):
 
 
 def is_circle(binary):
-    """
+    """ Determines if a binarized image has a circular form or not.
+    
+    Parameters:
+        binary: the binarized image.
+
+    Returns:
+        True if the form is circular enough, False otherwise.
     """
 
     # Contours are simply a curve joining all the points (along the boundary), having same color or intensity.
@@ -78,7 +90,13 @@ def is_circle(binary):
 
 
 def get_blobs(edges):
-    """
+    """ Finds connected blobs from a contour/edge image.
+
+    Parameters:
+        edges: the image with edges/contours.
+
+    Returns:
+        A list of tuples. Each tuple is a blob and is made of two arrays: the first is for x coordinates, the second for y coordinates.
     """
 
     ret_val, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
@@ -111,7 +129,16 @@ def get_blobs(edges):
 
 
 def circular_mask(image_height, image_width, center=None, radius=None):
-    """
+    """ Produces a binary circular mask with the specified parameters.
+    
+    Parameters:
+        image_height: int.
+        image_width: int.
+        center: couple of coordinates (x,y).
+        radius: positive number.
+
+    Returns:
+        A binary image with True inside the specified circle, False outside.
     """
 
     if center is None: # use the middle of the image
@@ -127,7 +154,10 @@ def circular_mask(image_height, image_width, center=None, radius=None):
 
 
 def get_missing_liner_threshold():
-    """
+    """ Computes the threshold to determine if a liner is missing or not by analyzing existing supervised examples.
+
+    Returns:
+        The found threshold.
     """
 
 	#First element is the average of perfect caps, second element of missing liners
