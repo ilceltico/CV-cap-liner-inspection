@@ -85,12 +85,12 @@ def is_circle(binary):
     # print(np.linalg.norm(ar, axis=1))
     # print(len(ar[0]))
     distances_from_bary = np.linalg.norm(diff, axis=1)
-    average_distance = np.sum(distances_from_bary) / len(distances_from_bary);
+    average_distance = np.sum(distances_from_bary) / len(distances_from_bary)
     # print(average_distance)
     # print(area_non_zero)
     # print(moments["m00"])
 
-    variance = np.sum(np.square(distances_from_bary - average_distance)) / len(distances_from_bary);
+    variance = np.sum(np.square(distances_from_bary - average_distance)) / len(distances_from_bary)
     # print(std_dev)
 
     haralick_circularity = average_distance / np.sqrt(variance)

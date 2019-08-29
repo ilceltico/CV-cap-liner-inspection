@@ -15,3 +15,4 @@ labelling.bestLabellingGradient: labels è un immagine sotto forma di matrice, qu
 POSIZIONI DELLE FUNZIONI DOPO IL REFACTOR DA SISTEMARE NELLA RELAZIONE:
 	- binarization.is_circle() in Haralick Circularity 
 	- tests.getThreshold() in Check if the liner is missing
+	- tests.test() in Outline the cap	OCCHIO AGLI INDICI ANCHE QUI DA SISTEMARE (x e y)
