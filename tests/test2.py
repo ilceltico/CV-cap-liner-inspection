@@ -16,9 +16,9 @@ def getThreshold():
     average = [0,0]
     i = 0
     for fileStart in ['g', 'd_31']:
-        prefixed = [filename for filename in os.listdir('./caps') if filename.startswith(fileStart)]
+        prefixed = [filename for filename in os.listdir('../caps') if filename.startswith(fileStart)]
         for file in prefixed:
-            img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         
             #binary = binarization.binarize(img)
             #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
@@ -73,12 +73,12 @@ def test():
     thresholdLiner = getThreshold()
     print("thresholdLiner: " + str(thresholdLiner))
     #print("thresholdDefects: " + str(thresholdDefects))
-    prefixed = [file for file in os.listdir('./caps') if file.startswith('g_01') or file.startswith('g_06')]
+    prefixed = [file for file in os.listdir('../caps') if file.startswith('g_01') or file.startswith('g_06')]
     for file in prefixed:
-#    for file in os.listdir('./caps'):
+#    for file in os.listdir('../caps'):
         print("--------------------------------------------------------------------")
         print(file)
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         binary = binarization.binarize(img)
         #cv2.imshow('binary', binary)
 
@@ -263,6 +263,8 @@ def test():
         cv2.imshow('imgCook', imgCook)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+        print(str(file) + " Highest Cook's distance: " + str(cook_d[0]))
 
         eliminationFraction = 10
 
