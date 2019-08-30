@@ -43,10 +43,24 @@ def outer_circle_detection(img):
 
     circles = []
 
+    # if mean
     for blob in blobs:
-        x, y, r = circledetection.least_squares_circle_fit(blob[0], blob[1])
+        x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
         if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
-            circles.append((x, y, r, len(blob[0]), blob))
+            circles.append((x_temp, y_temp, r_temp, len(blob[0])))
+
+    remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
+
+    weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
+    sums = [sum(a) for a in zip(*weighted)]
+    x, y, r, _ = [el/sums[3] for el in sums]
+
+    #if blob
+
+    for blob in blobs:
+        x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
+        if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
+            circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
     
     remaining_circles = circledetection.outliers_elimination_blobs(circles, (20, 20))
 
@@ -56,6 +70,16 @@ def outer_circle_detection(img):
     x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
     return x, y, r
+
+#
+#
+# COME CAZZO PRENDO IL RAGGIO GRANDE??????
+#
+#
+# A SECONDA DELLE ESIGENZE POSSO AGGIUNGERE O NO I BLOB AL CERCHIO
+# |-> BISOGNA SCRIVERE UN'ALTRA FUNZIONE APPOSTA DA CHIAMARE (outliers_elimination)
+#
+#
 
 def inner_circle_detection(img):
     # mask + stretching + mask + gaussian + (canny) + hough + best 1/2/3 for x,y (r) AND (mean for r)
@@ -71,16 +95,6 @@ def inner_circle_detection(img):
     # ----------
     # if hough
     # ----------
-
-    #
-    #
-    # COME CAZZO PRENDO IL RAGGIO GRANDE??????
-    #
-    #
-    # A SECONDA DELLE ESIGENZE POSSO AGGIUNGERE O NO I BLOB AL CERCHIO
-    # |-> BISOGNA SCRIVERE UN'ALTRA FUNZIONE APPOSTA DA CHIAMARE (outliers_elimination)
-    #
-    #
     
     binary = utils.binarize(img)
     mask = binary.copy().astype(bool)
@@ -160,16 +174,27 @@ def inner_circle_detection(img):
                     circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), (blob_x, blob_y)))
 
     # outliers elimination with MEAN
+    weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
+    sums = [sum(a) for a in zip(*weighted)]
+    x, y, r, _ = [el/sums[3] for el in sums]
 
     # outliers elimintaion with BIN
+
         # remaining circles with MEAN
+
         # remaining circles MERGED
+
             # interpolation with LEAST SQUARE
+
             # interpolation with COOK
+
     
     # outliers MERGED
+
         # interpolation with LEAST SQUARE
+
         # interpolation with COOK
+
 
 
 
