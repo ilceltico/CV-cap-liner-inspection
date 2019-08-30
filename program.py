@@ -5,6 +5,10 @@ import math
 import cv2
 import numpy as np
 
+##################################
+# BISOGNA ANCORA INVERTIRE X E Y #
+##################################
+
 
 def outer_circle_detection(img):
     # bynary mask + canny + labelling + least square + outliers (media o interpolazione finale?) (tests.py)
@@ -78,7 +82,7 @@ def outer_circle_detection(img):
 #
 # A SECONDA DELLE ESIGENZE POSSO AGGIUNGERE O NO I BLOB AL CERCHIO
 # |-> BISOGNA SCRIVERE UN'ALTRA FUNZIONE APPOSTA DA CHIAMARE (outliers_elimination)
-#
+# |-> POTREBBE CREARE PORBLEMI ANCHE IN OUTER_CIRCLE_DETECTION
 #
 
 def inner_circle_detection(img):
@@ -141,7 +145,7 @@ def inner_circle_detection(img):
 
     circles = []
 
-    # split?
+    # if split
     for blob in blobs:
         x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
         if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
@@ -173,27 +177,40 @@ def inner_circle_detection(img):
                 if r < 0.99*rCap:
                     circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), (blob_x, blob_y)))
 
-    # outliers elimination with MEAN
-    weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
+    # IF outliers elimination
+
+    # IF outliers elimination with MEAN
+    remaining_circles = circledetection.outliers_elimination(circles, (20,20))
+
+    # ELSE outliers elimintaion with BIN
+    remaining_circles = circledetection.outliers_elimination_with_bins(img.shape[0], img.shape[1], circles, ((72,85), 36))  
+
+    # IF remaining circles with MEAN
+    weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
     sums = [sum(a) for a in zip(*weighted)]
     x, y, r, _ = [el/sums[3] for el in sums]
 
-    # outliers elimintaion with BIN
-
-        # remaining circles with MEAN
-
-        # remaining circles MERGED
-
-            # interpolation with LEAST SQUARE
-
-            # interpolation with COOK
-
-    
-    # outliers MERGED
+    # ELSE remaining circles MERGED
+    blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+    blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
         # interpolation with LEAST SQUARE
+        x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
         # interpolation with COOK
+        x, y, r =
+
+    # ELSE no outliers elimination
+
+    # outliers MERGED
+    blob_x = [x for circle in circles for x in circle[4][0]]
+    blob_y = [y for circle in circles for y in circle[4][1]]
+
+        # interpolation with LEAST SQUARE
+        x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
+
+        # interpolation with COOK
+        x, y, r =
 
 
 

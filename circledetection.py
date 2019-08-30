@@ -138,3 +138,43 @@ def outliers_elimination_with_bins(img_shape, circles, bins):
     # return x, y, r
 
     return remaining_circles
+
+def outliers_elimination_with_bins(img_shape, circles, bins):
+    # img_shape: rows and columns
+    # circles: list of tuple (center x, center y, radius, number of pixel)
+    # bins: tuple of number of bins ((axisX, axisY), radius)
+
+    votes_bins = np.zeros((bins[0][0], bins[0][1], bins[1]))
+    circle_bins = [[[[] for _ in range(bins[1])] for _ in range(bins[0][1])] for _ in range(bins[0][0])]
+
+    bin_shape_rows = img_shape[0] // bins[0][0]
+    bin_shape_cols = img_shape[1] // bins[0][1]
+    bin_shape_r = img_shape[0] // 2 // bins[1]
+
+    for circle in circles:
+        row_bin = np.round(circle[0]).astype("int") // bin_shape_rows
+        col_bin = np.round(circle[1]).astype("int") // bin_shape_cols
+        r_bin = np.round(circle[2]).astype("int") // bin_shape_r
+
+        votes_bins[row_bin][col_bin][r_bin] += circle[3]
+        circle_bins[row_bin][col_bin][r_bin].append(circle)
+
+    maximum = np.unravel_index(np.argmax(votes_bins, axis=None), votes_bins.shape)
+    remaining_circles = circle_bins[maximum[0]][maximum[1]][maximum[2]]
+
+    # print('CIRCLES:' + str(len(circles)))
+    # print('REMAINING CIRCLES:' + str(len(remaining_circles)))
+
+    # weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
+    # sums = [sum(a) for a in zip(*weighted)]
+    # mean_circle = [el/sums[3] for el in sums]
+
+    # blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+    # blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+
+    # x, y, r = circledetection.leastSquaresCircleFitCached(blob_x, blob_y)
+
+    # return mean_circle[0], mean_circle[1], mean_circle[2]
+    # return x, y, r
+
+    return remaining_circles
