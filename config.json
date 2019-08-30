@@ -1,0 +1,32 @@
+{
+    "circle_detection":{
+        "outer":{
+            "methods":{
+                "type": "string",
+                "enum": ["hough", "least_squares"]
+            },
+            "parameters":{
+                "hough":{
+                    "number_of_circle_average":3
+                },
+                "least_squares":{
+                    "circle_generation":["mean","interpolation"] // after outliers elimination
+                }
+            }
+        },
+        "inner":{
+            "hough":{
+                "image_to_hough":["edges","gaussian","binary"],
+                "number_of_circle_average":2
+            },
+            "our_method":{
+                "split_blobs":true,
+                
+            }
+
+        }
+    },
+    "defect_detection":{
+
+    }
+}
