@@ -65,16 +65,15 @@ def outer_circle_detection(img):
     x, y, r, _ = [el/sums[3] for el in sums]
 
     #if blob
-
     for blob in blobs:
         x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
         if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
             circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
     
-    remaining_circles = circledetection.outliers_elimination_blobs(circles, (20, 20))
+    remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
 
-    blob_x = [x for circle in circles_remaining for x in circle[4][0]]
-    blob_y = [y for circle in circles_remaining for y in circle[4][1]]
+    blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+    blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
     x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
@@ -207,9 +206,8 @@ def inner_circle_detection(img):
             x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
             # interpolation with COOK
-            x, y, r =
+            x, y, r = # iteration with cook elimination are needed
 
-    # remaining always
     # IF remaining circles with MEAN
     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
     sums = [sum(a) for a in zip(*weighted)]
@@ -223,7 +221,7 @@ def inner_circle_detection(img):
         x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
         # interpolation with COOK
-        x, y, r =
+        x, y, r = # iteration with cook elimination are needed
 
     return x, y, r
 
