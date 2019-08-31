@@ -4,12 +4,20 @@ import statsmodels.api as sm
 
 def least_squares_circle_fit(x, y):
     """
+    Interpolate the points with a circle.
+
+    Parameters:
+        x: list of x coordinates.
+        y: list of y coordinates.
+
+    Return:
+        Tuple containing center coordinates and radius
     """
 
-    numPoints = len(x)
+    num_points = len(x)
 
-    x_ = np.sum(x)/numPoints
-    y_ = np.sum(y)/numPoints
+    x_ = np.sum(x) / num_points
+    y_ = np.sum(y) / num_points
 
     u = x - x_
     v = y - y_
@@ -59,6 +67,17 @@ def least_squares_circle_fit(x, y):
     return xc, yc, r
 
 def least_squares_circle_cook(x, y):
+    """
+    Interpolate the points with a circle.
+
+    Parameters:
+        x: list of x coordinates.
+        y: list of y coordinates.
+
+    Return:
+        Tuple containing center coordinates, radius and cook distance list
+    """
+    
     x = np.array(x)
     y = np.array(y)
     indip1 = 2*x
@@ -96,6 +115,14 @@ def least_squares_circle_cook(x, y):
 
 def outliers_elimination(circles, thresholds):
     """
+    Eliminate outliers circles based on the distance from the mean circles.
+
+    Parameters:
+        circles: list of center x coordinate, center y coordinate, radius and number of points (eventually also the blob)
+        thresholds: tuple of max distance from the center and difference from the radius of the mean circle.
+
+    Return:
+        List of remaining circles.
     """
 
     # circles: list of tuple (center x, center y, radius, number of pixels)
@@ -104,18 +131,24 @@ def outliers_elimination(circles, thresholds):
     if len(circles) == 0:
         return []
 
-    if len(circles[0]) == 4:
-        weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
-        sums = [sum(a) for a in zip(*weighted)]
-        mean_circle = [el/sums[3] for el in sums]
+    weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in circles]
+    sums = [sum(a) for a in zip(*weighted)]
+    mean_circle = [el/sums[3] for el in sums]
 
-        circles_remaining = [(x, y, r, n) for x, y, r, n in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
-    else:
-        weighted = [[x * n, y * n, r * n, n] for x, y, r, n, _ in circles]
-        sums = [sum(a) for a in zip(*weighted)]
-        mean_circle = [el/sums[3] for el in sums]
+    circles_remaining = [(circle[0], circle[1], circle[2], circle[3]) for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
 
-        circles_remaining = [(x, y, r, n, blob) for x, y, r, n, blob in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
+    # if len(circles[0]) == 4:
+    #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
+    #     sums = [sum(a) for a in zip(*weighted)]
+    #     mean_circle = [el/sums[3] for el in sums]
+
+    #     circles_remaining = [(x, y, r, n) for x, y, r, n in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
+    # else:
+    #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n, _ in circles]
+    #     sums = [sum(a) for a in zip(*weighted)]
+    #     mean_circle = [el/sums[3] for el in sums]
+
+    #     circles_remaining = [(x, y, r, n, blob) for x, y, r, n, blob in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
 
     return circles_remaining
 
@@ -142,8 +175,17 @@ def outliers_elimination(circles, thresholds):
 #     else:
 #         return None, None, None
 
-def outliers_elimination_with_bins(img_shape, circles, bins):
+def outliers_elimination_with_bins(img_height, img_width, circles, bins):
     """
+    Eliminate outliers circles based on similarity.
+
+    Parameters:
+        img_height: int.
+        imag_width: int.
+        circles: list of center x coordinate, center y coordinate, radius and number of points (eventually also the blob)
+        thresholds: tuple of numbers of bins on rows, columns and radius
+    Return:
+        List of remaining circles.
     """
 
     if len(circles) == 0:
@@ -156,9 +198,9 @@ def outliers_elimination_with_bins(img_shape, circles, bins):
     votes_bins = np.zeros((bins[0][0], bins[0][1], bins[1]))
     circle_bins = [[[[] for _ in range(bins[1])] for _ in range(bins[0][1])] for _ in range(bins[0][0])]
 
-    bin_shape_rows = img_shape[0] // bins[0][0]
-    bin_shape_cols = img_shape[1] // bins[0][1]
-    bin_shape_r = img_shape[0] // 2 // bins[1]
+    bin_shape_rows = img_height // bins[0]
+    bin_shape_cols = img_width // bins[1]
+    bin_shape_r = img_height // 2 // bins[2]
 
     for circle in circles:
         row_bin = np.round(circle[0]).astype("int") // bin_shape_rows

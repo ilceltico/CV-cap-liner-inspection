@@ -4,7 +4,8 @@ import cv2
 HARALICK_THRESHOLD = 200
 
 def binarize(img):
-    """ Divides the image in two regions, using Otsu's algorithm.
+    """
+    Divides the image in two regions, using Otsu's algorithm.
 
     Parameters:
         img: the image.
@@ -35,7 +36,8 @@ def binarize(img):
 
 
 def is_circle(binary):
-    """ Determines if a binarized image has a circular form or not.
+    """
+    Determines if a binarized image has a circular form or not.
     
     Parameters:
         binary: the binarized image.
@@ -90,7 +92,8 @@ def is_circle(binary):
 
 
 def get_blobs(edges):
-    """ Finds connected blobs from a contour/edge image.
+    """
+    Finds connected blobs from a contour/edge image.
 
     Parameters:
         edges: the image with edges/contours.
@@ -128,8 +131,9 @@ def get_blobs(edges):
     return result
 
 
-def circular_mask(image_height, image_width, center=None, radius=None):
-    """ Produces a binary circular mask with the specified parameters.
+def circular_mask(img_height, img_width, center=None, radius=None):
+    """
+    Produces a binary circular mask with the specified parameters.
     
     Parameters:
         image_height: int.
@@ -142,11 +146,11 @@ def circular_mask(image_height, image_width, center=None, radius=None):
     """
 
     if center is None: # use the middle of the image
-        center = [int(image_width/2), int(image_height/2)]
+        center = [int(img_width/2), int(img_height/2)]
     if radius is None: # use the smallest distance between the center and image walls
-        radius = min(center[0], center[1], image_width-center[0], image_height-center[1])
+        radius = min(center[0], center[1], img_width-center[0], img_height-center[1])
 
-    Y, X = np.ogrid[:image_height, :image_width]
+    Y, X = np.ogrid[:img_height, :img_width]
     dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2)
 
     mask = dist_from_center <= radius
@@ -154,7 +158,8 @@ def circular_mask(image_height, image_width, center=None, radius=None):
 
 
 def get_missing_liner_threshold():
-    """ Computes the threshold to determine if a liner is missing or not by analyzing existing supervised examples.
+    """
+    Computes the threshold to determine if a liner is missing or not by analyzing existing supervised examples.
 
     Returns:
         The found threshold.

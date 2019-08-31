@@ -10,6 +10,15 @@ import json
 # BISOGNA ANCORA INVERTIRE X E Y #
 ##################################
 
+def circle_detection(img, r_cap=None):
+    """
+    """
+
+    if r_cap == None:
+        outer_circle_detection(img)
+    else:
+        inner_circle_detection(img, r_cap)
+    
 
 def outer_circle_detection(img):
     # bynary mask + canny + labelling + least square + outliers (media o interpolazione finale?) (tests.py)
@@ -32,7 +41,7 @@ def outer_circle_detection(img):
     circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
     circles = np.uint16(np.around(circles))
     
-    #   take only the center from the Hough result and compute the radius
+    # take only the center from the Hough result and compute the radius
     param = 3 # for example
     x = sum([circles[0][i][1] for i in range(param)]) / param
     y = sum([circles[0][i][0] for i in range(param)]) / param
@@ -79,21 +88,8 @@ def outer_circle_detection(img):
 
     return x, y, r
 
-#
-#
-# COME CAZZO PRENDO IL RAGGIO GRANDE??????
-#
-#
-# A SECONDA DELLE ESIGENZE POSSO AGGIUNGERE O NO I BLOB AL CERCHIO
-# |-> BISOGNA SCRIVERE UN'ALTRA FUNZIONE APPOSTA DA CHIAMARE (outliers_elimination)
-# |-> POTREBBE CREARE 
-#
-#
-# SFRUTTARE CODICE TRA FUNZIONI RIP RIP RIP
-#
-#
 
-def inner_circle_detection(img):
+def inner_circle_detection(img, r_cap):
     # mask + stretching + mask + gaussian + (canny) + hough + best 1/2/3 for x,y (r) AND (mean for r)
     # binary mask + hough + best 3 for x,y ---AND binary + canny + mean for r---
 
@@ -194,7 +190,7 @@ def inner_circle_detection(img):
         remaining_circles = circledetection.outliers_elimination(circles, (20,20))
 
         # ELSE outliers elimintaion with BIN
-        remaining_circles = circledetection.outliers_elimination_with_bins(img.shape[0], img.shape[1], circles, ((72,85), 36))  
+        remaining_circles = circledetection.outliers_elimination_with_bins(img.shape[0], img.shape[1], circles, (72, 85, 36))  
 
     # ELSE no outliers elimination
 
@@ -206,7 +202,7 @@ def inner_circle_detection(img):
             x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
             # interpolation with COOK
-            x, y, r = # iteration with cook elimination are needed
+            x, y, r, cook_d = # iteration with cook elimination are needed
 
     # IF remaining circles with MEAN
     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
@@ -221,11 +217,14 @@ def inner_circle_detection(img):
         x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
         # interpolation with COOK
-        x, y, r = # iteration with cook elimination are needed
+        x, y, r, cook_d = # iteration with cook elimination are needed
 
     return x, y, r
 
 def missing_liner_detection(img):
+    """
+    """
+
     # def missing_liner_detection(img, threshold):
     threshold = utils.get_missing_liner_threshold()
 
@@ -239,6 +238,9 @@ def missing_liner_detection(img):
         return False
 
 def liner_defects_detection(img):
+    """
+    """
+
     # TO JUST SAY YES: binary mask + stretching + mask + gaussian + canny + mask + hough lines
     # mask + stretching + mask + gaussian + canny + mask + labelling + intersection and distance
 
@@ -339,7 +341,7 @@ def execute():
         # TASK2
         print('TASK2')
 
-        x_liner, y_liner, r_liner = inner_circle_detection(img)
+        x_liner, y_liner, r_liner = inner_circle_detection(img, r_cap)
 
         if not (x_liner is None or y_liner is None or r_liner is None):
             print('Position of the center of the liner: (' + str(x_liner) + ', ' + str(y_liner) + ')')
@@ -358,9 +360,9 @@ def execute():
             has_defects, rectangles = liner_defects_detection(img)
 
             if not has_defects :
-                print('caps/' + file + ' has NO defects')
+                print('caps/' + file + ' has NO defects: the liner is complete')
             else:
-                print('caps/' + file + ' has defects')
+                print('caps/' + file + ' has defects: the liner is incomplete')
                 coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
                 for rectangle in rectangles:
                     cv2.drawContours(coloured_image, [rectangle], 0, (0,0,255), 1)
