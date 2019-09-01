@@ -90,27 +90,27 @@ def least_squares_circle_cook(x, y):
     #print(dep)
 
 
-    indipVars = np.transpose(np.vstack((indip1, indip2)))
+    indip_vars = np.transpose(np.vstack((indip1, indip2)))
     #print(indipVars)
 
-    indipVars = sm.add_constant(indipVars)
+    indip_vars = sm.add_constant(indip_vars)
     #print(indipVars)
 
-    model = sm.OLS(dep,indipVars)
+    model = sm.OLS(dep, indip_vars)
     results = model.fit()
 
     #print(results.summary())
     #print(results.params)
 
-    xCenter = results.params[1]
-    yCenter = results.params[2]
-    radius = np.sqrt(results.params[0] + xCenter**2 + yCenter**2)
+    x_center = results.params[1]
+    y_center = results.params[2]
+    radius = np.sqrt(results.params[0] + x_center**2 + y_center**2)
     #print("Center: (" + str(xCenter) + "," + str(yCenter) + "), radius: " + str(radius))
 
     cooks_distances = results.get_influence().summary_frame().cooks_d
     # print(sorted(cooks_distances, reverse=True))
 
-    return xCenter, yCenter, radius, cooks_distances
+    return x_center, y_center, radius, cooks_distances
 
 
 def outliers_elimination(circles, thresholds):
