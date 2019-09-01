@@ -207,28 +207,28 @@ def parse_json():
         outer_method = outer['method']
         if not (outer_method in ["hough", "least_squares"]):
             print("Configuration error. See README.md to configure properly the software.")
-            return
+            return None
 
         outer_parameters = outer['parameters']
         if outer_parameters == "least_squares" and not (outer_parameters['circle_generation'] in ["mean", "interpolation"]):
             print("Configuration error. See README.md to configure properly the software.")
-            return
+            return None
 
         inner = circle_detection_param['inner']
         inner_method = inner['method']
         if not (inner_method in ["hough", "least_squares"]):
             print("Configuration error. See README.md to configure properly the software.")
-            return
+            return None
 
         inner_parameters = inner['parameters'][inner_method]
         if inner_method == 'hough':
             if not (inner_parameters['image_to_hough'] in ["edges", "gaussian"]) or not (isinstance(inner_parameters['number_of_circle_average'], int)) or inner_parameters['number_of_circle_average'] > 2 or inner_parameters['number_of_circle_average'] < 1:
                 print("Configuration error. See README.md to configure properly the software.")
-                return
+                return None
         else:
             if not (isinstance(inner_parameters['split_blobs'], bool)) or not (inner_parameters['outliers_elimination_type'] in ["mean", "bin"]) or not (inner_parameters['circle_generation'] in ["mean", "interpolation", "interpolation_cook"]):
                 print("Configuration error. See README.md to configure properly the software.")
-                return
+                return None
          
         print("Configuration: all ok")
         return circle_detection_param

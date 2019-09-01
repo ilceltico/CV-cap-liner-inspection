@@ -296,6 +296,9 @@ def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
     return has_defects, rectangles
 
 def execute():
+    if config is None:
+        raise SystemExit(0)
+
     missing_liner_threshold = utils.get_missing_liner_threshold()
     print('Missing liner threshold: ' + str(missing_liner_threshold))
 
@@ -380,4 +383,7 @@ def execute():
 
 
 if __name__ == '__main__':
-    execute()
+    try:
+        execute()
+    except:
+        pass
