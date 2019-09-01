@@ -1,29 +1,24 @@
 {
     "circle_detection":{
         "outer":{
-            "methods":{
-                "type": "string",
-                "enum": ["hough", "least_squares"]
-            },
+            "method": "hough",
             "parameters":{
-                "hough":{
-                    "number_of_circle_average":3
-                },
-                "least_squares":{
-                    "circle_generation":["mean","interpolation"] // after outliers elimination
-                }
+                "circle_generation": ["mean", "interpolation"]
             }
         },
-        "inner":{
-            "hough":{
-                "image_to_hough":["edges","gaussian","binary"],
-                "number_of_circle_average":2
-            },
-            "our_method":{
-                "split_blobs":true,
-                
+        "inner": {
+            "method": "hough",
+            "parameters": {
+                "hough": {
+                    "image_to_hough": "gaussian",
+                    "number_of_circle_average": 2
+                },
+                "least_squares": {
+                    "split_blobs": true,
+                    "outliers_elimination_type": "bin",
+                    "circle_generation": ["mean", "interpolation", "interpolation_cook"]
+                }
             }
-
         }
     },
     "defect_detection":{

@@ -172,9 +172,9 @@ def getThreshold():
     average = [0,0]
     i = 0
     for fileStart in ['g', 'd_31']:
-        prefixed = [filename for filename in os.listdir('./caps') if filename.startswith(fileStart)]
+        prefixed = [filename for filename in os.listdir('../caps') if filename.startswith(fileStart)]
         for file in prefixed:
-            img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         
             #binary = binarization.binarize(img)
             #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
@@ -650,10 +650,10 @@ def test():
     thresholdLiner = getThreshold()
     print("thresholdLiner: " + str(thresholdLiner))
     #print("thresholdDefects: " + str(thresholdDefects))
-    for file in os.listdir('./caps'):
+    for file in os.listdir('../caps'):
         print("--------------------------------------------------------------------")
         print(file)
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         binary = binarization.binarize(img)
 
         #TEST IF THE CAP IS A CIRCLE (TASK0 ?)
@@ -796,7 +796,7 @@ def test():
         liner = np.zeros((img.shape[0],img.shape[1]), dtype=np.uint8)
         cv2.circle(liner, (np.round(y).astype("int"), np.round(x).astype("int")), np.round(0.95*r_liner).astype("int"), (255, 255, 255), 2)
         #cv2.imshow("liner", liner)
-        liner_defects = liner + edges
+        #liner_defects = liner + edges
         #cv2.imshow("liner+defects", liner_defects)
         nonzero = np.nonzero(liner)
         liner = list(zip(nonzero[0],nonzero[1]))
@@ -807,8 +807,7 @@ def test():
         detected_defect = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
         blobs = labelling.bestLabellingGradient(edges)
         for blob in blobs:
-            temp = list(zip(blob[0],blob[1]))
-            common = list(set(liner).intersection(temp))
+            common = list(set(liner).intersection(list(zip(blob[0],blob[1]))))
             max_distance = 0
             for pixel in common:
                 for pixel2 in common:

@@ -97,8 +97,8 @@ def findSegments():
 
 #@profile
 def findLines():
-    for file in os.listdir('./caps'):
-        img = cv2.imread('./caps/' + file, cv2.IMREAD_GRAYSCALE)
+    for file in os.listdir('../caps'):
+        img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
         binary = binarization.binarize(img)

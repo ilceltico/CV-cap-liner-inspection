@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import json
 
 HARALICK_THRESHOLD = 200
 
@@ -197,4 +198,39 @@ def get_missing_liner_threshold():
 
     return thresh
 
+def parse_json():
+    with open('config.json') as file:
+        config = json.load(file)
+        circle_detection_param = config['circle_detection']
+        outer = circle_detection_param['outer']
+        outer_method = outer['method']
+        if not (outer_method in ["hough", "least_squares"]):
+            print("Configuration error. See README.md to configure properly the software.")
+            return
 
+        outer_parameters = outer['parameters']
+        if outer_parameters == "least_squares" and not (outer_parameters['circle_generation'] in ["mean", "interpolation"]):
+            print("Configuration error. See README.md to configure properly the software.")
+            return
+
+        inner = circle_detection_param['inner']
+        inner_method = inner['method']
+        if not (inner_method in ["hough", "least_squares"]):
+            print("Configuration error. See README.md to configure properly the software.")
+            return
+
+        inner_parameters = inner['parameters'][inner_method]
+        if inner_method == 'hough':
+            if not (inner_parameters['image_to_hough'] in ["edges", "gaussian"]) or not (isinstance(inner_parameters['number_of_circle_average'], int)) or inner_parameters['number_of_circle_average'] > 2 or inner_parameters['number_of_circle_average'] < 0:
+                print("Configuration error. See README.md to configure properly the software.")
+                return
+        else:
+            if not (isinstance(inner_parameters['split_blobs'], bool)) or not (inner_parameters['outliers_elimination_type'] in ["mean", "bin"]) or not (inner_parameters['circle_generation'] in ["mean", "interpolation", "interpolation_cook"]):
+                print("Configuration error. See README.md to configure properly the software.")
+                return
+         
+        print("all ok")
+        return circle_detection_param       
+
+if __name__ == '__main__':
+    parse_json()

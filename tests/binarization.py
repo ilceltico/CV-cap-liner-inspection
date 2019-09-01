@@ -155,6 +155,6 @@ def is_circle(binary):
 
 
 if __name__ == '__main__':
-    for file in os.listdir('./caps'):
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+    for file in os.listdir('../caps'):
+        img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         is_circle(binarize(img))
