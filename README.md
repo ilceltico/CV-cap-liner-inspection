@@ -34,21 +34,21 @@ default configuration:
 {
     "circle_detection":{
         "outer":{
-            "method": "hough",
+            "method": ["hough", "least_squares"],
             "parameters":{
                 "circle_generation": ["mean", "interpolation"]
             }
         },
         "inner": {
-            "method": "hough",
+            "method": ["hough", "least_squares"],
             "parameters": {
                 "hough": {
-                    "image_to_hough": "gaussian",
+                    "image_to_hough": ["edges", "gaussian"],
                     "number_of_circle_average": 2
                 },
                 "least_squares": {
                     "split_blobs": true,
-                    "outliers_elimination_type": "bin",
+                    "outliers_elimination_type": ["mean", "bin"],
                     "circle_generation": ["mean", "interpolation", "interpolation_cook"]
                 }
             }

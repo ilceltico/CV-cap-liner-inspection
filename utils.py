@@ -230,7 +230,4 @@ def parse_json():
                 return
          
         print("all ok")
-        return circle_detection_param       
-
-if __name__ == '__main__':
-    parse_json()
+        return circle_detection_param

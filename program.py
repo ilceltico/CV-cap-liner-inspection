@@ -7,11 +7,24 @@ import numpy as np
 import json
 
 ##################################
-# BISOGNA ANCORA INVERTIRE X E Y #
+# BISOGNA ANCORA INVERTIRE X E Y # ---> DONE ONLY INSIDE get_blobs
 ##################################
+
+# CHECK DOCUMENTATION !!! ---> maybe rewrite something
+# and also in write it in this file
+
+config = utils.parse_json()
 
 def circle_detection(img, r_cap=None):
     """
+    Perform circle detection.
+
+    Parameters:
+        img: input image.
+        r_cap: if specified the inner circle will be found (if present) otherwise the outer circle will be detected.
+
+    Returns:
+        Center x coordinate, center y coordinate and radius
     """
 
     if r_cap == None:
@@ -21,212 +34,207 @@ def circle_detection(img, r_cap=None):
     
 
 def outer_circle_detection(img):
-    # bynary mask + canny + labelling + least square + outliers (media o interpolazione finale?) (tests.py)
-    # binary mask + hough + 3 circles and mean of distance from canny (tests_hough_version.py)
 
-    with open('config.json') as json_data_file:
-        data = json.load(json_data_file)
+    global config
 
     x = None
     y = None
     r = None
 
-    binary = binarization.binarize(img)
-    mask = binary.copy().astype(bool)
+    # hough
+    if config['outer']['method'] == 'hough':
+        binary = binarization.binarize(img)
+        mask = binary.copy().astype(bool)
+        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
+        circles = np.uint16(np.around(circles))
+        
+        # take only the center from the Hough result and compute the radius
+        x = sum([circles[0][i][1] for i in range(3)]) / 3
+        y = sum([circles[0][i][0] for i in range(3)]) / 3
 
-    # ----------
-    # if hough
-    # ----------
+        # compute the radius as the mean distance between points and the center (found with Hough)
+        edges = cv2.Canny(binary, 100, 200, L2gradient=True)
+        pixels_x, pixels_y = np.nonzero(edges)
 
-    circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
-    circles = np.uint16(np.around(circles))
+        r = sum(np.sqrt((pixels_x - x)**2 + (pixels_y - y)**2)) / len(pixels_x)
     
-    # take only the center from the Hough result and compute the radius
-    param = 3 # for example
-    x = sum([circles[0][i][1] for i in range(param)]) / param
-    y = sum([circles[0][i][0] for i in range(param)]) / param
+    # our method
+    else:
+        binary = binarization.binarize(img)
+        mask = binary.copy().astype(bool)
+        edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
+        blobs = utils.get_blobs(edges)
 
-    # compute the radius as the mean distance between points and the center (found with Hough)
-    edges = cv2.Canny(binary, 100, 200, L2gradient=True)
-    pixels_x, pixels_y = np.nonzero(edges)
+        circles = []
 
-    r = sum(np.sqrt((pixels_x - x)**2 + (pixels_y - y)**2)) / len(pixels_x)
+        # mean
+        if config['outer']['parameters']['circle_generation'] == 'mean':       
+            for blob in blobs:
+                x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
+                    circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
 
-    # ----------
-    # if least square
-    # ----------
+            remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
 
-    edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
-    blobs = utils.get_blobs(edges)
+            weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
+            sums = [sum(a) for a in zip(*weighted)]
+            x, y, r, _ = [el/sums[3] for el in sums]
 
-    circles = []
+        # interpolation
+        else:
+            for blob in blobs:
+                x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
+                if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
+                    circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
+            
+            remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
 
-    # if mean
-    for blob in blobs:
-        x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
-        if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
-            circles.append((x_temp, y_temp, r_temp, len(blob[0])))
+            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
-    remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
-
-    weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
-    sums = [sum(a) for a in zip(*weighted)]
-    x, y, r, _ = [el/sums[3] for el in sums]
-
-    #if blob
-    for blob in blobs:
-        x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
-        if not (math.isnan(x) or math.isnan(y) or math.isnan(r)):
-            circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
-    
-    remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
-
-    blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-    blob_y = [y for circle in remaining_circles for y in circle[4][1]]
-
-    x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
+            x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
     return x, y, r
 
 
 def inner_circle_detection(img, r_cap):
-    # mask + stretching + mask + gaussian + (canny) + hough + best 1/2/3 for x,y (r) AND (mean for r)
-    # binary mask + hough + best 3 for x,y ---AND binary + canny + mean for r---
 
-    # mask + stretching + mask + gaussian + canny + labelling + (split) + least square + outliers mean/bin + mean/interpolation/cook on merged
-    # mask + stretching + mask + gaussian + canny + labelling + least square + cook on merged
+    global config
 
     x = None
     y = None
     r = None
 
-    # ----------
-    # if hough
-    # ----------
-    
-    binary = utils.binarize(img)
-    mask = binary.copy().astype(bool)
+    # hough
+    if config['inner']['method'] == 'hough':    
+        binary = utils.binarize(img)
+        mask = binary.copy().astype(bool)
 
-    # method1
-    stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
-    stretched[~mask] = 0
-    gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
-    edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        # edges
+        if config['inner']['parameters']['hough']['image_to_hough'] == 'edges':
+            stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
+            stretched[~mask] = 0
+            gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+            edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
-    circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
-    circles = np.uint16(np.around(circles))
+            circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
+            circles = np.uint16(np.around(circles))
 
-    # method2
-    stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
-    stretched[~mask] = 0
-    gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
+            # return mean 1 or 2
+            param = config['inner']['parameters']['hough']['number_of_circle_average']
 
-    circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
-    circles = np.uint16(np.around(circles))
+            x = sum(circles[0][i][1] for i in range(param)) / param # try np.mean()
+            y = sum(circles[0][i][0] for i in range(param)) / param
+            r = sum(circles[0][i][2] for i in range(param)) / param
 
-    # method3
+        # gaussian
+        else:
+            stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
+            stretched[~mask] = 0
+            gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
 
-    circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=10, minRadius=0, maxRadius=0)
-    circles = np.uint16(np.around(circles))
+            circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
+            circles = np.uint16(np.around(circles))
 
-    # all do best on 1/2/3
+            # return the first one
+            x = circles[0][i][1]
+            y = circles[0][i][0]
+            r = circles[0][i][2]
 
-    param = 2 # for example
+    # our method
+    else:
+        binary = utils.binarize(img)
+        mask = binary.copy().astype(bool)
+        
+        stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
+        stretched[~mask] = 0
+        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+        edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
-    x = sum(circles[0][i][1] for i in range(param)) / param
-    y = sum(circles[0][i][0] for i in range(param)) / param
-    r = sum(circles[0][i][2] for i in range(param)) / param
+        blobs = utils.get_blobs(edges)
 
-    # ----------
-    # if our method
-    # ----------
-    binary = utils.binarize(img)
-    mask = binary.copy().astype(bool)
-    
-    stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
-    stretched[~mask] = 0
-    gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
-    edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+        circles = []
 
-    blobs = utils.get_blobs(edges)
+        # not split
+        if not config['inner']['parameters']['least_squares']['split_blobs']:
+            for blob in blobs:
+                x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
+                if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
+                    #if r < rCap - 5 and r > 150:
+                    if r < 0.99*rCap:
+                        circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
 
-    circles = []
+        # split
+        else:
+            # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            split_number = 8
 
-    # if not split
-    for blob in blobs:
-        x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
-        if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-            #if r < rCap - 5 and r > 150:
-            if r < 0.99*rCap:
-                circles.append((x_temp, y_temp, r_temp, len(blob[0])))
+            for blob in blobs:
+                blob_x = blob[0]
+                blob_y = blob[1]
+                length = int(len(blob_x) / split_number) + 1
+                for i in range(split_number):
+                #     img_copy = coloured_image.copy()
+                #     color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
+                #     for j in range(0, length):
+                #         if j+i*length < len(blobX):
+                #             img_copy[blob_x[j+i*length]][blob_y[j+i*length]] = color
 
-    #else
-    # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    split_number = 8
+                    if length - 1 + i * length >= len(blob_x):
+                        max_index = len(blob_x)-1
+                    else:
+                        max_index = length - 1 + i * length
+                    x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob_x[i * length:max_index + 1], blob_y[i * length:max_index + 1])
+                    if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
+                        if r < 0.99*rCap:
+                            circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
 
-    for blob in blobs:
-        blob_x = blob[0]
-        blob_y = blob[1]
-        length = int(len(blob_x) / split_number) + 1
-        for i in range(split_number):
-        #     img_copy = coloured_image.copy()
-        #     color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
-        #     for j in range(0, length):
-        #         if j+i*length < len(blobX):
-        #             img_copy[blob_x[j+i*length]][blob_y[j+i*length]] = color
+        # mean
+        if config['inner']['parameters']['hough']['outliers_elimination_type'] == mean:
+            remaining_circles = circledetection.outliers_elimination(circles, (20,20))
+        
+        # bin
+        else:
+            remaining_circles = circledetection.outliers_elimination_with_bins(img.shape[0], img.shape[1], circles, (72, 85, 36))  
 
-            if length - 1 + i * length >= len(blob_x):
-                max_index = len(blob_x)-1
-            else:
-                max_index = length - 1 + i * length
-            x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob_x[i * length:max_index + 1], blob_y[i * length:max_index + 1])
-            if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-                if r < 0.99*rCap:
-                    circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), (blob_x, blob_y)))
+        # # ELSE no outliers elimination
 
-    # IF outliers elimination
+        #     # outliers MERGED
+        #     blob_x = [x for circle in circles for x in circle[4][0]]
+        #     blob_y = [y for circle in circles for y in circle[4][1]]
 
-        # IF outliers elimination with MEAN
-        remaining_circles = circledetection.outliers_elimination(circles, (20,20))
+        #         # interpolation with LEAST SQUARE
+        #         x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
-        # ELSE outliers elimintaion with BIN
-        remaining_circles = circledetection.outliers_elimination_with_bins(img.shape[0], img.shape[1], circles, (72, 85, 36))  
+        #         # interpolation with COOK
+        #         x, y, r, cook_d = # iteration with cook elimination are needed
 
-    # ELSE no outliers elimination
 
-        # outliers MERGED
-        blob_x = [x for circle in circles for x in circle[4][0]]
-        blob_y = [y for circle in circles for y in circle[4][1]]
+        # mean
+        if config['inner']['parameters']['hough']['circle_generation'] == 'mean':
+            weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
+            sums = [sum(a) for a in zip(*weighted)]
+            x, y, r, _ = [el/sums[3] for el in sums]
 
-            # interpolation with LEAST SQUARE
-            x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
+        else:
+            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
-            # interpolation with COOK
-            x, y, r, cook_d = # iteration with cook elimination are needed
-
-    # IF remaining circles with MEAN
-    weighted = [[x * n, y * n, r * n, n] for x, y, r, n in remaining_circles]
-    sums = [sum(a) for a in zip(*weighted)]
-    x, y, r, _ = [el/sums[3] for el in sums]
-
-    # ELSE remaining circles MERGED
-    blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-    blob_y = [y for circle in remaining_circles for y in circle[4][1]]
-
-        # interpolation with LEAST SQUARE
-        x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
-
-        # interpolation with COOK
-        x, y, r, cook_d = # iteration with cook elimination are needed
+            # interpolation
+            if config['inner']['parameters']['hough']['circle_generation'] == 'interpolation':
+                x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
+            
+            # cook
+            # else:
+            #     x, y, r, cook_d = # iteration with cook elimination are needed
 
     return x, y, r
 
-def missing_liner_detection(img):
+def missing_liner_detection(img, threshold):
     """
     """
 
-    # def missing_liner_detection(img, threshold):
-    threshold = utils.get_missing_liner_threshold()
+    # threshold = utils.get_missing_liner_threshold()
 
     binary = utils.binarize(img)
     mask = binary.copy().astype(bool)
@@ -293,8 +301,8 @@ def liner_defects_detection(img):
     return has_defects, rectangles
 
 def execute():
-    # missing_liner_threshold = utils.get_missing_liner_threshold()
-    # print('Missing liner threshold: ' + str(missing_liner_threshold))
+    missing_liner_threshold = utils.get_missing_liner_threshold()
+    print('Missing liner threshold: ' + str(missing_liner_threshold))
 
     for file in os.listdir('./caps'):
         print('--------------------------------------------------')
@@ -330,7 +338,7 @@ def execute():
             print('Is the liner missing?')
 
             # missing_liner = missing_liner_detection(img, missing_liner_threshold)
-            missing_liner = missing_liner_detection(img)
+            missing_liner = missing_liner_detection(img, threshold)
 
             if missing_liner:
                 print('caps/' + file + ' has NO liner')
@@ -341,7 +349,7 @@ def execute():
         # TASK2
         print('TASK2')
 
-        x_liner, y_liner, r_liner = inner_circle_detection(img, r_cap)
+        x_liner, y_liner, r_liner = inner_circle_detection(img, r_cap=r_cap)
 
         if not (x_liner is None or y_liner is None or r_liner is None):
             print('Position of the center of the liner: (' + str(x_liner) + ', ' + str(y_liner) + ')')

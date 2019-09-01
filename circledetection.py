@@ -11,7 +11,7 @@ def least_squares_circle_fit(x, y):
         y: list of y coordinates.
 
     Return:
-        Tuple containing center coordinates and radius
+        Center x coordinate, center y coordinate and radius
     """
 
     num_points = len(x)
@@ -75,7 +75,7 @@ def least_squares_circle_cook(x, y):
         y: list of y coordinates.
 
     Return:
-        Tuple containing center coordinates, radius and cook distance list
+        Center x coordinate, center y coordinate and radius
     """
     
     x = np.array(x)

@@ -3,7 +3,7 @@
         "outer":{
             "method": "hough",
             "parameters":{
-                "circle_generation": ["mean", "interpolation"]
+                "circle_generation": "mean"
             }
         },
         "inner": {
@@ -16,7 +16,7 @@
                 "least_squares": {
                     "split_blobs": true,
                     "outliers_elimination_type": "bin",
-                    "circle_generation": ["mean", "interpolation", "interpolation_cook"]
+                    "circle_generation": "interpolation"
                 }
             }
         }
