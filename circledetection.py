@@ -16,6 +16,9 @@ def least_squares_circle_fit(x, y):
 
     num_points = len(x)
 
+    if num_points == 0:
+        return float('NaN'), float('NaN'), float('NaN')
+    
     x_ = np.sum(x) / num_points
     y_ = np.sum(y) / num_points
 
@@ -135,7 +138,7 @@ def outliers_elimination(circles, thresholds):
     sums = [sum(a) for a in zip(*weighted)]
     mean_circle = [el/sums[3] for el in sums]
 
-    circles_remaining = [(circle[0], circle[1], circle[2], circle[3]) for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
+    circles_remaining = [(circle[0], circle[1], circle[2], circle[3], circle[4]) for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
 
     # if len(circles[0]) == 4:
     #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
@@ -193,10 +196,10 @@ def outliers_elimination_with_bins(img_height, img_width, circles, bins):
 
     # img_shape: rows and columns
     # circles: list of tuple (center x, center y, radius, number of pixel)
-    # bins: tuple of number of bins ((axis x, axis y), radius)
+    # bins: tuple of number of bins (axis x, axis y, radius)
 
-    votes_bins = np.zeros((bins[0][0], bins[0][1], bins[1]))
-    circle_bins = [[[[] for _ in range(bins[1])] for _ in range(bins[0][1])] for _ in range(bins[0][0])]
+    votes_bins = np.zeros((bins[0], bins[1], bins[2]))
+    circle_bins = [[[[] for _ in range(bins[2])] for _ in range(bins[1])] for _ in range(bins[0])]
 
     bin_shape_rows = img_height // bins[0]
     bin_shape_cols = img_width // bins[1]

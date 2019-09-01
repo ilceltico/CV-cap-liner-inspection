@@ -266,9 +266,9 @@ def getThreshold():
     average = [0,0]
     i = 0
     for fileStart in ['g', 'd_31']:
-        prefixed = [filename for filename in os.listdir('./caps') if filename.startswith(fileStart)]
+        prefixed = [filename for filename in os.listdir('../caps') if filename.startswith(fileStart)]
         for file in prefixed:
-            img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+            img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         
             #binary = binarization.binarize(img)
             #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
@@ -320,9 +320,9 @@ def getThreshold():
 def getThresholds():
     thresholdLiner = 0
     thresholdDefects = 0
-    prefixed = [filename for filename in os.listdir('./caps') if filename.startswith("g")]
+    prefixed = [filename for filename in os.listdir('../caps') if filename.startswith("g")]
     for file in prefixed:
-        img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)
         
         #binary = binarization.binarize(img)
         #edges = cv2.Canny(binary, 45, 100, apertureSize=3, L2gradient=True)
@@ -1172,3 +1172,4 @@ if __name__ == '__main__':
     #test_is_circle()
     #test_all()
     test()
+    #getThreshold()

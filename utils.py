@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import json
+import os
 
 HARALICK_THRESHOLD = 200
 
@@ -116,8 +117,8 @@ def get_blobs(edges):
     blobs_y = [[] for i in range(ret_val)]
 
     for i in range(0, len(nonzero[0])):
-        x = nonzero[1][i]
-        y = nonzero[0][i]
+        x = nonzero[0][i]
+        y = nonzero[1][i]
 
         p = labels[x][y]
 
@@ -221,7 +222,7 @@ def parse_json():
 
         inner_parameters = inner['parameters'][inner_method]
         if inner_method == 'hough':
-            if not (inner_parameters['image_to_hough'] in ["edges", "gaussian"]) or not (isinstance(inner_parameters['number_of_circle_average'], int)) or inner_parameters['number_of_circle_average'] > 2 or inner_parameters['number_of_circle_average'] < 0:
+            if not (inner_parameters['image_to_hough'] in ["edges", "gaussian"]) or not (isinstance(inner_parameters['number_of_circle_average'], int)) or inner_parameters['number_of_circle_average'] > 2 or inner_parameters['number_of_circle_average'] < 1:
                 print("Configuration error. See README.md to configure properly the software.")
                 return
         else:
@@ -229,5 +230,5 @@ def parse_json():
                 print("Configuration error. See README.md to configure properly the software.")
                 return
          
-        print("all ok")
+        print("Configuration: all ok")
         return circle_detection_param

@@ -34,16 +34,16 @@ default configuration:
 {
     "circle_detection":{
         "outer":{
-            "method": ["hough", "least_squares"],
+            "method": "hough",
             "parameters":{
                 "circle_generation": ["mean", "interpolation"]
             }
         },
         "inner": {
-            "method": ["hough", "least_squares"],
+            "method": "hough"
             "parameters": {
                 "hough": {
-                    "image_to_hough": ["edges", "gaussian"],
+                    "image_to_hough": "edges",
                     "number_of_circle_average": 2
                 },
                 "least_squares": {
