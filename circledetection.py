@@ -61,7 +61,7 @@ def least_squares_circle_fit(x, y):
 
     xc = uc + x_
     yc = vc + y_
-    alfa = uc*uc + vc*vc + (suu+svv)/numPoints
+    alfa = uc*uc + vc*vc + (suu+svv)/num_points
     r = math.sqrt(alfa)
 
     return xc, yc, r
