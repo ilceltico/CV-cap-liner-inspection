@@ -18,6 +18,7 @@ Please refers to the relation for a detailed description of the methods.
 
 
 config.json structure:
+```json 
 {
     "circle_detection":{
         "outer":{
@@ -45,8 +46,10 @@ config.json structure:
 
     }
 }
+```
 
 default configuration:
+```json
 {
     "circle_detection":{
         "outer":{
@@ -74,3 +77,4 @@ default configuration:
 
     }
 }
+```
