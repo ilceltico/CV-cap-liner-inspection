@@ -1,17 +1,17 @@
 {
     "circle_detection":{
         "outer":{
-            "method": "least_squares",
+            "method": "hough",
             "parameters":{
                 "circle_generation": "interpolation"
             }
         },
         "inner": {
-            "method": "least_squares",
+            "method": "hough",
             "parameters": {
                 "hough": {
                     "image_to_hough": "edges",
-                    "number_of_circle_average": 0
+                    "number_of_circle_average": 1
                 },
                 "least_squares": {
                     "split_blobs": false,

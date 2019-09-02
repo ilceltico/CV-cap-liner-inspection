@@ -210,7 +210,7 @@ def parse_json():
             return None
 
         outer_parameters = outer['parameters']
-        if outer_parameters == "least_squares" and not (outer_parameters['circle_generation'] in ["mean", "interpolation"]):
+        if outer_method == "least_squares" and not (outer_parameters['circle_generation'] in ["mean", "interpolation"]):
             print("Configuration error. See README.md to configure properly the software.")
             return None
 
