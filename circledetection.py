@@ -138,7 +138,7 @@ def outliers_elimination(circles, thresholds):
     sums = [sum(a) for a in zip(*weighted)]
     mean_circle = [el/sums[3] for el in sums]
 
-    circles_remaining = [(circle[0], circle[1], circle[2], circle[3], circle[4]) for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
+    circles_remaining = [circle for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
 
     # if len(circles[0]) == 4:
     #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
