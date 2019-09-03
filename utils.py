@@ -125,10 +125,12 @@ def get_blobs(edges):
         blobs_x[p - 1].append(x)
         blobs_y[p - 1].append(y)
 
-    result = []
+    #result = []
     
-    for i in range(ret_val):
-        result.append((blobs_x[i], blobs_y[i]))
+    #for i in range(ret_val):
+    #    result.append((blobs_x[i], blobs_y[i]))
+
+    result = [(x,y) for x, y in zip(blobs_x, blobs_y)]
 
     return result
 
