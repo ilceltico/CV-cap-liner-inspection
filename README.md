@@ -12,7 +12,7 @@ In case of "method": "hough" he can select which kind of image will be passed to
 number of circles the software will average to obtain the final circle (1 - i.e. return the first Hough cirlce - or 2 - i.e. the circle returned is the mean between the best two found 
 by Hough).
 In case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination perform ("mean" or "bin") 
-and the circle generation strategy.
+and the circle generation strategy. Note: you cannot use the combination "split":"true" with "outliers_elimination_type":"mean".
 
 Please refers to the relation for a detailed description of the methods.
 

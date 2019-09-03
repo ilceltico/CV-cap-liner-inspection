@@ -226,7 +226,7 @@ def parse_json():
                 print("Configuration error. See README.md to configure properly the software.")
                 return None
         else:
-            if not (isinstance(inner_parameters['split_blobs'], bool)) or not (inner_parameters['outliers_elimination_type'] in ["mean", "bin"]) or not (inner_parameters['circle_generation'] in ["mean", "interpolation", "interpolation_cook"]):
+            if not (isinstance(inner_parameters['split_blobs'], bool)) or not (inner_parameters['outliers_elimination_type'] in ["mean", "bin"]) or not (inner_parameters['circle_generation'] in ["mean", "interpolation", "interpolation_cook"]) or (inner_parameters['split_blobs'] == True and inner_parameters['outliers_elimination_type'] == "mean"):
                 print("Configuration error. See README.md to configure properly the software.")
                 return None
          
