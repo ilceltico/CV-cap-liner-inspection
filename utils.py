@@ -111,26 +111,22 @@ def get_blobs(edges):
     #print(retVal)
 
     # subtraction as ret_val contains also background label
-    ret_val -= 1
+    blobs_x = [[] for i in range(ret_val - 1)]
+    blobs_y = [[] for i in range(ret_val - 1)]
 
-    blobs_x = [[] for i in range(ret_val)]
-    blobs_y = [[] for i in range(ret_val)]
+    for i in range(len(nonzero[0])):
+        # x = nonzero[0][i]
+        # y = nonzero[1][i]
+        x = nonzero[1][i]
+        y = nonzero[0][i]
 
-    for i in range(0, len(nonzero[0])):
-        x = nonzero[0][i]
-        y = nonzero[1][i]
-
-        p = labels[x][y]
+        # p = labels[x][y]
+        p = labels[y][x]
 
         blobs_x[p - 1].append(x)
         blobs_y[p - 1].append(y)
 
-    #result = []
-    
-    #for i in range(ret_val):
-    #    result.append((blobs_x[i], blobs_y[i]))
-
-    result = [(x,y) for x, y in zip(blobs_x, blobs_y)]
+    result = [(x, y) for x, y in zip(blobs_x, blobs_y)]
 
     return result
 

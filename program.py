@@ -6,13 +6,6 @@ import cv2
 import numpy as np
 import json
 
-##################################
-# BISOGNA ANCORA INVERTIRE X E Y #
-##################################
-
-# CHECK DOCUMENTATION !!! ---> maybe rewrite something
-# and also in write it in this file
-
 config = utils.parse_json()
 
 def circle_detection(img, r_cap=None):
@@ -32,7 +25,6 @@ def circle_detection(img, r_cap=None):
     else:
         inner_circle_detection(img, r_cap)
     
-
 #def outer_circle_detection(img):
 def outer_circle_detection(binary):
 
@@ -50,12 +42,12 @@ def outer_circle_detection(binary):
         circles = np.uint16(np.around(circles))
         
         # take only the center from the Hough result and compute the radius
-        x = sum([circles[0][i][1] for i in range(3)]) / 3
-        y = sum([circles[0][i][0] for i in range(3)]) / 3
+        x = sum([circles[0][i][0] for i in range(3)]) / 3
+        y = sum([circles[0][i][1] for i in range(3)]) / 3
 
         # compute the radius as the mean distance between points and the center (found with Hough)
         edges = cv2.Canny(binary, 100, 200, L2gradient=True)
-        pixels_x, pixels_y = np.nonzero(edges)
+        pixels_y, pixels_x = np.nonzero(edges)
 
         r = sum(np.sqrt((pixels_x - x)**2 + (pixels_y - y)**2)) / len(pixels_x)
     
@@ -95,7 +87,6 @@ def outer_circle_detection(binary):
 
     return x, y, r
 
-
 #def inner_circle_detection(img, r_cap):
 def inner_circle_detection(stretched, r_cap):
 
@@ -124,8 +115,8 @@ def inner_circle_detection(stretched, r_cap):
             # return mean 1 or 2
             param = config['inner']['parameters']['hough']['number_of_circle_average']
 
-            x = sum(circles[0][i][1] for i in range(param)) / param # try np.mean()
-            y = sum(circles[0][i][0] for i in range(param)) / param
+            x = sum(circles[0][i][0] for i in range(param)) / param # try np.mean()
+            y = sum(circles[0][i][1] for i in range(param)) / param
             r = sum(circles[0][i][2] for i in range(param)) / param
 
         # gaussian
@@ -136,8 +127,8 @@ def inner_circle_detection(stretched, r_cap):
             circles = np.uint16(np.around(circles))
 
             # return the first one
-            x = circles[0][0][1]
-            y = circles[0][0][0]
+            x = circles[0][0][0]
+            y = circles[0][0][1]
             r = circles[0][0][2]
 
     # our method
@@ -256,7 +247,7 @@ def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
     gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
 
     edges = cv2.Canny(gaussian, 20, 110, apertureSize=3, L2gradient=True)
-    mask = utils.circular_mask(stretched.shape[0], stretched.shape[1], (y_liner, x_liner), 0.95*r_liner)
+    mask = utils.circular_mask(stretched.shape[0], stretched.shape[1], (x_liner, y_liner), 0.95*r_liner)
     edges[~mask] = 0
 
     has_defects = False
@@ -281,7 +272,7 @@ def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
 
         if len(common) >= 2 and max_distance > r_liner/10:
             has_defects = True
-            rect = cv2.minAreaRect(np.array(list(zip(blob[1], blob[0]))))
+            rect = cv2.minAreaRect(np.array(list(zip(blob[0], blob[1]))))
             rect_dim = rect[1]
             #Increase the smaller dimension of the rect, to make it more visible.
             if rect_dim[0] < rect_dim[1]:
@@ -328,8 +319,8 @@ def execute():
             print('Diameter of the cap: ' + str(2 * r_cap))
 
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            cv2.circle(coloured_image, (np.round(y_cap).astype('int'), np.round(x_cap).astype('int')), np.round(r_cap).astype('int'), (0, 255, 0), 1)
-            cv2.circle(coloured_image, (np.round(y_cap).astype('int'), np.round(x_cap).astype('int')), 2, (0, 0, 255), 3)
+            cv2.circle(coloured_image, (np.round(x_cap).astype('int'), np.round(y_cap).astype('int')), np.round(r_cap).astype('int'), (0, 255, 0), 1)
+            cv2.circle(coloured_image, (np.round(x_cap).astype('int'), np.round(y_cap).astype('int')), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' outer circle (cap)', coloured_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -358,8 +349,8 @@ def execute():
             print('Diameter of the liner: ' + str(2 * r_liner))
 
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            cv2.circle(coloured_image, (np.round(y_liner).astype('int'), np.round(x_liner).astype('int')), np.round(r_liner).astype('int'), (0, 255, 0), 1)
-            cv2.circle(coloured_image, (np.round(y_liner).astype('int'), np.round(x_liner).astype('int')), 2, (0, 0, 255), 3)
+            cv2.circle(coloured_image, (np.round(x_liner).astype('int'), np.round(y_liner).astype('int')), np.round(r_liner).astype('int'), (0, 255, 0), 1)
+            cv2.circle(coloured_image, (np.round(x_liner).astype('int'), np.round(y_liner).astype('int')), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' inner circle (liner)', coloured_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -380,7 +371,6 @@ def execute():
                 cv2.imshow('caps/' + file + ' detected defects', coloured_image)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     try:
