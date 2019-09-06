@@ -1,9 +1,12 @@
 {
     "circle_detection":{
         "outer":{
-            "method": "hough",
+            "method": "least_squares",
             "parameters":{
-                "circle_generation": "interpolation"
+                "hough":{},
+                "least_squares": {
+                    "circle_generation": "interpolation"
+                }
             }
         },
         "inner": {

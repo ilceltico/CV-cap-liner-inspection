@@ -1,3 +1,7 @@
+Da fare:
+
+
+Fatti:
 binarization.isCircle esegue la binarizzazione ma spesso, dopo averla eseguita, ci serve l'immagine binarizzata: propongo di definire la funzione come applicabile soltanto a immagini già binarizzate. Potremmo anche semplicemente fare una funzione che calcola la Haralick's Circularity. Insomma serve del gran refactoring.
 
 Il big codice che c'è in test e test_hough_version è inutile che sia duplicato. Ho fatto dei cambiamenti solo a test, do per scontato che per il resto siano identici, per cui nel refactoring ci sarà un solo codice che chiamerà o hough o leastSquares, in base a ciò che chiede l'utente.

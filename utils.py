@@ -3,8 +3,6 @@ import cv2
 import json
 import os
 
-HARALICK_THRESHOLD = 200
-
 def binarize(img):
     """
     Divides the image in two regions, using Otsu's algorithm.
@@ -37,15 +35,15 @@ def binarize(img):
     return closing
 
 
-def is_circle(binary):
+def haralick_circularity(binary):
     """
-    Determines if a binarized image has a circular form or not.
+    Returns the Haralick's Circularity of the specified binarized image.
     
     Parameters:
         binary: the binarized image.
 
     Returns:
-        True if the form is circular enough, False otherwise.
+        A floating point number.
     """
 
     # Contours are simply a curve joining all the points (along the boundary), having same color or intensity.
@@ -83,14 +81,9 @@ def is_circle(binary):
     # print(variance)
 
     haralick_circularity = average_distance / np.sqrt(variance)
-    print('Circularity: ' + str(haralick_circularity))
-
-    # Test Haralick's circularity
-    if haralick_circularity >= HARALICK_THRESHOLD :
-        #print('the cap is a circle')
-        return True
-    else:
-        return False
+    #print('Haralick's Circularity: ' + str(haralick_circularity))
+    
+    return haralick_circularity
 
 
 def get_blobs(edges):
@@ -198,35 +191,35 @@ def get_missing_liner_threshold():
     return thresh
 
 def parse_json():
-    with open('config.json') as file:
-        config = json.load(file)
-        circle_detection_param = config['circle_detection']
-        outer = circle_detection_param['outer']
+    with open('config.json') as configFile:
+        jsonConfig = json.load(configFile)
+        config = jsonConfig['circle_detection']
+        outer = config['outer']
         outer_method = outer['method']
         if not (outer_method in ["hough", "least_squares"]):
-            print("Configuration error. See README.md to configure properly the software.")
+            print("Configuration error. See README.md to configure the software properly.")
             return None
 
-        outer_parameters = outer['parameters']
+        outer_parameters = outer['parameters'][outer_method]
         if outer_method == "least_squares" and not (outer_parameters['circle_generation'] in ["mean", "interpolation"]):
-            print("Configuration error. See README.md to configure properly the software.")
+            print("Configuration error. See README.md to configure the software properly.")
             return None
 
-        inner = circle_detection_param['inner']
+        inner = config['inner']
         inner_method = inner['method']
         if not (inner_method in ["hough", "least_squares"]):
-            print("Configuration error. See README.md to configure properly the software.")
+            print("Configuration error. See README.md to configure the software properly.")
             return None
 
         inner_parameters = inner['parameters'][inner_method]
         if inner_method == 'hough':
             if not (inner_parameters['image_to_hough'] in ["edges", "gaussian"]) or not (isinstance(inner_parameters['number_of_circle_average'], int)) or inner_parameters['number_of_circle_average'] > 2 or inner_parameters['number_of_circle_average'] < 1:
-                print("Configuration error. See README.md to configure properly the software.")
+                print("Configuration error. See README.md to configure the software properly.")
                 return None
         else:
             if not (isinstance(inner_parameters['split_blobs'], bool)) or not (inner_parameters['outliers_elimination_type'] in ["mean", "bin"]) or not (inner_parameters['circle_generation'] in ["mean", "interpolation", "interpolation_cook"]) or (inner_parameters['split_blobs'] == True and inner_parameters['outliers_elimination_type'] == "mean"):
-                print("Configuration error. See README.md to configure properly the software.")
+                print("Configuration error. See README.md to configure the software properly.")
                 return None
          
-        print("Configuration: all ok")
-        return circle_detection_param
+        print("Configuration correctly loaded.")
+        return config

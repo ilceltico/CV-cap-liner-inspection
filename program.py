@@ -6,6 +6,9 @@ import cv2
 import numpy as np
 import json
 
+
+HARALICK_THRESHOLD = 200
+
 config = utils.parse_json()
 
 def circle_detection(img, r_cap=None):
@@ -59,7 +62,7 @@ def outer_circle_detection(binary):
         circles = []
 
         # mean
-        if config['outer']['parameters']['circle_generation'] == 'mean':       
+        if config['outer']['parameters']['least_squares']['circle_generation'] == 'mean':       
             for blob in blobs:
                 x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
                 if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
@@ -299,15 +302,15 @@ def execute():
 
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
         binary = utils.binarize(img)
-        #cv2.imshow('binary', binary)
+        #cv2.imshow('binary', binary); cv2.waitKey(0); cv2.destroyAllWindows()
         mask = binary.copy().astype(bool)
 
-        # test if the cap is a circle
-        if not utils.is_circle(binary):
-            print('The cap in ' + file + ' is NOT a circle')
-            continue
+        # Test if the cap is a circle
+        circularity = utils.haralick_circularity(binary)
+        if circularity >= HARALICK_THRESHOLD :
+            print("The cap in " + file + " is a circle, Haralick's Circularity = " + str(circularity))
         else:
-            print('The cap in ' + file + ' is a circle')
+            print("The cap in " + file + " is NOT a circle, Haralick's Circularity = " + str(circularity))
 
         # TASK1
         print('TASK1')
