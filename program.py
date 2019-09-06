@@ -226,12 +226,7 @@ def missing_liner_detection(img, mask, threshold):
 
     #binary = utils.binarize(img)
     #mask = binary.copy().astype(bool)
-    avg = np.mean(img[mask])
-
-    if avg > threshold:
-        return True
-    else:
-        return False
+    
 
 #def liner_defects_detection(img):
 def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
@@ -301,8 +296,12 @@ def execute():
         print(file)
 
         img = cv2.imread('caps/' + file, cv2.IMREAD_GRAYSCALE)
+
+        # Image binarization
         binary = utils.binarize(img)
         #cv2.imshow('binary', binary); cv2.waitKey(0); cv2.destroyAllWindows()
+
+        # Cap mask creation
         mask = binary.copy().astype(bool)
 
         # Test if the cap is a circle
@@ -315,12 +314,14 @@ def execute():
         # TASK1
         print('TASK1')
 
+        # Determine outer circle
         x_cap, y_cap, r_cap = outer_circle_detection(binary)
 
         if not (math.isnan(x_cap) or math.isnan(y_cap) or math.isnan(r_cap)):
             print('Position of the center of the cap: (' + str(x_cap) + ', ' + str(y_cap) + ')')
             print('Diameter of the cap: ' + str(2 * r_cap))
 
+            # Show the outer circle
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             cv2.circle(coloured_image, (np.round(x_cap).astype('int'), np.round(y_cap).astype('int')), np.round(r_cap).astype('int'), (0, 255, 0), 1)
             cv2.circle(coloured_image, (np.round(x_cap).astype('int'), np.round(y_cap).astype('int')), 2, (0, 0, 255), 3)
@@ -328,15 +329,13 @@ def execute():
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-            print('Is the liner missing?')
-
-            # missing_liner = missing_liner_detection(img, missing_liner_threshold)
-
-            if missing_liner_detection(img, mask, missing_liner_threshold):
-                print('caps/' + file + ' hasn\'t the liner')
+            # Is the liner missing?
+            avg = np.mean(img[mask])
+            if avg > missing_liner_threshold:
+                print(file + ' has NO liner')
                 continue
             else:
-                print('caps/' + file + ' has the liner')
+                print(file + ' has the liner')
 
         # TASK2
         print('TASK2')
@@ -351,6 +350,7 @@ def execute():
             print('Position of the center of the liner: (' + str(x_liner) + ', ' + str(y_liner) + ')')
             print('Diameter of the liner: ' + str(2 * r_liner))
 
+            # Show the inner circle
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             cv2.circle(coloured_image, (np.round(x_liner).astype('int'), np.round(y_liner).astype('int')), np.round(r_liner).astype('int'), (0, 255, 0), 1)
             cv2.circle(coloured_image, (np.round(x_liner).astype('int'), np.round(y_liner).astype('int')), 2, (0, 0, 255), 3)
@@ -359,15 +359,14 @@ def execute():
             cv2.destroyAllWindows()
 
             # DEFECT DETECTION
-            print('Is the liner incomplete?')
-
             #has_defects, rectangles = liner_defects_detection(img)
             has_defects, rectangles = liner_defects_detection(stretched, x_liner, y_liner, r_liner)
 
             if not has_defects :
-                print('caps/' + file + ' has no defects: the liner is complete')
+                print(file + ' has no defects: the liner is complete')
             else:
-                print('caps/' + file + ' has defects: the liner is incomplete')
+                print(file + ' has defects: the liner is incomplete')
+                # Show the straight edge of the liner
                 coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
                 for rectangle in rectangles:
                     cv2.drawContours(coloured_image, [rectangle], 0, (0,0,255), 1)

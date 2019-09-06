@@ -1,7 +1,7 @@
 {
     "circle_detection":{
         "outer":{
-            "method": "least_squares",
+            "method": "hough",
             "parameters":{
                 "hough":{},
                 "least_squares": {
