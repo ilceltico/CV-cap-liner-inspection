@@ -217,15 +217,6 @@ def inner_circle_detection(stretched, r_cap):
             #     x, y, r, cook_d = # iteration with cook elimination are needed
 
     return x, y, r
-
-def missing_liner_detection(img, mask, threshold):
-    """
-    """
-
-    # threshold = utils.get_missing_liner_threshold()
-
-    #binary = utils.binarize(img)
-    #mask = binary.copy().astype(bool)
     
 
 #def liner_defects_detection(img):
