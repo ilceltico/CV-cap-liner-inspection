@@ -295,15 +295,11 @@ def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
     return has_defects, rectangles
 
 def execute():
-    #if config is None:
-    #    raise SystemExit(0)
     try:
         config.parse_json()
     except:
         raise
     print("Configuration correctly loaded.")
-    print(config.OUTER_METHOD)
-    print(config.INNER_METHOD)
 
     missing_liner_threshold = utils.get_missing_liner_threshold()
     print('Missing liner threshold: ' + str(missing_liner_threshold))
