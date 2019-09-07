@@ -323,9 +323,9 @@ def execute():
         # Test if the cap is a circle
         circularity = utils.haralick_circularity(binary)
         if circularity >= HARALICK_THRESHOLD :
-            print("The cap in " + file + " is a circle, Haralick's Circularity = " + str(circularity))
+            print("The cap in " + file + " is a circle, Haralick's Circularity = " + "%.2f" % round(circularity,2))
         else:
-            print("The cap in " + file + " is NOT a circle, Haralick's Circularity = " + str(circularity))
+            print("The cap in " + file + " is NOT a circle, Haralick's Circularity = " + "%.2f" % round(circularity,2))
 
         # TASK1
         print('TASK1')
@@ -334,8 +334,8 @@ def execute():
         x_cap, y_cap, r_cap = outer_circle_detection(binary)
 
         if not (math.isnan(x_cap) or math.isnan(y_cap) or math.isnan(r_cap)):
-            print('Position of the center of the cap: (' + str(x_cap) + ', ' + str(y_cap) + ')')
-            print('Diameter of the cap: ' + str(2 * r_cap))
+            print('Position of the center of the cap: (' + "%.2f" % round(x_cap,2) + ', ' + "%.2f" % round(y_cap,2) + ')')
+            print('Diameter of the cap: ' + "%.2f" % round(2*r_cap,2))
 
             # Show the outer circle
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -366,8 +366,8 @@ def execute():
         x_liner, y_liner, r_liner = inner_circle_detection(stretched, r_cap=r_cap)
 
         if not (math.isnan(x_liner) or math.isnan(y_liner) or math.isnan(r_liner)):
-            print('Position of the center of the liner: (' + str(x_liner) + ', ' + str(y_liner) + ')')
-            print('Diameter of the liner: ' + str(2 * r_liner))
+            print('Position of the center of the liner: (' + "%.2f" % round(2*x_liner,2) + ', ' + "%.2f" % round(2*y_liner,2) + ')')
+            print('Diameter of the liner: ' + "%.2f" % round(2*r_liner,2))
 
             # Show the inner circle
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
