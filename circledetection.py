@@ -87,8 +87,6 @@ def least_squares_circle_cook(x, y):
     #print(indip1)
     indip2 = 2*y
     #print(indip2)
-    indip3 = np.ones(len(x), dtype=int)
-    #print(indip3)
     dep = x**2 + y**2
     #print(dep)
 

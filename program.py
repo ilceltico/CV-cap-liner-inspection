@@ -37,55 +37,71 @@ def outer_circle_detection(binary):
     y = None
     r = None
 
-    #binary = binarization.binarize(img)
+    #binary = binarization.binarize(img) #to delete
 
-    # hough
+    # Hough Transform
     if config['outer']['method'] == 'hough':
         circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
-        circles = np.uint16(np.around(circles))
+        #circles = np.uint16(np.around(circles)) #to delete
         
-        # take only the center from the Hough result and compute the radius
-        x = sum([circles[0][i][0] for i in range(3)]) / 3
-        y = sum([circles[0][i][1] for i in range(3)]) / 3
+        # Take the center as an average of the 3 best circles, and compute the radius subsequently
+        # This is because, according to the official OpenCV doc, the radius computation in its function is not precise.
+        number_of_circles = 3
+        if len(circles[0]) <= 0:
+            print("No circles found")
+            return x, y, r
+        if len(circles[0]) < number_of_circles:
+            number_of_circles = len(circles[0])
+            print("WARNING: less than the specified amount of circles was found, using " + str(number_of_circles) + " circles only.")
 
-        # compute the radius as the mean distance between points and the center (found with Hough)
+        x = sum([circles[0][i][0] for i in range(number_of_circles)]) / number_of_circles
+        y = sum([circles[0][i][1] for i in range(number_of_circles)]) / number_of_circles
+
+        # Compute the radius as the mean distance between points and the previously found center
         edges = cv2.Canny(binary, 100, 200, L2gradient=True)
         pixels_y, pixels_x = np.nonzero(edges)
 
         r = sum(np.sqrt((pixels_x - x)**2 + (pixels_y - y)**2)) / len(pixels_x)
     
-    # our method
+    # Least Squares Linear Regression
     else:
         edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
         blobs = utils.get_blobs(edges)
 
         circles = []
 
-        # mean
-        if config['outer']['parameters']['least_squares']['circle_generation'] == 'mean':       
+        # Weighted mean method
+        if config['outer']['parameters']['least_squares']['circle_generation'] == 'mean':  
+            # Find a circle fit for each blob     
             for blob in blobs:
                 x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
                 if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-                    circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
-
+                    circles.append((x_temp, y_temp, r_temp, len(blob[0])))
+            
+            # Eliminate circles that are too far away from the weighted mean
             remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
 
+            # Re-compute a weighted mean circle
             weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
             sums = [sum(a) for a in zip(*weighted)]
             x, y, r, _ = [el/sums[3] for el in sums]
 
-        # interpolation
+        # Full interpolation method
         else:
+            # Find a circle fit for each blob
             for blob in blobs:
                 x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
                 if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
                     circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
             
+            # Eliminate circles that are too far away from the weighted mean
             remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
-
+            
+            # Merge the remaining blobs
             blob_x = [x for circle in remaining_circles for x in circle[4][0]]
             blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
+            # Fit again
             x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
 
     return x, y, r
@@ -103,38 +119,47 @@ def inner_circle_detection(stretched, r_cap):
     #mask = binary.copy().astype(bool)
     #stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
     #stretched[~mask] = 0
+    #to delete
 
-    # hough
+    # Hough Transform
     if config['inner']['method'] == 'hough':    
 
-        # edges
+        # Precise Canny method:
+        #   This method computes a precise Canny edge detection with L2 gradients, because the usual
+        #   detection inside HoughCircles uses L1 gradients, which is quite imprecise.
         if config['inner']['parameters']['hough']['image_to_hough'] == 'edges':
             gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
             edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
             circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
-            circles = np.uint16(np.around(circles))
+            #circles = np.uint16(np.around(circles)) #to delete
 
-            # return mean 1 or 2
-            param = config['inner']['parameters']['hough']['number_of_circle_average']
+            # Take the center as an average of the best circles
+            number_of_circles = config['inner']['parameters']['hough']['number_of_circle_average']
+            if len(circles[0]) <= 0:
+                print("No circles found!")
+                return x, y, r
+            if len(circles[0]) < number_of_circles:
+                number_of_circles = len(circles[0])
+                print("WARNING: less than the specified amount of circles was found, using " + str(number_of_circles) + " circles only.")
 
-            x = sum(circles[0][i][0] for i in range(param)) / param # try np.mean()
-            y = sum(circles[0][i][1] for i in range(param)) / param
-            r = sum(circles[0][i][2] for i in range(param)) / param
+            x = sum(circles[0][i][0] for i in range(number_of_circles)) / number_of_circles # try np.mean()
+            y = sum(circles[0][i][1] for i in range(number_of_circles)) / number_of_circles
+            r = sum(circles[0][i][2] for i in range(number_of_circles)) / number_of_circles
 
-        # gaussian
+        # Gaussian-only method
         else:
             gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
 
             circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.9*r_cap).astype("int"))
-            circles = np.uint16(np.around(circles))
+            #circles = np.uint16(np.around(circles)) #to delete
 
-            # return the first one
+            # Return the best circle found
             x = circles[0][0][0]
             y = circles[0][0][1]
             r = circles[0][0][2]
 
-    # our method
+    # Least Squares Linear Regression
     else:
         gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
         edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
@@ -331,10 +356,13 @@ def execute():
         # TASK2
         print('TASK2')
 
-        #x_liner, y_liner, r_liner = inner_circle_detection(img, r_cap=r_cap)
+        #x_liner, y_liner, r_liner = inner_circle_detection(img, r_cap=r_cap) #to delete
 
+        # Linear stretching (with mask)
         stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
         stretched[~mask] = 0
+
+        # Determine inner circle
         x_liner, y_liner, r_liner = inner_circle_detection(stretched, r_cap=r_cap)
 
         if not (math.isnan(x_liner) or math.isnan(y_liner) or math.isnan(r_liner)):
@@ -350,7 +378,7 @@ def execute():
             cv2.destroyAllWindows()
 
             # DEFECT DETECTION
-            #has_defects, rectangles = liner_defects_detection(img)
+            #has_defects, rectangles = liner_defects_detection(img) #to delete
             has_defects, rectangles = liner_defects_detection(stretched, x_liner, y_liner, r_liner)
 
             if not has_defects :
