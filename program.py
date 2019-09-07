@@ -161,18 +161,20 @@ def inner_circle_detection(stretched, r_cap):
         # split
         else:
             # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            split_number = config.INNER_LEAST_SQUARES_SPLITTED_NUMBER
-            size_limit = 100 # example
+            size_limit = 200 # example
 
             for blob in blobs:
+                split_number = config.INNER_LEAST_SQUARES_SPLITTED_NUMBER
                 blob_x = blob[0]
                 blob_y = blob[1]
-                # length = int(len(blob_x) / split_number) + 1
-                length = len(blob_x) // split_number + 1
+                length = len(blob_x) // split_number
 
                 if length < size_limit:
-                    split_number = len(blob_x) // size_limit + 1
-                    length = len(blob_x) // split_number + 1
+                    if len(blob_x) < size_limit:
+                        split_number = 1
+                    else :
+                        split_number = len(blob_x) // size_limit
+                    length = len(blob_x) // split_number
 
                 for i in range(split_number):
                 #     img_copy = coloured_image.copy()
@@ -181,11 +183,12 @@ def inner_circle_detection(stretched, r_cap):
                 #         if j+i*length < len(blobX):
                 #             img_copy[blob_x[j+i*length]][blob_y[j+i*length]] = color
 
-                    if length - 1 + i * length >= len(blob_x):
-                        max_index = len(blob_x)-1
+                    if i == split_number-1: #last split
+                        #max index (not included)
+                        max_index = len(blob_x)
                     else:
-                        max_index = length - 1 + i * length
-                    x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob_x[i * length:max_index + 1], blob_y[i * length:max_index + 1])
+                        max_index = (i+1) * length
+                    x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
                     if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
                         if r_temp < 0.99*r_cap:
                             circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
@@ -299,8 +302,10 @@ def execute():
 
     missing_liner_threshold = utils.get_missing_liner_threshold()
     print('Missing liner threshold: ' + str(missing_liner_threshold))
-
+    
     for file in os.listdir('./caps'):
+        if (file != "g_06.bmp" and file != "g_01.bmp"):
+            continue
         print('--------------------------------------------------')
         print(file)
 

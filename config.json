@@ -19,7 +19,7 @@
                 "least_squares": {
                     "split_blobs": true,
                     "splitted_blobs_number": 8,
-                    "outliers_elimination_type": "mean",
+                    "outliers_elimination_type": "bin",
                     "circle_generation": "interpolation"
                 }
             }
