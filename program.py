@@ -4,10 +4,7 @@ import os
 import math
 import cv2
 import numpy as np
-import readConfiguration as config
-
-
-HARALICK_THRESHOLD = 200
+import loadconfiguration as config
 
 def circle_detection(img, r_cap=None):
     """
@@ -28,10 +25,6 @@ def circle_detection(img, r_cap=None):
     
 #def outer_circle_detection(img):
 def outer_circle_detection(binary):
-
-    x = None
-    y = None
-    r = None
 
     #binary = binarization.binarize(img) #to delete
 
@@ -104,11 +97,6 @@ def outer_circle_detection(binary):
 
 #def inner_circle_detection(img, r_cap):
 def inner_circle_detection(stretched, r_cap):
-
-    x = None
-    y = None
-    r = None
-
     #binary = utils.binarize(img)
     #mask = binary.copy().astype(bool)
     #stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
@@ -173,12 +161,19 @@ def inner_circle_detection(stretched, r_cap):
         # split
         else:
             # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            split_number = 8
+            split_number = config.INNER_LEAST_SQUARES_SPLITTED_NUMBER
+            size_limit = 100 # example
 
             for blob in blobs:
                 blob_x = blob[0]
                 blob_y = blob[1]
-                length = int(len(blob_x) / split_number) + 1
+                # length = int(len(blob_x) / split_number) + 1
+                length = len(blob_x) // split_number + 1
+
+                if length < size_limit:
+                    split_number = len(blob_x) // size_limit + 1
+                    length = len(blob_x) // split_number + 1
+
                 for i in range(split_number):
                 #     img_copy = coloured_image.copy()
                 #     color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
@@ -299,6 +294,7 @@ def execute():
         config.parse_json()
     except:
         raise
+
     print("Configuration correctly loaded.")
 
     missing_liner_threshold = utils.get_missing_liner_threshold()
@@ -319,7 +315,7 @@ def execute():
 
         # Test if the cap is a circle
         circularity = utils.haralick_circularity(binary)
-        if circularity >= HARALICK_THRESHOLD :
+        if circularity >= config.HARALICK_THRESHOLD:
             print("The cap in " + file + " is a circle, Haralick's Circularity = " + "%.2f" % round(circularity,2))
         else:
             print("The cap in " + file + " is NOT a circle, Haralick's Circularity = " + "%.2f" % round(circularity,2))

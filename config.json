@@ -17,7 +17,8 @@
                     "number_of_circle_average": 0
                 },
                 "least_squares": {
-                    "split_blobs": false,
+                    "split_blobs": true,
+                    "splitted_blobs_number": 8,
                     "outliers_elimination_type": "mean",
                     "circle_generation": "interpolation"
                 }

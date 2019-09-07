@@ -81,38 +81,40 @@ def least_squares_circle_cook(x, y):
         Center x coordinate, center y coordinate and radius
     """
     
-    x = np.array(x)
-    y = np.array(y)
-    indip1 = 2*x
-    #print(indip1)
-    indip2 = 2*y
-    #print(indip2)
-    dep = x**2 + y**2
-    #print(dep)
+    try:
+        x = np.array(x)
+        y = np.array(y)
+        indip1 = 2*x
+        #print(indip1)
+        indip2 = 2*y
+        #print(indip2)
+        dep = x**2 + y**2
+        #print(dep)
 
 
-    indip_vars = np.transpose(np.vstack((indip1, indip2)))
-    #print(indipVars)
+        indip_vars = np.transpose(np.vstack((indip1, indip2)))
+        #print(indipVars)
 
-    indip_vars = sm.add_constant(indip_vars)
-    #print(indipVars)
+        indip_vars = sm.add_constant(indip_vars)
+        #print(indipVars)
 
-    model = sm.OLS(dep, indip_vars)
-    results = model.fit()
+        model = sm.OLS(dep, indip_vars)
+        results = model.fit()
 
-    #print(results.summary())
-    #print(results.params)
+        #print(results.summary())
+        #print(results.params)
 
-    x_center = results.params[1]
-    y_center = results.params[2]
-    radius = np.sqrt(results.params[0] + x_center**2 + y_center**2)
-    #print("Center: (" + str(xCenter) + "," + str(yCenter) + "), radius: " + str(radius))
+        x_center = results.params[1]
+        y_center = results.params[2]
+        radius = np.sqrt(results.params[0] + x_center**2 + y_center**2)
+        #print("Center: (" + str(xCenter) + "," + str(yCenter) + "), radius: " + str(radius))
 
-    cooks_distances = results.get_influence().summary_frame().cooks_d
-    # print(sorted(cooks_distances, reverse=True))
+        cooks_distances = results.get_influence().summary_frame().cooks_d
+        # print(sorted(cooks_distances, reverse=True))
 
-    return x_center, y_center, radius, cooks_distances
-
+        return x_center, y_center, radius, cooks_distances
+    except:
+        return float('NaN'), float('NaN'), float('NaN'), []
 
 def outliers_elimination(circles, thresholds):
     """
@@ -136,7 +138,7 @@ def outliers_elimination(circles, thresholds):
     sums = [sum(a) for a in zip(*weighted)]
     mean_circle = [el/sums[3] for el in sums]
 
-    circles_remaining = [circle for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
+    remaining_circles = [circle for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
 
     # if len(circles[0]) == 4:
     #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
@@ -151,7 +153,7 @@ def outliers_elimination(circles, thresholds):
 
     #     circles_remaining = [(x, y, r, n, blob) for x, y, r, n, blob in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
 
-    return circles_remaining
+    return remaining_circles
 
 # # metodo uguale a quello sopra ma prende circle con in più i blobs per fare poi interpolazione
 # # possiamo decidere di usare sempre questo e buttare via quello sopra
