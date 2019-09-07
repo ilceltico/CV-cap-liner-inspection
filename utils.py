@@ -189,37 +189,3 @@ def get_missing_liner_threshold():
     #print('Threshold: ' + str(thresh))
 
     return thresh
-
-def parse_json():
-    with open('config.json') as configFile:
-        jsonConfig = json.load(configFile)
-        config = jsonConfig['circle_detection']
-        outer = config['outer']
-        outer_method = outer['method']
-        if not (outer_method in ["hough", "least_squares"]):
-            print("Configuration error. See README.md to configure the software properly.")
-            return None
-
-        outer_parameters = outer['parameters'][outer_method]
-        if outer_method == "least_squares" and not (outer_parameters['circle_generation'] in ["mean", "interpolation"]):
-            print("Configuration error. See README.md to configure the software properly.")
-            return None
-
-        inner = config['inner']
-        inner_method = inner['method']
-        if not (inner_method in ["hough", "least_squares"]):
-            print("Configuration error. See README.md to configure the software properly.")
-            return None
-
-        inner_parameters = inner['parameters'][inner_method]
-        if inner_method == 'hough':
-            if not (inner_parameters['image_to_hough'] in ["edges", "gaussian"]) or not (isinstance(inner_parameters['number_of_circle_average'], int)) or inner_parameters['number_of_circle_average'] > 2 or inner_parameters['number_of_circle_average'] < 1:
-                print("Configuration error. See README.md to configure the software properly.")
-                return None
-        else:
-            if not (isinstance(inner_parameters['split_blobs'], bool)) or not (inner_parameters['outliers_elimination_type'] in ["mean", "bin"]) or not (inner_parameters['circle_generation'] in ["mean", "interpolation", "interpolation_cook"]) or (inner_parameters['split_blobs'] == True and inner_parameters['outliers_elimination_type'] == "mean"):
-                print("Configuration error. See README.md to configure the software properly.")
-                return None
-         
-        print("Configuration correctly loaded.")
-        return config

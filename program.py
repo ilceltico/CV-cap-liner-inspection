@@ -4,12 +4,10 @@ import os
 import math
 import cv2
 import numpy as np
-import json
+import readConfiguration as config
 
 
 HARALICK_THRESHOLD = 200
-
-config = utils.parse_json()
 
 def circle_detection(img, r_cap=None):
     """
@@ -31,8 +29,6 @@ def circle_detection(img, r_cap=None):
 #def outer_circle_detection(img):
 def outer_circle_detection(binary):
 
-    global config
-
     x = None
     y = None
     r = None
@@ -40,7 +36,7 @@ def outer_circle_detection(binary):
     #binary = binarization.binarize(img) #to delete
 
     # Hough Transform
-    if config['outer']['method'] == 'hough':
+    if config.OUTER_METHOD == 'hough':
         circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
         #circles = np.uint16(np.around(circles)) #to delete
         
@@ -71,7 +67,7 @@ def outer_circle_detection(binary):
         circles = []
 
         # Weighted mean method
-        if config['outer']['parameters']['least_squares']['circle_generation'] == 'mean':  
+        if config.OUTER_LEAST_SQUARES_CIRCLE_GENERATION == 'mean':  
             # Find a circle fit for each blob     
             for blob in blobs:
                 x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
@@ -109,8 +105,6 @@ def outer_circle_detection(binary):
 #def inner_circle_detection(img, r_cap):
 def inner_circle_detection(stretched, r_cap):
 
-    global config
-
     x = None
     y = None
     r = None
@@ -122,12 +116,12 @@ def inner_circle_detection(stretched, r_cap):
     #to delete
 
     # Hough Transform
-    if config['inner']['method'] == 'hough':    
+    if config.INNER_METHOD == 'hough':    
 
         # Precise Canny method:
         #   This method computes a precise Canny edge detection with L2 gradients, because the usual
         #   detection inside HoughCircles uses L1 gradients, which is quite imprecise.
-        if config['inner']['parameters']['hough']['image_to_hough'] == 'edges':
+        if config.INNER_HOUGH_IMAGE == 'edges':
             gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
             edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
@@ -135,7 +129,7 @@ def inner_circle_detection(stretched, r_cap):
             #circles = np.uint16(np.around(circles)) #to delete
 
             # Take the center as an average of the best circles
-            number_of_circles = config['inner']['parameters']['hough']['number_of_circle_average']
+            number_of_circles = config.INNER_HOUGH_NUMBER_AVG
             if len(circles[0]) <= 0:
                 print("No circles found!")
                 return x, y, r
@@ -169,7 +163,7 @@ def inner_circle_detection(stretched, r_cap):
         circles = []
 
         # not split
-        if not config['inner']['parameters']['least_squares']['split_blobs']:
+        if not config.INNER_LEAST_SQUARES_SPLIT:
             for blob in blobs:
                 x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
                 if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
@@ -202,7 +196,7 @@ def inner_circle_detection(stretched, r_cap):
                             circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
 
         # mean for outliers elimination
-        if config['inner']['parameters']['least_squares']['outliers_elimination_type'] == 'mean':
+        if config.INNER_LEAST_SQUARES_OUTLIERS_TYPE == 'mean':
             remaining_circles = circledetection.outliers_elimination(circles, (20,20))
         
         # bin
@@ -224,7 +218,7 @@ def inner_circle_detection(stretched, r_cap):
 
 
         # mean for circle generation
-        if config['inner']['parameters']['least_squares']['circle_generation'] == 'mean':
+        if config.INNER_LEAST_SQUARES_CIRCLE_GENERATION == 'mean':
             weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
             sums = [sum(a) for a in zip(*weighted)]
             x, y, r, _ = [el/sums[3] for el in sums]
@@ -234,7 +228,7 @@ def inner_circle_detection(stretched, r_cap):
             blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
             # interpolation
-            if config['inner']['parameters']['least_squares']['circle_generation'] == 'interpolation':
+            if config.INNER_LEAST_SQUARES_CIRCLE_GENERATION == 'interpolation':
                 x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
             
             # cook
@@ -301,8 +295,15 @@ def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
     return has_defects, rectangles
 
 def execute():
-    if config is None:
-        raise SystemExit(0)
+    #if config is None:
+    #    raise SystemExit(0)
+    try:
+        config.parse_json()
+    except:
+        raise
+    print("Configuration correctly loaded.")
+    print(config.OUTER_METHOD)
+    print(config.INNER_METHOD)
 
     missing_liner_threshold = utils.get_missing_liner_threshold()
     print('Missing liner threshold: ' + str(missing_liner_threshold))
