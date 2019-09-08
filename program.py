@@ -31,7 +31,6 @@ def outer_circle_detection(binary):
     # Hough Transform
     if config.OUTER_METHOD == 'hough':
         circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
-        #circles = np.uint16(np.around(circles)) #to delete
         
         # Take the center as an average of the 3 best circles, and compute the radius subsequently
         # This is because, according to the official OpenCV doc, the radius computation in its function is not precise.
@@ -74,17 +73,19 @@ def inner_circle_detection(stretched, x_cap, y_cap, r_cap):
 
         # Precise Canny method:
         #   This method computes a precise Canny edge detection with L2 gradients, because the usual
-        #   detection inside HoughCircles uses L1 gradients, which is quite imprecise.
+        #   detection inside HoughCircles uses L1 gradients, which is quite imprecise for our purposes.
         if config.INNER_HOUGH_IMAGE == 'edges':
             gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
             edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
+            mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (x_cap, y_cap), 0.95*r_cap)
+            edges[~mask] = 0
+            
             circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
-            #circles = np.uint16(np.around(circles)) #to delete
 
             # Take the center as an average of the best circles
             number_of_circles = config.INNER_HOUGH_NUMBER_AVG
-            if len(circles[0]) <= 0:
+            if len(circles[0]) == 0:
                 print("No circles found!")
                 return x, y, r
             if len(circles[0]) < number_of_circles:
