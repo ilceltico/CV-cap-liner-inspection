@@ -9,7 +9,7 @@ INNER_METHOD = ''
 INNER_HOUGH_IMAGE = ''
 INNER_HOUGH_NUMBER_AVG = ''
 INNER_LEAST_SQUARES_SPLIT = ''
-INNER_LEAST_SQUARES_SPLITTED_NUMBER = 1
+INNER_LEAST_SQUARES_MIN_BLOB_DIM = 1
 INNER_LEAST_SQUARES_OUTLIERS_TYPE = ''
 INNER_LEAST_SQUARES_CIRCLE_GENERATION = ''
 
@@ -20,7 +20,7 @@ def parse_json():
     global INNER_HOUGH_IMAGE
     global INNER_HOUGH_NUMBER_AVG
     global INNER_LEAST_SQUARES_SPLIT
-    global INNER_LEAST_SQUARES_SPLITTED_NUMBER
+    global INNER_LEAST_SQUARES_MIN_BLOB_DIM
     global INNER_LEAST_SQUARES_OUTLIERS_TYPE
     global INNER_LEAST_SQUARES_CIRCLE_GENERATION
 
@@ -60,10 +60,10 @@ def parse_json():
             
         else:
             INNER_LEAST_SQUARES_SPLIT = inner_parameters['split_blobs']
-            INNER_LEAST_SQUARES_SPLITTED_NUMBER = inner_parameters['splitted_blobs_number']
+            INNER_LEAST_SQUARES_MIN_BLOB_DIM = inner_parameters['min_blob_dim']
             INNER_LEAST_SQUARES_OUTLIERS_TYPE = inner_parameters['outliers_elimination_type']
             INNER_LEAST_SQUARES_CIRCLE_GENERATION = inner_parameters['circle_generation']
-            if not (isinstance(INNER_LEAST_SQUARES_SPLIT, bool)) or not (isinstance(INNER_LEAST_SQUARES_SPLITTED_NUMBER, int) and INNER_LEAST_SQUARES_SPLITTED_NUMBER > 0) or not (INNER_LEAST_SQUARES_OUTLIERS_TYPE in ['mean', 'bin']) or not (INNER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'interpolation', 'interpolation_cook']):
+            if not (isinstance(INNER_LEAST_SQUARES_SPLIT, bool)) or not (isinstance(INNER_LEAST_SQUARES_MIN_BLOB_DIM, int) and INNER_LEAST_SQUARES_MIN_BLOB_DIM > 0) or not (INNER_LEAST_SQUARES_OUTLIERS_TYPE in ['mean', 'votes']) or not (INNER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'interpolation', 'interpolation_cook']):
                 print('Configuration error. See README.md to configure the software properly.')
                 #return None
                 raise SystemExit(0)

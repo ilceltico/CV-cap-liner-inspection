@@ -1,6 +1,94 @@
 import numpy as np
 import math
 import statsmodels.api as sm
+import utils
+
+def least_squares_circles(edges, min_blob_dim, outliers_elimination, final_computation_method, 
+        oe_thresholds=(20,20), oe_bins_factor=8):
+    """
+    """
+
+    if not outliers_elimination in [None, 'mean', 'votes']:
+        return None, None, None
+
+    if not final_computation_method in ['mean', 'interpolation']:
+        return None, None, None
+
+
+    blobs = utils.get_blobs(edges)
+    circles = []
+
+    # Find a circle fit for each blob
+    if min_blob_dim == 0:
+        for blob in blobs:
+            x_temp, y_temp, r_temp = least_squares_circle_fit(blob[0], blob[1])
+            if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
+                if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
+                    circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
+
+    # Split the blobs and find a fit
+    else:
+        # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+        for blob in blobs:
+            blob_x = blob[0]
+            blob_y = blob[1]
+
+            if len(blob_x) < min_blob_dim:
+                split_number = 1
+            else :
+                split_number = len(blob_x) // min_blob_dim
+            length = len(blob_x) // split_number
+
+            for i in range(split_number):
+            #     img_copy = coloured_image.copy()
+            #     color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
+            #     for j in range(0, length):
+            #         if j+i*length < len(blobX):
+            #             img_copy[blob_x[j+i*length]][blob_y[j+i*length]] = color
+
+                if i == split_number-1: #last split
+                    #max index (not included)
+                    max_index = len(blob_x)
+                else:
+                    max_index = (i+1) * length
+                x_temp, y_temp, r_temp = least_squares_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
+                if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
+                    if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
+                        circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
+
+    # Eliminate circles that are too far away from the weighted mean
+    if outliers_elimination == 'mean':
+        remaining_circles = outliers_elimination_mean(circles, (20,20))
+    
+    # Eliminate outliers using a voting process
+    elif outliers_elimination == 'votes':
+        remaining_circles = outliers_elimination_votes(edges.shape[0], edges.shape[1], circles, oe_bins_factor) 
+    
+    # No outliers elimination
+    elif outliers_elimination == None:
+        remaining_circles = circles
+
+    # Re-compute a weighted mean circle
+    if final_computation_method == 'mean':
+        weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
+        sums = [sum(a) for a in zip(*weighted)]
+        x, y, r, _ = [el/sums[3] for el in sums]
+
+    # Interpolate by fitting again
+    else:
+        blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+        blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+
+        if final_computation_method == 'interpolation':
+            x, y, r = least_squares_circle_fit(blob_x, blob_y)
+        
+        # cook
+        # else:
+        #     x, y, r, cook_d = # iteration with cook elimination are needed
+
+    return x, y, r
+
 
 def least_squares_circle_fit(x, y):
     """
@@ -116,7 +204,7 @@ def least_squares_circle_cook(x, y):
     except:
         return float('NaN'), float('NaN'), float('NaN'), []
 
-def outliers_elimination(circles, thresholds):
+def outliers_elimination_mean(circles, thresholds):
     """
     Eliminate outliers circles based on the distance from the mean circles.
 
@@ -178,7 +266,7 @@ def outliers_elimination(circles, thresholds):
 #     else:
 #         return None, None, None
 
-def outliers_elimination_with_bins(img_height, img_width, circles, bins):
+def outliers_elimination_votes(img_height, img_width, circles, resolution_factor):
     """
     Eliminate outliers circles based on similarity.
 
@@ -186,7 +274,7 @@ def outliers_elimination_with_bins(img_height, img_width, circles, bins):
         img_height: int.
         imag_width: int.
         circles: list of center x coordinate, center y coordinate, radius and number of points (eventually also the blob)
-        thresholds: tuple of numbers of bins on rows, columns and radius
+        resolution_factor: 1 means that the functions uses as many bins as pixels, 2 means half, etc.
     Return:
         List of remaining circles.
     """
@@ -194,35 +282,42 @@ def outliers_elimination_with_bins(img_height, img_width, circles, bins):
     if len(circles) == 0:
         return []
 
-    # img_shape: rows and columns
-    # circles: list of tuple (center x, center y, radius, number of pixel)
-    # bins: tuple of number of bins (axis x, axis y, radius)
+    # If there are enough circles, optimize by using a Hough-like 3D memory structure
+    if len(circles) > 1000:
+        bins = (math.ceil(img_height/resolution_factor), math.ceil(img_width/resolution_factor), math.ceil(max([img_height, img_width])/resolution_factor))
+        votes_bins = np.zeros((bins[0], bins[1], bins[2]))
+        circle_bins = [[[[] for _ in range(bins[2])] for _ in range(bins[1])] for _ in range(bins[0])]
 
-    votes_bins = np.zeros((bins[0], bins[1], bins[2]))
-    circle_bins = [[[[] for _ in range(bins[2])] for _ in range(bins[1])] for _ in range(bins[0])]
+        for circle in circles:
+            row_bin = np.round(circle[0]).astype("int") // resolution_factor
+            col_bin = np.round(circle[1]).astype("int") // resolution_factor
+            r_bin = np.round(circle[2]).astype("int") // resolution_factor
 
-    bin_shape_rows = img_height // bins[0]
-    bin_shape_cols = img_width // bins[1]
-    bin_shape_r = img_height // 2 // bins[2]
+            votes_bins[row_bin][col_bin][r_bin] += circle[3]
+            circle_bins[row_bin][col_bin][r_bin].append(circle)
 
-    for circle in circles:
-        row_bin = np.round(circle[0]).astype("int") // bin_shape_rows
-        col_bin = np.round(circle[1]).astype("int") // bin_shape_cols
-        r_bin = np.round(circle[2]).astype("int") // bin_shape_r
+        maximum = np.unravel_index(np.argmax(votes_bins, axis=None), votes_bins.shape)
+        remaining_circles = circle_bins[maximum[0]][maximum[1]][maximum[2]]
 
-        votes_bins[row_bin][col_bin][r_bin] += circle[3]
-        circle_bins[row_bin][col_bin][r_bin].append(circle)
+    # If not, use a simple dictionary
+    else:
+        votes_bins = {}
+        
+        for circle in circles:
+            row_bin = np.round(circle[0]).astype("int") // resolution_factor
+            col_bin = np.round(circle[1]).astype("int") // resolution_factor
+            r_bin = np.round(circle[2]).astype("int") // resolution_factor
 
-    maximum = np.unravel_index(np.argmax(votes_bins, axis=None), votes_bins.shape)
-    remaining_circles = circle_bins[maximum[0]][maximum[1]][maximum[2]]
+            key = (row_bin,col_bin,r_bin)
 
-    # TO USE THIS PART THE USER NEED TO PASS THE BLOBS TOGETHER WITH THE CIRCLES
+            if not key in votes_bins:
+                votes_bins[key] = [circle[3], [circle]]
+            else:
+                value = votes_bins[key]
+                value[0] += circle[3]
+                value[1].append(circle)
+                votes_bins[key] = value
 
-    # blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-    # blob_y = [y for circle in remaining_circles for y in circle[4][1]]
-
-    # x, y, r = circledetection.leastSquaresCircleFitCached(blob_x, blob_y)
-
-    # return x, y, r
+        remaining_circles = max(list(votes_bins.values()), key = lambda x:x[0])[1]
 
     return remaining_circles

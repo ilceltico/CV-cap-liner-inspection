@@ -6,22 +6,22 @@ import cv2
 import numpy as np
 import loadconfiguration as config
 
-def circle_detection(img, r_cap=None):
-    """
-    Perform circle detection.
+# def circle_detection(img, r_cap=None):
+#     """
+#     Perform circle detection.
 
-    Parameters:
-        img: input image.
-        r_cap: if specified the inner circle will be found (if present) otherwise the outer circle will be detected.
+#     Parameters:
+#         img: input image.
+#         r_cap: if specified the inner circle will be found (if present) otherwise the outer circle will be detected.
 
-    Returns:
-        Center x coordinate, center y coordinate and radius
-    """
+#     Returns:
+#         Center x coordinate, center y coordinate and radius
+#     """
 
-    if r_cap == None:
-        outer_circle_detection(img)
-    else:
-        inner_circle_detection(img, r_cap)
+#     if r_cap == None:
+#         outer_circle_detection(img)
+#     else:
+#         inner_circle_detection(img, r_cap)
     
 #def outer_circle_detection(img):
 def outer_circle_detection(binary):
@@ -36,7 +36,7 @@ def outer_circle_detection(binary):
         # Take the center as an average of the 3 best circles, and compute the radius subsequently
         # This is because, according to the official OpenCV doc, the radius computation in its function is not precise.
         number_of_circles = 3
-        if len(circles[0]) <= 0:
+        if len(circles[0]) == 0:
             print("No circles found")
             return x, y, r
         if len(circles[0]) < number_of_circles:
@@ -55,48 +55,14 @@ def outer_circle_detection(binary):
     # Least Squares Linear Regression
     else:
         edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
-        blobs = utils.get_blobs(edges)
 
-        circles = []
-
-        # Weighted mean method
-        if config.OUTER_LEAST_SQUARES_CIRCLE_GENERATION == 'mean':  
-            # Find a circle fit for each blob     
-            for blob in blobs:
-                x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
-                if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-                    circles.append((x_temp, y_temp, r_temp, len(blob[0])))
-            
-            # Eliminate circles that are too far away from the weighted mean
-            remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
-
-            # Re-compute a weighted mean circle
-            weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
-            sums = [sum(a) for a in zip(*weighted)]
-            x, y, r, _ = [el/sums[3] for el in sums]
-
-        # Full interpolation method
-        else:
-            # Find a circle fit for each blob
-            for blob in blobs:
-                x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
-                if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-                    circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
-            
-            # Eliminate circles that are too far away from the weighted mean
-            remaining_circles = circledetection.outliers_elimination(circles, (20, 20))
-            
-            # Merge the remaining blobs
-            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
-
-            # Fit again
-            x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
+        x, y, r = circledetection.least_squares_circles(edges, 0, "mean", 
+            config.OUTER_LEAST_SQUARES_CIRCLE_GENERATION, oe_thresholds=(20,20))
 
     return x, y, r
 
 #def inner_circle_detection(img, r_cap):
-def inner_circle_detection(stretched, r_cap):
+def inner_circle_detection(stretched, x_cap, y_cap, r_cap):
     #binary = utils.binarize(img)
     #mask = binary.copy().astype(bool)
     #stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
@@ -146,92 +112,16 @@ def inner_circle_detection(stretched, r_cap):
         gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
         edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
-        blobs = utils.get_blobs(edges)
+        mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (x_cap, y_cap), 0.95*r_cap)
+        edges[~mask] = 0
 
-        circles = []
-
-        # not split
-        if not config.INNER_LEAST_SQUARES_SPLIT:
-            for blob in blobs:
-                x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob[0], blob[1])
-                if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-                    if r_temp < 0.99*r_cap:
-                        circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
-
-        # split
+        if config.INNER_LEAST_SQUARES_SPLIT == True:
+            min_blob_dim = config.INNER_LEAST_SQUARES_MIN_BLOB_DIM
         else:
-            # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            size_limit = 200 # example
+            min_blob_dim = 0
 
-            for blob in blobs:
-                split_number = config.INNER_LEAST_SQUARES_SPLITTED_NUMBER
-                blob_x = blob[0]
-                blob_y = blob[1]
-                length = len(blob_x) // split_number
-
-                if length < size_limit:
-                    if len(blob_x) < size_limit:
-                        split_number = 1
-                    else :
-                        split_number = len(blob_x) // size_limit
-                    length = len(blob_x) // split_number
-
-                for i in range(split_number):
-                #     img_copy = coloured_image.copy()
-                #     color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
-                #     for j in range(0, length):
-                #         if j+i*length < len(blobX):
-                #             img_copy[blob_x[j+i*length]][blob_y[j+i*length]] = color
-
-                    if i == split_number-1: #last split
-                        #max index (not included)
-                        max_index = len(blob_x)
-                    else:
-                        max_index = (i+1) * length
-                    x_temp, y_temp, r_temp = circledetection.least_squares_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
-                    if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
-                        if r_temp < 0.99*r_cap:
-                            circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
-
-        # mean for outliers elimination
-        if config.INNER_LEAST_SQUARES_OUTLIERS_TYPE == 'mean':
-            remaining_circles = circledetection.outliers_elimination(circles, (20,20))
-        
-        # bin
-        else:
-            #remaining_circles = circledetection.outliers_elimination_with_bins(img.shape[0], img.shape[1], circles, (72, 85, 36))  
-            remaining_circles = circledetection.outliers_elimination_with_bins(stretched.shape[0], stretched.shape[1], circles, (72, 85, 36)) 
-
-        # # ELSE no outliers elimination
-
-        #     # outliers MERGED
-        #     blob_x = [x for circle in circles for x in circle[4][0]]
-        #     blob_y = [y for circle in circles for y in circle[4][1]]
-
-        #         # interpolation with LEAST SQUARE
-        #         x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
-
-        #         # interpolation with COOK
-        #         x, y, r, cook_d = # iteration with cook elimination are needed
-
-
-        # mean for circle generation
-        if config.INNER_LEAST_SQUARES_CIRCLE_GENERATION == 'mean':
-            weighted = [[circle[0] * circle[3], circle[1] * circle[3], circle[2] * circle[3], circle[3]] for circle in remaining_circles]
-            sums = [sum(a) for a in zip(*weighted)]
-            x, y, r, _ = [el/sums[3] for el in sums]
-
-        else:
-            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
-
-            # interpolation
-            if config.INNER_LEAST_SQUARES_CIRCLE_GENERATION == 'interpolation':
-                x, y, r = circledetection.least_squares_circle_fit(blob_x, blob_y)
-            
-            # cook
-            # else:
-            #     x, y, r, cook_d = # iteration with cook elimination are needed
+        x, y, r = circledetection.least_squares_circles(edges, min_blob_dim, config.INNER_LEAST_SQUARES_OUTLIERS_TYPE, 
+            config.INNER_LEAST_SQUARES_CIRCLE_GENERATION, oe_thresholds=(20,20), oe_bins_factor=8)
 
     return x, y, r
     
@@ -304,8 +194,8 @@ def execute():
     print('Missing liner threshold: ' + str(missing_liner_threshold))
     
     for file in os.listdir('./caps'):
-        if (file != "g_06.bmp" and file != "g_01.bmp"):
-            continue
+        # if (file != "g_06.bmp" and file != "g_01.bmp"):
+        #     continue
         print('--------------------------------------------------')
         print(file)
 
@@ -361,10 +251,10 @@ def execute():
         stretched[~mask] = 0
 
         # Determine inner circle
-        x_liner, y_liner, r_liner = inner_circle_detection(stretched, r_cap=r_cap)
+        x_liner, y_liner, r_liner = inner_circle_detection(stretched, x_cap, y_cap, r_cap)
 
         if not (math.isnan(x_liner) or math.isnan(y_liner) or math.isnan(r_liner)):
-            print('Position of the center of the liner: (' + "%.2f" % round(2*x_liner,2) + ', ' + "%.2f" % round(2*y_liner,2) + ')')
+            print('Position of the center of the liner: (' + "%.2f" % round(x_liner,2) + ', ' + "%.2f" % round(y_liner,2) + ')')
             print('Diameter of the liner: ' + "%.2f" % round(2*r_liner,2))
 
             # Show the inner circle
@@ -392,7 +282,4 @@ def execute():
                 cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    try:
-        execute()
-    except:
-        pass
+    execute()

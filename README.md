@@ -10,7 +10,7 @@ For the inner circle detection ("inner" section) (i.e. liner border detection) t
 In case of "method": "hough" he can select which kind of image will be passed to the Hough Transform ("edges" or "gaussian"). In case of "edges" selection, he can also specify the 
 number of circles the software will average to obtain the final circle (1 - i.e. return the first Hough cirlce - or 2 - i.e. the circle returned is the mean between the best two found 
 by Hough).
-In case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination perform ("mean" or "bin") 
+In case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination perform ("mean" or "votes") 
 and the circle generation strategy. Note: you cannot use the combination "split":"true" with "outliers_elimination_type":"mean".
 
 Required modules:
@@ -40,7 +40,7 @@ config.json structure:
                 },
                 "least_squares": {
                     "split_blobs": true,
-                    "outliers_elimination_type": ["mean", "bin"],
+                    "outliers_elimination_type": ["mean", "votes"],
                     "circle_generation": ["mean", "interpolation", "interpolation_cook"]
                 }
             }
@@ -71,7 +71,7 @@ default configuration:
                 },
                 "least_squares": {
                     "split_blobs": false,
-                    "outliers_elimination_type": "bin",
+                    "outliers_elimination_type": "votes",
                     "circle_generation": "mean"
                 }
             }

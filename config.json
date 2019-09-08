@@ -17,9 +17,9 @@
                     "number_of_circle_average": 0
                 },
                 "least_squares": {
-                    "split_blobs": true,
-                    "splitted_blobs_number": 8,
-                    "outliers_elimination_type": "bin",
+                    "split_blobs": false,
+                    "min_blob_dim": 200,
+                    "outliers_elimination_type": "votes",
                     "circle_generation": "interpolation"
                 }
             }
