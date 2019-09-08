@@ -24,13 +24,12 @@ import loadconfiguration as config
 #         inner_circle_detection(img, r_cap)
     
 #def outer_circle_detection(img):
-def outer_circle_detection(binary):
-
-    #binary = binarization.binarize(img) #to delete
+def outer_circle_detection(img):
+    #Temporary_comment: expects the binarized image
 
     # Hough Transform
     if config.OUTER_METHOD == 'hough':
-        circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, 1, param1=200, param2=5, minRadius=0, maxRadius=0)
         
         # Take the center as an average of the 3 best circles, and compute the radius subsequently
         # This is because, according to the official OpenCV doc, the radius computation in its function is not precise.
@@ -46,14 +45,14 @@ def outer_circle_detection(binary):
         y = sum([circles[0][i][1] for i in range(number_of_circles)]) / number_of_circles
 
         # Compute the radius as the mean distance between points and the previously found center
-        edges = cv2.Canny(binary, 100, 200, L2gradient=True)
+        edges = cv2.Canny(img, 100, 200, L2gradient=True)
         pixels_y, pixels_x = np.nonzero(edges)
 
         r = sum(np.sqrt((pixels_x - x)**2 + (pixels_y - y)**2)) / len(pixels_x)
     
     # Least Squares Linear Regression
     else:
-        edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
+        edges = cv2.Canny(img, 100, 200, apertureSize=3, L2gradient=True)
 
         x, y, r = circledetection.least_squares_circles(edges, 0, "mean", 
             config.OUTER_LEAST_SQUARES_CIRCLE_GENERATION, oe_thresholds=(20,20))
@@ -61,12 +60,8 @@ def outer_circle_detection(binary):
     return x, y, r
 
 #def inner_circle_detection(img, r_cap):
-def inner_circle_detection(stretched, x_cap, y_cap, r_cap):
-    #binary = utils.binarize(img)
-    #mask = binary.copy().astype(bool)
-    #stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
-    #stretched[~mask] = 0
-    #to delete
+def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
+    #Temporary_comment: expects the stretched image
 
     # Hough Transform
     if config.INNER_METHOD == 'hough':    
@@ -75,13 +70,13 @@ def inner_circle_detection(stretched, x_cap, y_cap, r_cap):
         #   This method computes a precise Canny edge detection with L2 gradients, because the usual
         #   detection inside HoughCircles uses L1 gradients, which is quite imprecise for our purposes.
         if config.INNER_HOUGH_IMAGE == 'edges':
-            gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+            gaussian = cv2.GaussianBlur(img, (7,7), 2, 2)
             edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
-            mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (x_cap, y_cap), 0.95*r_cap)
+            mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (outer_xc, outer_yc), 0.95*outer_r)
             edges[~mask] = 0
             
-            circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*r_cap).astype("int"))
+            circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.98*outer_r).astype("int"))
 
             # Take the center as an average of the best circles
             number_of_circles = config.INNER_HOUGH_NUMBER_AVG
@@ -98,10 +93,9 @@ def inner_circle_detection(stretched, x_cap, y_cap, r_cap):
 
         # Gaussian-only method
         else:
-            gaussian = cv2.GaussianBlur(stretched, (9,9), 2, 2)
+            gaussian = cv2.GaussianBlur(img, (9,9), 2, 2)
 
-            circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.9*r_cap).astype("int"))
-            #circles = np.uint16(np.around(circles)) #to delete
+            circles = cv2.HoughCircles(gaussian, cv2.HOUGH_GRADIENT, 1, 1, param1=100, param2=10, minRadius=0, maxRadius=np.round(0.9*outer_r).astype("int"))
 
             # Return the best circle found
             x = circles[0][0][0]
@@ -110,10 +104,10 @@ def inner_circle_detection(stretched, x_cap, y_cap, r_cap):
 
     # Least Squares Linear Regression
     else:
-        gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+        gaussian = cv2.GaussianBlur(img, (7,7), 2, 2)
         edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
-        mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (x_cap, y_cap), 0.95*r_cap)
+        mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (outer_xc, outer_yc), 0.95*outer_r)
         edges[~mask] = 0
 
         if config.INNER_LEAST_SQUARES_SPLIT == True:
