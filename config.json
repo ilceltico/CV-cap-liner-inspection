@@ -3,21 +3,24 @@
         "outer":{
             "method": "least_squares",
             "parameters":{
-                "hough":{},
+                "hough":{
+                    "average_best_circles": 3,
+                    "radius_computation": "border_distance"
+                },
                 "least_squares": {
                     "circle_generation": "mean"
                 }
             }
         },
         "inner": {
-            "method": "hough",
+            "method": "least_squares",
             "parameters": {
                 "hough": {
-                    "image_to_hough": "edges",
-                    "number_of_circle_average": 2
+                    "canny_precision": "precise",
+                    "average_best_circles": 2
                 },
                 "least_squares": {
-                    "split_blobs": false,
+                    "split_blobs": true,
                     "min_blob_dim": 200,
                     "outliers_elimination_type": "votes",
                     "circle_generation": "interpolation"

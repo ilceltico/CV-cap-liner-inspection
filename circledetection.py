@@ -2,11 +2,14 @@ import numpy as np
 import math
 import statsmodels.api as sm
 import utils
+import cv2
+import time
 
-def least_squares_circles(edges, min_blob_dim, outliers_elimination, final_computation_method, 
+def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation_method, 
         oe_thresholds=(20,20), oe_bins_factor=8):
     """
     """
+    # tic = time.process_time()
 
     if not outliers_elimination in [None, 'mean', 'votes']:
         return None, None, None
@@ -86,6 +89,36 @@ def least_squares_circles(edges, min_blob_dim, outliers_elimination, final_compu
         # cook
         # else:
         #     x, y, r, cook_d = # iteration with cook elimination are needed
+
+    # delta = time.process_time() - tic
+    # print("Delta = " + str(delta))
+
+    return x, y, r
+
+        
+def find_circles_hough(img, dp, min_dist, canny_th_high, accumulator_threshold, 
+    min_radius, max_radius, no_circles_to_avg):
+
+    # tic = time.process_time()
+
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, dp, min_dist, param1=canny_th_high, param2=accumulator_threshold, 
+        minRadius=min_radius, maxRadius=max_radius)
+
+    # Compute the result as an average of the best circles
+    number_of_circles = no_circles_to_avg
+    if len(circles[0]) == 0:
+        print("No circles found!")
+        return None, None, None
+    if len(circles[0]) < number_of_circles:
+        number_of_circles = len(circles[0])
+        print("WARNING: less than the specified amount of circles was found, using " + str(number_of_circles) + " circles only.")
+
+    x = sum(circles[0][i][0] for i in range(number_of_circles)) / number_of_circles # try np.mean()
+    y = sum(circles[0][i][1] for i in range(number_of_circles)) / number_of_circles
+    r = sum(circles[0][i][2] for i in range(number_of_circles)) / number_of_circles
+
+    # delta = time.process_time() - tic
+    # print("Delta = " + str(delta))
 
     return x, y, r
 

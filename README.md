@@ -36,7 +36,8 @@ config.json structure:
             "parameters": {
                 "hough": {
                     "image_to_hough": ["edges", "gaussian"],
-                    "number_of_circle_average": 2
+                    "center_average_best_circles": 2,
+                    "radius_computation": ["as_center", "border_average"]
                 },
                 "least_squares": {
                     "split_blobs": true,
