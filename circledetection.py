@@ -11,13 +11,6 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
     """
     # tic = time.process_time()
 
-    if not outliers_elimination in [None, 'mean', 'votes']:
-        return None, None, None
-
-    if not final_computation_method in ['mean', 'interpolation']:
-        return None, None, None
-
-
     blobs = utils.get_blobs(edges)
     circles = []
 
@@ -78,17 +71,59 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         sums = [sum(a) for a in zip(*weighted)]
         x, y, r, _ = [el/sums[3] for el in sums]
 
-    # Interpolate by fitting again
     else:
         blob_x = [x for circle in remaining_circles for x in circle[4][0]]
         blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
-        if final_computation_method == 'interpolation':
-            x, y, r = least_squares_circle_fit(blob_x, blob_y)
-        
-        # cook
-        # else:
-        #     x, y, r, cook_d = # iteration with cook elimination are needed
+        # Delete single-point outliers by computing the Cook's distance
+        if final_computation_method == 'interpolation_cook':
+            x, y, r, cook_d = least_squares_circle_cook(blob_x, blob_y)
+
+            if x is None or y is None or r is None:
+                return x, y, r
+            
+            # Sort points by decreasing Cook's distance
+            blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
+            blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
+            cook_d = sorted(cook_d, reverse=True)
+
+            normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
+
+            imgCook = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+            for i in range(0, len(blob_x)):
+                imgCook[blob_y[i],blob_x[i]] = (normalizedCooks[i],100,0)
+
+            cv2.imshow('imgCook', imgCook)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+            print("Highest Cook's distance: " + str(cook_d[0]))
+
+            cook_threshold = 0.003
+
+            blob_x = [x for cook, x in zip(cook_d, blob_x) if cook < cook_threshold]
+            blob_y = [y for cook, y in zip(cook_d, blob_y) if cook < cook_threshold]
+            cook_d = [c for c in cook_d if c < cook_threshold]
+            
+            # elimination_fraction = 10
+
+            # blob_x = blob_x[int(len(blob_x) / elimination_fraction):]
+            # blob_y = blob_y[int(len(blob_y) / elimination_fraction):]
+
+            # cook_d = cook_d[int(len(cook_d) / elimination_fraction):]
+
+            normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
+            imgCook = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+            for i in range(0, len(blob_x)):
+                imgCook[blob_y[i],blob_x[i]] = (normalizedCooks[i],100,0)
+
+            cv2.imshow('imgCook', imgCook)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+
+        # Interpolate by fitting again
+        x, y, r = least_squares_circle_fit(blob_x, blob_y)
 
     # delta = time.process_time() - tic
     # print("Delta = " + str(delta))
@@ -261,43 +296,7 @@ def outliers_elimination_mean(circles, thresholds):
 
     remaining_circles = [circle for circle in circles if math.sqrt((circle[0] - mean_circle[0]) ** 2 + (circle[1] - mean_circle[1]) ** 2) <= thresholds[0] and abs(circle[2] - mean_circle[2]) <= thresholds[1]]
 
-    # if len(circles[0]) == 4:
-    #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n in circles]
-    #     sums = [sum(a) for a in zip(*weighted)]
-    #     mean_circle = [el/sums[3] for el in sums]
-
-    #     circles_remaining = [(x, y, r, n) for x, y, r, n in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
-    # else:
-    #     weighted = [[x * n, y * n, r * n, n] for x, y, r, n, _ in circles]
-    #     sums = [sum(a) for a in zip(*weighted)]
-    #     mean_circle = [el/sums[3] for el in sums]
-
-    #     circles_remaining = [(x, y, r, n, blob) for x, y, r, n, blob in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
-
     return remaining_circles
-
-# # metodo uguale a quello sopra ma prende circle con in più i blobs per fare poi interpolazione
-# # possiamo decidere di usare sempre questo e buttare via quello sopra
-# def outliers_elimination_blobs(circles, thresholds):
-#     """
-#     """
-
-#     # circles: list of tuple (center x, center y, radius, number of pixels)
-#     #thresholds: tuple of thresholds ((center x, center y), radius)
-
-#     if len(circles) == 0:
-#         return None, None, None
-
-#     weighted = [[x * n, y * n, r * n, n] for x, y, r, n, _ in circles]
-#     sums = [sum(a) for a in zip(*weighted)]
-#     mean_circle = [el/sums[3] for el in sums]
-
-#     circles_remaining = [(x, y, r, n, blob) for x, y, r, n, blob in circles if math.sqrt((x - mean_circle[0]) ** 2 + (y - mean_circle[1]) ** 2) <= thresholds[0] and abs(r - mean_circle[2]) <= thresholds[1]]
-
-#     if len(circles_remaining) > 0:
-#         return circles_remaining
-#     else:
-#         return None, None, None
 
 def outliers_elimination_votes(img_height, img_width, circles, resolution_factor):
     """

@@ -74,8 +74,8 @@ def test():
     print("thresholdLiner: " + str(thresholdLiner))
     #print("thresholdDefects: " + str(thresholdDefects))
     prefixed = [file for file in os.listdir('../caps') if file.startswith('g_01') or file.startswith('g_06')]
-    for file in prefixed:
-#    for file in os.listdir('../caps'):
+#    for file in prefixed:
+    for file in os.listdir('../caps'):
         print("--------------------------------------------------------------------")
         print(file)
         img = cv2.imread('../caps/' + file, cv2.IMREAD_GRAYSCALE)

@@ -20,10 +20,10 @@
                     "average_best_circles": 2
                 },
                 "least_squares": {
-                    "split_blobs": true,
+                    "split_blobs": false,
                     "min_blob_dim": 200,
                     "outliers_elimination_type": "votes",
-                    "circle_generation": "interpolation"
+                    "circle_generation": "interpolation_cook"
                 }
             }
         }
