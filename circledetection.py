@@ -83,9 +83,15 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
                 return x, y, r
             
             # Sort points by decreasing Cook's distance
-            blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
-            blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
-            cook_d = sorted(cook_d, reverse=True)
+            # blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
+            # blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
+            # cook_d = sorted(cook_d, reverse=True)
+
+            temp = [[x, y, c] for c, x, y in sorted(zip(cook_d, blob_x, blob_y), reverse=True)]
+            blob_x, blob_y, cook_d = np.swapaxes(temp, 0, 1)
+
+            blob_x = blob_x.astype(int)
+            blob_y = blob_y.astype(int)
 
             normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
 
@@ -99,11 +105,23 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
             print("Highest Cook's distance: " + str(cook_d[0]))
 
-            cook_threshold = 0.003
+            cook_threshold = 0.0007
 
-            blob_x = [x for cook, x in zip(cook_d, blob_x) if cook < cook_threshold]
-            blob_y = [y for cook, y in zip(cook_d, blob_y) if cook < cook_threshold]
-            cook_d = [c for c in cook_d if c < cook_threshold]
+            len_before = len(blob_x)
+
+            # blob_x = [x for cook, x in zip(cook_d, blob_x) if cook < cook_threshold]
+            # blob_y = [y for cook, y in zip(cook_d, blob_y) if cook < cook_threshold]
+            # cook_d = [c for c in cook_d if c < cook_threshold]
+
+            temp = [[x, y, c] for c, x, y in zip(cook_d, blob_x, blob_y) if c < cook_threshold]
+            blob_x, blob_y, cook_d = np.swapaxes(temp, 0, 1)
+
+            blob_x = blob_x.astype(int)
+            blob_y = blob_y.astype(int)
+
+            len_after = len(blob_x)
+
+            print('Removed ' + str((1 - len_after / len_before) * 100) + '% of points')
             
             # elimination_fraction = 10
 
@@ -148,7 +166,7 @@ def find_circles_hough(img, dp, min_dist, canny_th_high, accumulator_threshold,
         number_of_circles = len(circles[0])
         print("WARNING: less than the specified amount of circles was found, using " + str(number_of_circles) + " circles only.")
 
-    x = sum(circles[0][i][0] for i in range(number_of_circles)) / number_of_circles # try np.mean()
+    x = sum(circles[0][i][0] for i in range(number_of_circles)) / number_of_circles
     y = sum(circles[0][i][1] for i in range(number_of_circles)) / number_of_circles
     r = sum(circles[0][i][2] for i in range(number_of_circles)) / number_of_circles
 
