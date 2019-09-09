@@ -87,31 +87,21 @@ def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
     
 
 #def liner_defects_detection(img):
-def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
+def liner_defects_detection(stretched, liner_xc, liner_yc, liner_r):
     """
     """
-
-    # TO JUST SAY YES: binary mask + stretching + mask + gaussian + canny + mask + hough lines
-    # mask + stretching + mask + gaussian + canny + mask + labelling + intersection and distance
-
-    #binary = binarization.binarize(img)
-    #mask = binary.copy().astype(bool)
-
-    #stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
-    #stretched[~mask] = 0
 
     gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
 
     edges = cv2.Canny(gaussian, 20, 110, apertureSize=3, L2gradient=True)
-    mask = utils.circular_mask(stretched.shape[0], stretched.shape[1], (x_liner, y_liner), 0.95*r_liner)
+    mask = utils.circular_mask(stretched.shape[0], stretched.shape[1], (liner_xc, liner_yc), 0.95*liner_r)
     edges[~mask] = 0
 
     has_defects = False
     blobs = utils.get_blobs(edges)
 
-    #liner = np.zeros((img.shape[0],img.shape[1]), dtype=np.uint8)
     liner = np.zeros((stretched.shape[0],stretched.shape[1]), dtype=np.uint8)
-    cv2.circle(liner, (np.round(y_liner).astype("int"), np.round(x_liner).astype("int")), np.round(0.95*r_liner).astype("int"), (255, 255, 255), 2)
+    cv2.circle(liner, (np.round(liner_yc).astype("int"), np.round(liner_xc).astype("int")), np.round(0.95*liner_r).astype("int"), (255, 255, 255), 2)
     nonzero = np.nonzero(liner)
     liner = list(zip(nonzero[0],nonzero[1]))
 
@@ -126,7 +116,7 @@ def liner_defects_detection(stretched, x_liner, y_liner, r_liner):
                 if distance > max_distance:
                     max_distance = distance
 
-        if len(common) >= 2 and max_distance > r_liner/10:
+        if len(common) >= 2 and max_distance > liner_r/10:
             has_defects = True
             rect = cv2.minAreaRect(np.array(list(zip(blob[0], blob[1]))))
             rect_dim = rect[1]
@@ -179,16 +169,16 @@ def execute():
         print('TASK1')
 
         # Determine outer circle
-        x_cap, y_cap, r_cap = outer_circle_detection(binary)
+        outer_xc, outer_yc, outer_r = outer_circle_detection(binary)
 
-        if not (x_cap is None or y_cap is None or r_cap is None):
-            print('Position of the center of the cap: (' + "%.2f" % round(x_cap,2) + ', ' + "%.2f" % round(y_cap,2) + ')')
-            print('Diameter of the cap: ' + "%.2f" % round(2*r_cap,2))
+        if not (outer_xc is None or outer_yc is None or outer_r is None):
+            print('Position of the center of the cap: (' + "%.2f" % round(outer_xc,2) + ', ' + "%.2f" % round(outer_yc,2) + ')')
+            print('Diameter of the cap: ' + "%.2f" % round(2*outer_r,2))
 
             # Show the outer circle
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            cv2.circle(coloured_image, (np.round(x_cap).astype('int'), np.round(y_cap).astype('int')), np.round(r_cap).astype('int'), (0, 255, 0), 1)
-            cv2.circle(coloured_image, (np.round(x_cap).astype('int'), np.round(y_cap).astype('int')), 2, (0, 0, 255), 3)
+            cv2.circle(coloured_image, (np.round(outer_xc).astype('int'), np.round(outer_yc).astype('int')), np.round(outer_r).astype('int'), (0, 255, 0), 1)
+            cv2.circle(coloured_image, (np.round(outer_xc).astype('int'), np.round(outer_yc).astype('int')), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' outer circle (cap)', coloured_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
@@ -204,30 +194,27 @@ def execute():
         # TASK2
         print('TASK2')
 
-        #x_liner, y_liner, r_liner = inner_circle_detection(img, r_cap=r_cap) #to delete
-
         # Linear stretching (with mask)
         stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
         stretched[~mask] = 0
 
         # Determine inner circle
-        x_liner, y_liner, r_liner = inner_circle_detection(stretched, x_cap, y_cap, r_cap)
+        liner_xc, liner_yc, liner_r = inner_circle_detection(stretched, outer_xc, outer_yc, outer_r)
 
-        if not (x_liner is None or y_liner is None or r_liner is None):
-            print('Position of the center of the liner: (' + "%.2f" % round(x_liner,2) + ', ' + "%.2f" % round(y_liner,2) + ')')
-            print('Diameter of the liner: ' + "%.2f" % round(2*r_liner,2))
+        if not (liner_xc is None or liner_yc is None or liner_r is None):
+            print('Position of the center of the liner: (' + "%.2f" % round(liner_xc,2) + ', ' + "%.2f" % round(liner_yc,2) + ')')
+            print('Diameter of the liner: ' + "%.2f" % round(2*liner_r,2))
 
             # Show the inner circle
             coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            cv2.circle(coloured_image, (np.round(x_liner).astype('int'), np.round(y_liner).astype('int')), np.round(r_liner).astype('int'), (0, 255, 0), 1)
-            cv2.circle(coloured_image, (np.round(x_liner).astype('int'), np.round(y_liner).astype('int')), 2, (0, 0, 255), 3)
+            cv2.circle(coloured_image, (np.round(liner_xc).astype('int'), np.round(liner_yc).astype('int')), np.round(liner_r).astype('int'), (0, 255, 0), 1)
+            cv2.circle(coloured_image, (np.round(liner_xc).astype('int'), np.round(liner_yc).astype('int')), 2, (0, 0, 255), 3)
             cv2.imshow('caps/' + file + ' inner circle (liner)', coloured_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
             # DEFECT DETECTION
-            #has_defects, rectangles = liner_defects_detection(img) #to delete
-            has_defects, rectangles = liner_defects_detection(stretched, x_liner, y_liner, r_liner)
+            has_defects, rectangles = liner_defects_detection(stretched, liner_xc, liner_yc, liner_r)
 
             if not has_defects :
                 print(file + ' has no defects: the liner is complete')
