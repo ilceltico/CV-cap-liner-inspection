@@ -5,6 +5,7 @@ import math
 import cv2
 import numpy as np
 import loadconfiguration as config
+import traceback
 
 def outer_circle_detection(img):
     #Temporary_comment: expects the binarized image
@@ -150,7 +151,7 @@ def execute():
     print("Configuration correctly loaded.")
 
     missing_liner_threshold = utils.get_missing_liner_threshold()
-    print('Missing liner threshold: ' + str(missing_liner_threshold))
+    print("Missing liner threshold: " + "%.2f" % round(missing_liner_threshold,2))
     
     for file in os.listdir('./caps'):
         # if (file != "g_06.bmp" and file != "g_01.bmp"):
@@ -180,7 +181,7 @@ def execute():
         # Determine outer circle
         x_cap, y_cap, r_cap = outer_circle_detection(binary)
 
-        if not (math.isnan(x_cap) or math.isnan(y_cap) or math.isnan(r_cap)):
+        if not (x_cap is None or y_cap is None or r_cap is None):
             print('Position of the center of the cap: (' + "%.2f" % round(x_cap,2) + ', ' + "%.2f" % round(y_cap,2) + ')')
             print('Diameter of the cap: ' + "%.2f" % round(2*r_cap,2))
 
@@ -212,7 +213,7 @@ def execute():
         # Determine inner circle
         x_liner, y_liner, r_liner = inner_circle_detection(stretched, x_cap, y_cap, r_cap)
 
-        if not (math.isnan(x_liner) or math.isnan(y_liner) or math.isnan(r_liner)):
+        if not (x_liner is None or y_liner is None or r_liner is None):
             print('Position of the center of the liner: (' + "%.2f" % round(x_liner,2) + ', ' + "%.2f" % round(y_liner,2) + ')')
             print('Diameter of the liner: ' + "%.2f" % round(2*r_liner,2))
 
@@ -241,4 +242,7 @@ def execute():
                 cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    execute()
+    try:
+        execute()
+    except Exception:
+        traceback.print_exc()

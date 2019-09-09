@@ -25,7 +25,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
     if min_blob_dim == 0:
         for blob in blobs:
             x_temp, y_temp, r_temp = least_squares_circle_fit(blob[0], blob[1])
-            if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
+            if not (x_temp is None or y_temp is None or r_temp is None):
                 if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
                     circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
 
@@ -56,7 +56,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
                 else:
                     max_index = (i+1) * length
                 x_temp, y_temp, r_temp = least_squares_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
-                if not (math.isnan(x_temp) or math.isnan(y_temp) or math.isnan(r_temp)):
+                if not (x_temp is None or y_temp is None or r_temp is None):
                     if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
                         circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
 
@@ -138,7 +138,7 @@ def least_squares_circle_fit(x, y):
     num_points = len(x)
 
     if num_points == 0:
-        return float('NaN'), float('NaN'), float('NaN')
+        return None, None, None
     
     x_ = np.sum(x) / num_points
     y_ = np.sum(y) / num_points
@@ -178,7 +178,7 @@ def least_squares_circle_fit(x, y):
     #f = (svvv+svuu)/2
 
     if suv*suv - suu*svv == 0 or suv == 0:
-        return float('NaN'), float('NaN'), float('NaN')
+        return None, None, None
 
     vc = (suv*(suuu+suvv)/2 - suu*(svvv+svuu)/2)/(suv*suv - suu*svv)
     uc = ((svvv+svuu)/2 - svv*vc)/suv
@@ -235,7 +235,7 @@ def least_squares_circle_cook(x, y):
 
         return x_center, y_center, radius, cooks_distances
     except:
-        return float('NaN'), float('NaN'), float('NaN'), []
+        return None, None, None, []
 
 def outliers_elimination_mean(circles, thresholds):
     """

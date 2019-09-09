@@ -108,12 +108,9 @@ def get_blobs(edges):
     blobs_y = [[] for i in range(ret_val - 1)]
 
     for i in range(len(nonzero[0])):
-        # x = nonzero[0][i]
-        # y = nonzero[1][i]
         x = nonzero[1][i]
         y = nonzero[0][i]
 
-        # p = labels[x][y]
         p = labels[y][x]
 
         blobs_x[p - 1].append(x)
