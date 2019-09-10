@@ -1,0 +1,221 @@
+SUPERQUICK
+
+Configuration correctly loaded.
+Missing liner threshold: 80.02
+--------------------------------------------------
+d_16.bmp
+The cap in d_16.bmp is a circle, Haralick's Circularity = 322.04
+TASK1
+Position of the center of the cap: (384.83, 292.17)
+Diameter of the cap: 508.76
+d_16.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00637816 0.00588093 0.00532824 0.00523132 0.00502956]
+Highest Cook's distance: 0.006378159185437445
+Removed 17.14285714285714% of points
+Position of the center of the liner: (383.64, 289.64)
+Diameter of the liner: 374.81
+d_16.bmp has no defects: the liner is complete
+--------------------------------------------------
+d_17.bmp
+The cap in d_17.bmp is a circle, Haralick's Circularity = 327.53
+TASK1
+Position of the center of the cap: (385.83, 284.83)
+Diameter of the cap: 508.81
+d_17.bmp has the liner
+TASK2
+Highest Cook's distances: [0.02143746 0.01944889 0.01913274 0.01892741 0.01784704]
+Highest Cook's distance: 0.021437458079475613
+Removed 16.846652267818573% of points
+Position of the center of the liner: (386.79, 287.34)
+Diameter of the liner: 371.39
+d_17.bmp has defects: the liner is incomplete
+--------------------------------------------------
+d_18.bmp
+The cap in d_18.bmp is a circle, Haralick's Circularity = 487.11
+TASK1
+Position of the center of the cap: (383.17, 288.17)
+Diameter of the cap: 509.55
+d_18.bmp has the liner
+TASK2
+Highest Cook's distances: [0.08428558 0.06999825 0.06325886 0.0563578  0.050567  ]
+Highest Cook's distance: 0.0842855780382243
+Removed 19.54177897574124% of points
+Position of the center of the liner: (384.21, 287.71)
+Diameter of the liner: 371.55
+d_18.bmp has defects: the liner is incomplete
+--------------------------------------------------
+d_19.bmp
+The cap in d_19.bmp is a circle, Haralick's Circularity = 657.03
+TASK1
+Position of the center of the cap: (380.50, 286.50)
+Diameter of the cap: 509.75
+d_19.bmp has the liner
+TASK2
+Highest Cook's distances: [0.03669772 0.02563789 0.02495909 0.02422074 0.02342568]
+Highest Cook's distance: 0.03669771738615548
+Removed 14.440433212996396% of points
+Position of the center of the liner: (382.28, 287.71)
+Diameter of the liner: 371.73
+d_19.bmp has defects: the liner is incomplete
+--------------------------------------------------
+d_20.bmp
+The cap in d_20.bmp is a circle, Haralick's Circularity = 388.18
+TASK1
+Position of the center of the cap: (383.83, 290.17)
+Diameter of the cap: 508.60
+d_20.bmp has the liner
+TASK2
+Highest Cook's distances: [0.02522479 0.02143945 0.01468553 0.01201691 0.01173883]
+Highest Cook's distance: 0.025224790187216167
+Removed 22.619047619047617% of points
+Position of the center of the liner: (384.91, 293.53)
+Diameter of the liner: 372.09
+d_20.bmp has defects: the liner is incomplete
+--------------------------------------------------
+d_21.bmp
+The cap in d_21.bmp is a circle, Haralick's Circularity = 243.71
+TASK1
+Position of the center of the cap: (387.83, 283.50)
+Diameter of the cap: 508.48
+d_21.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00555083 0.0054954  0.00490557 0.00460942 0.00444167]
+Highest Cook's distance: 0.005550829123615524
+Removed 12.573529411764707% of points
+Position of the center of the liner: (385.47, 285.44)
+Diameter of the liner: 373.56
+d_21.bmp has no defects: the liner is complete
+--------------------------------------------------
+d_22.bmp
+The cap in d_22.bmp is a circle, Haralick's Circularity = 512.24
+TASK1
+Position of the center of the cap: (381.83, 286.83)
+Diameter of the cap: 508.73
+d_22.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00740243 0.00681749 0.00651078 0.00623203 0.00615196]
+Highest Cook's distance: 0.007402431077563382
+Removed 12.07658321060383% of points
+Position of the center of the liner: (382.54, 287.16)
+Diameter of the liner: 371.08
+d_22.bmp has no defects: the liner is complete
+--------------------------------------------------
+d_23.bmp
+The cap in d_23.bmp is a circle, Haralick's Circularity = 267.72
+TASK1
+Position of the center of the cap: (382.17, 289.17)
+Diameter of the cap: 508.87
+d_23.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00543902 0.00503916 0.00468934 0.00443029 0.00431591]
+Highest Cook's distance: 0.0054390204076063
+Removed 14.934114202049775% of points
+Position of the center of the liner: (384.76, 289.63)
+Diameter of the liner: 372.01
+d_23.bmp has no defects: the liner is complete
+--------------------------------------------------
+d_24.bmp
+The cap in d_24.bmp is a circle, Haralick's Circularity = 355.47
+TASK1
+Position of the center of the cap: (382.50, 284.50)
+Diameter of the cap: 508.54
+d_24.bmp has the liner
+TASK2
+Highest Cook's distances: [0.0053177  0.00504224 0.00499712 0.00490926 0.00481079]
+Highest Cook's distance: 0.0053177017936582765
+Removed 14.505494505494509% of points
+Position of the center of the liner: (384.53, 285.09)
+Diameter of the liner: 371.08
+d_24.bmp has no defects: the liner is complete
+--------------------------------------------------
+d_31.bmp
+The cap in d_31.bmp is a circle, Haralick's Circularity = 334.03
+TASK1
+Position of the center of the cap: (380.17, 287.17)
+Diameter of the cap: 509.64
+d_31.bmp has NO liner
+--------------------------------------------------
+g_01.bmp
+The cap in g_01.bmp is a circle, Haralick's Circularity = 407.82
+TASK1
+Position of the center of the cap: (387.83, 285.50)
+Diameter of the cap: 509.53
+g_01.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00641689 0.00618799 0.0059714  0.00585262 0.00576663]
+Highest Cook's distance: 0.006416885637439622
+Removed 6.272617611580222% of points
+Position of the center of the liner: (390.63, 283.54)
+Diameter of the liner: 373.13
+g_01.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_02.bmp
+The cap in g_02.bmp is a circle, Haralick's Circularity = 298.35
+TASK1
+Position of the center of the cap: (384.83, 285.83)
+Diameter of the cap: 509.93
+g_02.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00587476 0.00552171 0.00547166 0.00521516 0.00509539]
+Highest Cook's distance: 0.005874762478743054
+Removed 12.7100073046019% of points
+Position of the center of the liner: (383.59, 285.45)
+Diameter of the liner: 373.10
+g_02.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_03.bmp
+The cap in g_03.bmp is a circle, Haralick's Circularity = 307.90
+TASK1
+Position of the center of the cap: (381.17, 291.50)
+Diameter of the cap: 510.06
+g_03.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00534381 0.00520067 0.00499076 0.00484369 0.00472104]
+Highest Cook's distance: 0.00534381079700211
+Removed 12.655449890270665% of points
+Position of the center of the liner: (380.47, 289.82)
+Diameter of the liner: 373.62
+g_03.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_04.bmp
+The cap in g_04.bmp is a circle, Haralick's Circularity = 476.04
+TASK1
+Position of the center of the cap: (386.17, 289.50)
+Diameter of the cap: 509.28
+g_04.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00462112 0.00433484 0.00432439 0.00377916 0.00377436]
+Highest Cook's distance: 0.00462111909742628
+Removed 13.21167883211679% of points
+Position of the center of the liner: (388.43, 291.71)
+Diameter of the liner: 373.76
+g_04.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_05.bmp
+The cap in g_05.bmp is a circle, Haralick's Circularity = 459.47
+TASK1
+Position of the center of the cap: (390.17, 287.50)
+Diameter of the cap: 510.53
+g_05.bmp has the liner
+TASK2
+Highest Cook's distances: [0.02920223 0.02806542 0.02712807 0.01779928 0.01698888]
+Highest Cook's distance: 0.029202226048780804
+Removed 10.490045941807047% of points
+Position of the center of the liner: (392.01, 285.48)
+Diameter of the liner: 371.51
+g_05.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_06.bmp
+The cap in g_06.bmp is a circle, Haralick's Circularity = 286.84
+TASK1
+Position of the center of the cap: (383.17, 288.50)
+Diameter of the cap: 510.89
+g_06.bmp has the liner
+TASK2
+Highest Cook's distances: [0.00702358 0.00619811 0.00587338 0.00585193 0.00577452]
+Highest Cook's distance: 0.00702357953913985
+Removed 8.333333333333337% of points
+Position of the center of the liner: (386.60, 286.52)
+Diameter of the liner: 375.79
+g_06.bmp has no defects: the liner is complete

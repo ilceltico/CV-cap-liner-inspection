@@ -17,7 +17,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
     # Find a circle fit for each blob
     if min_blob_dim == 0:
         for blob in blobs:
-            x_temp, y_temp, r_temp = fast_ols_circle_fit(blob[0], blob[1])
+            x_temp, y_temp, r_temp = least_squares_circle_fit(blob[0], blob[1])
             if not (x_temp is None or y_temp is None or r_temp is None):
                 if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
                     circles.append((x_temp, y_temp, r_temp, len(blob[0]), blob))
@@ -48,7 +48,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
                     max_index = len(blob_x)
                 else:
                     max_index = (i+1) * length
-                x_temp, y_temp, r_temp = fast_ols_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
+                x_temp, y_temp, r_temp = least_squares_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
                 if not (x_temp is None or y_temp is None or r_temp is None):
                     if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
                         circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
@@ -74,68 +74,95 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
     else:
         blob_x = [x for circle in remaining_circles for x in circle[4][0]]
         blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+        tempx, tempy, tempr = least_squares_circle_fit(blob_x, blob_y)
 
         # Delete single-point outliers by computing the Cook's distance
         if final_computation_method == 'interpolation_cook':
-            x, y, r, cook_d = fast_ols_circle_cook(blob_x, blob_y)
+            x, y, r, cook_d = least_squares_circle_cook(blob_x, blob_y)
 
             if x is None or y is None or r is None:
                 return x, y, r
-        
+            
+            # Sort points by decreasing Cook's distance
+            # blob_x = [x for _, x in sorted(zip(cook_d, blob_x), reverse=True)]
+            # blob_y = [y for _, y in sorted(zip(cook_d, blob_y), reverse=True)]
+            # cook_d = sorted(cook_d, reverse=True)
+
             temp = [[x, y, c] for c, x, y in sorted(zip(cook_d, blob_x, blob_y), reverse=True)]
-            blob_x, blob_y, cook_d = np.transpose(temp)
-            blob_x = blob_x.astype("int")
-            blob_y = blob_y.astype("int")
+            blob_x, blob_y, cook_d = np.swapaxes(temp, 0, 1)
 
-            # print("Highest Cook's distances: " + str(cook_d[:5]))
+            blob_x = blob_x.astype(int)
+            blob_y = blob_y.astype(int)
 
-            normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
+            # normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
 
-            imgCook = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-            for i in range(0, len(blob_x)):
-                imgCook[blob_y[i],blob_x[i]] = (0,255-normalizedCooks[i],normalizedCooks[i])
+            # imgCook = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+            # for i in range(0, len(blob_x)):
+            #     imgCook[blob_y[i],blob_x[i]] = (normalizedCooks[i],100,0)
 
-            print("Showing Cook's distances: green is low, red is high. White are discarded points")
-            cv2.imshow('imgCook', imgCook)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow('imgCook', imgCook)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
 
             # print("Highest Cook's distance: " + str(cook_d[0]))
 
-            cook_threshold = 0.0017
+            # cook_threshold = 4/len(blob_x)
 
-            len_before = len(blob_x)
+            # len_before = len(blob_x)
 
-            temp = [[x, y, c] for c, x, y in zip(cook_d, blob_x, blob_y) if c < cook_threshold]
-            blob_x, blob_y, cook_d = np.transpose(temp)
-            blob_x = blob_x.astype("int")
-            blob_y = blob_y.astype("int")
-
-            len_after = len(blob_x)
-
-            print('Removed ' + "%.2f" % round((1 - len_after / len_before) * 100,2) + '% of points with highest Cook\'s distance')
+            # blob_x = [x for cook, x in zip(cook_d, blob_x) if cook < cook_threshold]
+            # blob_y = [y for cook, y in zip(cook_d, blob_y) if cook < cook_threshold]
+            # cook_d = [c for c in cook_d if c < cook_threshold]
             
-            # Alternative method: fraction instead of threshold (usually not a good idea)
+            max_it = len(blob_x)
+            maxYDistance = 0
+            print("Tot points: " + str(max_it))
+            maxIndex = 0
+            tempblob_x = blob_x
+            tempblob_y = blob_y
+            for i in range(max_it-3):
+                # temp = [[x, y, c] for c, x, y in zip(cook_d, blob_x, blob_y) if c < cook_threshold]
+                # blob_x, blob_y, cook_d = np.swapaxes(temp, 0, 1)
+
+                # blob_x = blob_x.astype(int)
+                # blob_y = blob_y.astype(int)
+                tempblob_x = tempblob_x[1:len(tempblob_x)]
+                tempblob_y = tempblob_y[1:len(tempblob_y)]
+                x, y, r = least_squares_circle_fit(tempblob_x, tempblob_y)
+                if y - tempy > maxYDistance:
+                    maxYDistance = y - tempy
+                    maxIndex = i
+                    blob_x = tempblob_x
+                    blob_y = tempblob_y
+
+            print("Index of last removed point: " + str(maxIndex))
+            print("Cook's distance of last removed point: " + str(cook_d[maxIndex]))
+            print("Max Ydiff = " + str(maxYDistance))
+
+            # len_after = len(blob_x)
+
+            # print('Removed ' + str((1 - len_after / len_before) * 100) + '% of points')
+            
             # elimination_fraction = 10
 
             # blob_x = blob_x[int(len(blob_x) / elimination_fraction):]
             # blob_y = blob_y[int(len(blob_y) / elimination_fraction):]
+
             # cook_d = cook_d[int(len(cook_d) / elimination_fraction):]
 
-            # Re-normalize if necessary
-            #normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
-            imgCook = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-            for i in range(0, len(blob_x)):
-                imgCook[blob_y[i],blob_x[i]] = (0,255-normalizedCooks[i],normalizedCooks[i])
+            # normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
+            # imgCook = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+            # for i in range(0, len(blob_x)):
+            #     imgCook[blob_y[i],blob_x[i]] = (normalizedCooks[i],100,0)
 
-            print("Showing Cook's distances: green is low, red is high. White are discarded points")
-            cv2.imshow('imgCook', imgCook)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            # cv2.imshow('imgCook', imgCook)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
 
 
         # Interpolate by fitting again
-        x, y, r = fast_ols_circle_fit(blob_x, blob_y)
+        x, y, r = least_squares_circle_fit(blob_x, blob_y)
+        print("Xdiff = " + str(tempx - x) + ", Ydiff = " + str(tempy - y) + ", Rdiff = " + str(tempr - r))
 
     # delta = time.process_time() - tic
     # print("Delta = " + str(delta))
@@ -170,7 +197,7 @@ def find_circles_hough(img, dp, min_dist, canny_th_high, accumulator_threshold,
     return x, y, r
 
 
-def fast_ols_circle_fit(x, y):
+def least_squares_circle_fit(x, y):
     """
     Interpolate the points with a circle.
 
@@ -237,7 +264,7 @@ def fast_ols_circle_fit(x, y):
 
     return xc, yc, r
 
-def ols_circle_cook(x, y):
+def least_squares_circle_cook(x, y):
     """
     Interpolate the points with a circle.
 
@@ -283,44 +310,6 @@ def ols_circle_cook(x, y):
         return x_center, y_center, radius, cooks_distances
     except:
         return None, None, None, []
-
-
-def fast_ols_circle_cook(x_array, y_array):
-    x_array = np.array(x_array)
-    y_array = np.array(y_array)
-    indip1 = 2*x_array
-    #print(indip1)
-    indip2 = 2*y_array
-    #print(indip2)
-    dep = x_array**2 + y_array**2
-    #print(dep)
-    ones = np.ones(len(x_array))
-
-    matrix_t = np.vstack((indip1, indip2, ones))
-    matrix = np.transpose(matrix_t)
-    #print(matrix)
-
-    pseudoinv = np.linalg.inv(matrix_t @ matrix) @ matrix_t
-    projection = matrix @ pseudoinv
-    #print(pseudoinv)
-
-    results = pseudoinv @ dep
-
-    x_center = results[0]
-    y_center = results[1]
-    radius = np.sqrt(results[2] + x_center**2 + y_center**2)
-
-    residuals = np.array([(2*x*x_center + 2*y*y_center + results[2] - x**2 - y**2) for x,y in zip(x_array, y_array)])
-    residuals_squared = residuals**2
-    MSE = np.mean(residuals_squared)
-    p = 3
-    # Leverage values
-    diag_projection = projection.diagonal()
-
-    cooks_d = residuals_squared * diag_projection / (p * MSE * (1 - diag_projection)**2)
-
-    return x_center, y_center, radius, cooks_d
-
 
 def outliers_elimination_mean(circles, thresholds):
     """
@@ -403,14 +392,3 @@ def outliers_elimination_votes(img_height, img_width, circles, resolution_factor
         remaining_circles = max(list(votes_bins.values()), key = lambda x:x[0])[1]
 
     return remaining_circles
-
-
-
-if __name__ == '__main__':
-    arrayX = np.array([2,3,1,2])
-    arrayY = np.array([0,1,1,2])
-    # arrayX = np.array([1,2,40,50])
-    # arrayY = np.array([-10,-100,0,0])
-
-    res = fast_ols_circle_cook(arrayX, arrayY)
-    print(res)

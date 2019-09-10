@@ -22,9 +22,9 @@ the minimum blob dimension and the circle generation strategy.
 Required modules:
 -numpy
 -opencv
--statsmodel
+-statsmodel (optional, required only for circledetection.ols_circle_cook(), which isn't used.)
 
-Please refers to the relation for a detailed description of the methods.
+Please refers to the report for a detailed description of the methods.
 
 
 config.json structure:

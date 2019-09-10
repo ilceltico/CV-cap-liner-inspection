@@ -133,10 +133,8 @@ def liner_defects_detection(stretched, liner_xc, liner_yc, liner_r):
     return has_defects, rectangles
 
 def execute():
-    try:
-        config.parse_json()
-    except:
-        raise
+    
+    config.parse_json()
 
     print("Configuration correctly loaded.")
 

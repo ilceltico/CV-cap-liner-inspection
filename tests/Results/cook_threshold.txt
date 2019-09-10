@@ -1,0 +1,73 @@
+RADIUS DIFFERENCE:
+
+Configuration correctly loaded.
+Missing liner threshold: 80.02
+--------------------------------------------------
+g_01.bmp
+The cap in g_01.bmp is a circle, Haralick's Circularity = 407.82
+TASK1
+Position of the center of the cap: (387.83, 285.50)
+Diameter of the cap: 509.53
+g_01.bmp has the liner
+TASK2
+Tot points: 1658
+Index of last removed point: 215
+Cook's distance of last removed point: 0.0008846400175984125
+Max Ydiff = 0.5474049139425858
+Xdiff = 0.118423431771987, Ydiff = -1.179639702682607, Rdiff = 0.5474049139425858
+Position of the center of the liner: (390.43, 283.83)
+Diameter of the liner: 372.82
+g_01.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_06.bmp
+The cap in g_06.bmp is a circle, Haralick's Circularity = 286.84
+TASK1
+Position of the center of the cap: (383.17, 288.50)
+Diameter of the cap: 510.89
+g_06.bmp has the liner
+TASK2
+Tot points: 1548
+Index of last removed point: 140
+Cook's distance of last removed point: 0.0016201537050111565
+Max Ydiff = 0.4331179695622609
+Xdiff = -0.04032691675007527, Ydiff = -0.842505501746416, Rdiff = 0.4331179695622609
+Position of the center of the liner: (386.59, 286.53)
+Diameter of the liner: 375.77
+g_06.bmp has no defects: the liner is complete
+
+Y DIFFERENCE:
+
+Configuration correctly loaded.
+Missing liner threshold: 80.02
+--------------------------------------------------
+g_01.bmp
+The cap in g_01.bmp is a circle, Haralick's Circularity = 407.82
+TASK1
+Position of the center of the cap: (387.83, 285.50)
+Diameter of the cap: 509.53
+g_01.bmp has the liner
+TASK2
+Tot points: 1658
+Index of last removed point: 178
+Cook's distance of last removed point: 0.000975286628628334
+Max Ydiff = 1.1840065238455395
+Xdiff = 0.0802608415119721, Ydiff = -1.1840065238455395, Rdiff = 0.5469602203962722
+Position of the center of the liner: (390.47, 283.83)
+Diameter of the liner: 372.82
+g_01.bmp has no defects: the liner is complete
+--------------------------------------------------
+g_06.bmp
+The cap in g_06.bmp is a circle, Haralick's Circularity = 286.84
+TASK1
+Position of the center of the cap: (383.17, 288.50)
+Diameter of the cap: 510.89
+g_06.bmp has the liner
+TASK2
+Tot points: 1548
+Index of last removed point: 111
+Cook's distance of last removed point: 0.0018715069273271662
+Max Ydiff = 0.8533755463486727
+Xdiff = -0.06659261810983708, Ydiff = -0.8533755463486727, Rdiff = 0.41311109039133953
+Position of the center of the liner: (386.61, 286.54)
+Diameter of the liner: 375.81
+g_06.bmp has no defects: the liner is complete
