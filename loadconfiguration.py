@@ -18,6 +18,9 @@ INNER_LEAST_SQUARES_OUTLIERS_TYPE = ''
 INNER_LEAST_SQUARES_CIRCLE_GENERATION = ''
 
 def parse_json():
+    r"""
+    Load the program configuration from the json file.
+    """
     global OUTER_METHOD
     global OUTER_HOUGH_NUMBER_AVG
     global OUTER_RADIUS_COMPUTATION

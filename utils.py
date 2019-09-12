@@ -4,7 +4,7 @@ import json
 import os
 
 def binarize(img):
-    """
+    r"""
     Divides the image in two regions, using Otsu's algorithm.
 
     Parameters:
@@ -36,7 +36,7 @@ def binarize(img):
 
 
 def haralick_circularity(binary):
-    """
+    r"""
     Returns the Haralick's Circularity of the specified binarized image.
     
     Parameters:
@@ -87,14 +87,14 @@ def haralick_circularity(binary):
 
 
 def get_blobs(edges):
-    """
+    r"""
     Finds connected blobs from a contour/edge image.
 
     Parameters:
         edges: the image with edges/contours.
 
     Returns:
-        A list of tuples. Each tuple is a blob and is made of two arrays: the first is for x coordinates, the second for y coordinates.
+        A list of tuples. Each tuple is a blob and is made of two lists: the first is for x coordinates, the second for y coordinates.
     """
 
     ret_val, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
@@ -122,13 +122,13 @@ def get_blobs(edges):
 
 
 def circular_mask(img_height, img_width, center=None, radius=None):
-    """
+    r"""
     Produces a binary circular mask with the specified parameters.
     
     Parameters:
         image_height: int.
         image_width: int.
-        center: couple of coordinates (x,y).
+        center: tuple of x and y  center coordinates.
         radius: positive number.
 
     Returns:
@@ -148,7 +148,7 @@ def circular_mask(img_height, img_width, center=None, radius=None):
 
 
 def get_missing_liner_threshold():
-    """
+    r"""
     Computes the threshold to determine if a liner is missing or not by analyzing existing supervised examples.
 
     Returns:

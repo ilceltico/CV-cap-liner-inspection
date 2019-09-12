@@ -8,6 +8,15 @@ import loadconfiguration as config
 import traceback
 
 def outer_circle_detection(img):
+    r"""
+    Find the outer circle of the cap.
+
+    Parameters:
+        img: the image.
+
+    Returns:
+        Center x coordinate, center y coordinate and radius.
+    """
     #Temporary_comment: expects the binarized image
 
     # Hough Transform
@@ -38,6 +47,18 @@ def outer_circle_detection(img):
 
 
 def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
+    r"""
+    Find the innet circle of the cap.
+
+    Parameters:
+        img: the image.
+        outer_xc: outer circle center x coordinate.
+        outer_yc: outer circle center y coordinate.
+        outer_yc: outer circle radius.
+
+    Returns:
+        Center x coordinate, center y coordinate and radius.
+    """
     #Temporary_comment: expects the stretched image
 
     # Hough Transform
@@ -88,7 +109,17 @@ def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
 
 #def liner_defects_detection(img):
 def liner_defects_detection(stretched, liner_xc, liner_yc, liner_r):
-    """
+    r"""
+    Detect the defects inside the cap liner, if presents.
+
+    Parameters:
+        stretched the stretched image.
+        liner_xc: cap liner center x coordinate.
+        liner_yc: cap liner center y coordinate.
+        liner_r: cap liner radius.
+
+    Returns:
+        Two values: a boolean and a list. If the first value is True the list will contains the rectangles contours inscribing the defects (as a list of points), otherwise the list is empty.
     """
 
     gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
@@ -132,7 +163,10 @@ def liner_defects_detection(stretched, liner_xc, liner_yc, liner_r):
 
     return has_defects, rectangles
 
-def execute():
+def main():
+    r"""
+    The main program.
+    """
     
     config.parse_json()
 
@@ -214,6 +248,8 @@ def execute():
             # DEFECT DETECTION
             has_defects, rectangles = liner_defects_detection(stretched, liner_xc, liner_yc, liner_r)
 
+            print(rectangles)
+
             if not has_defects :
                 print(file + ' has no defects: the liner is complete')
             else:
@@ -228,6 +264,6 @@ def execute():
 
 if __name__ == '__main__':
     try:
-        execute()
+        main()
     except Exception:
         traceback.print_exc()
