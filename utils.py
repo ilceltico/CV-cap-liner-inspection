@@ -5,7 +5,7 @@ import os
 
 def binarize(img):
     r"""
-    Divides the image in two regions, using Otsu's algorithm.
+    Divides the image in two regions using Otsu's algorithm.
 
     Parameters:
         img: the image.
@@ -88,7 +88,7 @@ def haralick_circularity(binary):
 
 def get_blobs(edges):
     r"""
-    Finds connected blobs from a contour/edge image.
+    Finds connected blobs from a contour/edge image (= everything but edges is 0)
 
     Parameters:
         edges: the image with edges/contours.
@@ -128,7 +128,7 @@ def circular_mask(img_height, img_width, center=None, radius=None):
     Parameters:
         image_height: int.
         image_width: int.
-        center: tuple of x and y  center coordinates.
+        center: tuple of x and y center coordinates.
         radius: positive number.
 
     Returns:

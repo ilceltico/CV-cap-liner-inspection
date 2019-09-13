@@ -9,15 +9,14 @@ import traceback
 
 def outer_circle_detection(img):
     r"""
-    Find the outer circle of the cap.
+    Finds the outer circle of the cap using the settings specified in the configuration file.
 
     Parameters:
-        img: the image.
+        img: the image, expected to be already binarized.
 
     Returns:
-        Center x coordinate, center y coordinate and radius.
+        A tuple: center x coordinate, center y coordinate, radius.
     """
-    #Temporary_comment: expects the binarized image
 
     # Hough Transform
     if config.OUTER_METHOD == 'hough':
@@ -48,18 +47,19 @@ def outer_circle_detection(img):
 
 def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
     r"""
-    Find the innet circle of the cap.
+    Finds the inner circle of the cap using the settings specified in the configuration file.
+    Specifying the outer circle is mandatory, and also provides a certain degree of invariance. 
+    It also speeds up the detection and makes it more precise.
 
     Parameters:
-        img: the image.
-        outer_xc: outer circle center x coordinate.
-        outer_yc: outer circle center y coordinate.
-        outer_yc: outer circle radius.
+        img: the image, better if already linearly stretched.
+        outer_xc: outer circle, center x coordinate.
+        outer_yc: outer circle, center y coordinate.
+        outer_yc: outer circle, radius.
 
     Returns:
-        Center x coordinate, center y coordinate and radius.
+        A tuple: center x coordinate, center y coordinate, radius.
     """
-    #Temporary_comment: expects the stretched image
 
     # Hough Transform
     if config.INNER_METHOD == 'hough':    
@@ -107,39 +107,46 @@ def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
     return x, y, r
     
 
-#def liner_defects_detection(img):
-def liner_defects_detection(stretched, liner_xc, liner_yc, liner_r):
+def defects_enclosing_rectangles(img, liner_xc, liner_yc, liner_r):
     r"""
-    Detect the defects inside the cap liner, if presents.
+    Detects the defects inside the cap liner, if present, and returns the enclosing rectangles.
 
     Parameters:
-        stretched the stretched image.
-        liner_xc: cap liner center x coordinate.
-        liner_yc: cap liner center y coordinate.
-        liner_r: cap liner radius.
+        img: the image, better if linearly stretched.
+        liner_xc: cap liner, center x coordinate.
+        liner_yc: cap liner, center y coordinate.
+        liner_r: cap liner, radius.
 
     Returns:
-        Two values: a boolean and a list. If the first value is True the list will contains the rectangles contours inscribing the defects (as a list of points), otherwise the list is empty.
+        Two values: a boolean and a list. If the first value is True the list will contain the enclosing rectangles (as lists of vertices), otherwise the list will be empty.
     """
 
-    gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+    gaussian = cv2.GaussianBlur(img, (7,7), 2, 2)
 
+    # Outline edges and delete what is outside the liner, then compute connected blobs.
     edges = cv2.Canny(gaussian, 20, 110, apertureSize=3, L2gradient=True)
-    mask = utils.circular_mask(stretched.shape[0], stretched.shape[1], (liner_xc, liner_yc), 0.95*liner_r)
+    mask = utils.circular_mask(img.shape[0], img.shape[1], (liner_xc, liner_yc), 0.95*liner_r)
     edges[~mask] = 0
 
     has_defects = False
     blobs = utils.get_blobs(edges)
 
-    liner = np.zeros((stretched.shape[0],stretched.shape[1]), dtype=np.uint8)
+    # Draw a circle, slightly smaller than the liner.
+    liner = np.zeros((img.shape[0],img.shape[1]), dtype=np.uint8)
     cv2.circle(liner, (np.round(liner_yc).astype("int"), np.round(liner_xc).astype("int")), np.round(0.95*liner_r).astype("int"), (255, 255, 255), 2)
     nonzero = np.nonzero(liner)
     liner = list(zip(nonzero[0],nonzero[1]))
 
     rectangles = []
 
+    # Determine if a blob touches the circle in both its ends, thus signifying that the blob 
+    # is a line (possibly not straight), that crosses the liner from side to side.
+    # In such a case, it is considered a defect.
     for blob in blobs:
+        # Intersections with the circle
         common = list(set(liner).intersection(list(zip(blob[0],blob[1]))))
+
+        # Compute the maximum distance between intersection points.
         max_distance = 0
         for pixel in common:
             for pixel2 in common:
@@ -147,11 +154,15 @@ def liner_defects_detection(stretched, liner_xc, liner_yc, liner_r):
                 if distance > max_distance:
                     max_distance = distance
 
+        # This distance should be high enough, with the common points being at least 2
+        # (A check for linearity of the segment can also include checking how much 
+        # max_distance differs from the length of the segment itself, but there was
+        # no need of this with the project examples)
         if len(common) >= 2 and max_distance > liner_r/10:
             has_defects = True
             rect = cv2.minAreaRect(np.array(list(zip(blob[0], blob[1]))))
             rect_dim = rect[1]
-            #Increase the smaller dimension of the rect, to make it more visible.
+            # Increase the smaller dimension of the rect, to make it more visible.
             if rect_dim[0] < rect_dim[1]:
                 rect_dim = (rect_dim[0]*2, rect_dim[1]*1)
             else:
@@ -246,9 +257,9 @@ def main():
             cv2.destroyAllWindows()
 
             # DEFECT DETECTION
-            has_defects, rectangles = liner_defects_detection(stretched, liner_xc, liner_yc, liner_r)
+            has_defects, rectangles = defects_enclosing_rectangles(stretched, liner_xc, liner_yc, liner_r)
 
-            print(rectangles)
+            # print(rectangles)
 
             if not has_defects :
                 print(file + ' has no defects: the liner is complete')

@@ -7,21 +7,22 @@ import time
 
 def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation_method, 
         oe_thresholds=(20,20), oe_bins_factor=8):
-    r"""
-    Find
+    """
+    Finds a circle using Ordinary Least Squares Linear Regression methods.
+    See /report/report.pdf for details on how this function works.
 
     Parameters:
-        edges:
-        min_blob_dim:
-        outliers_elimination:
-        final_computation_method:
-        oe_threshold:
-        oe_bin_factor:
+        edges: image of the edges (= everything but edges is 0).
+        min_blob_dim: 0 for no blob splitting, positive int to split blobs into smaller blobs with specified size.
+        outliers_elimination: blob-wise outliers elimination. None is no elimination, 'mean' uses outliers_elimination_mean(), 'votes' uses outliers_elimination_votes().
+        final_computation_method: 'interpolation' interpolates the found circles, 'mean' averages them, 'interpolation_cook' produces point-wise outliers elimination using Cook's Distance.
+        oe_threshold: thresholds for 'mean' outliers elimination as a tuple of two values (max distance between centers, max radius difference). Not used for different methods.
+        oe_bin_factor: thresholds for 'votes' outliers elimination, positive number specifying the scaling factor for voting bins with respect to image size. (1 means as many bins as pixels, 2 means half, etc.). Not used for different methods.
 
     Returns:
-        Center x coordinate, center y coordinate and radius.
-
+        Center x coordinate, center y coordinate, radius.
     """
+
     # tic = time.process_time()
 
     blobs = utils.get_blobs(edges)
@@ -90,11 +91,12 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
         # Delete single-point outliers by computing the Cook's distance
         if final_computation_method == 'interpolation_cook':
-            x, y, r, cook_d = fast_ols_circle_cook(blob_x, blob_y)
+            x, y, r, cook_d = ols_circle_cook(blob_x, blob_y)
 
             if x is None or y is None or r is None:
                 return x, y, r
         
+            # Sort everything by Cook's distance
             temp = [[x, y, c] for c, x, y in sorted(zip(cook_d, blob_x, blob_y), reverse=True)]
             blob_x, blob_y, cook_d = np.transpose(temp)
             blob_x = blob_x.astype("int")
@@ -119,6 +121,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
             len_before = len(blob_x)
 
+            # Cut with a threshold
             temp = [[x, y, c] for c, x, y in zip(cook_d, blob_x, blob_y) if c < cook_threshold]
             blob_x, blob_y, cook_d = np.transpose(temp)
             blob_x = blob_x.astype("int")
@@ -159,20 +162,20 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 def find_circles_hough(img, dp, min_dist, canny_th_high, accumulator_threshold, 
     min_radius, max_radius, no_circles_to_avg):
     r"""
-    Find
+    Finds circles by encapsulating OpenCV's Hough Transform and averaging the best results from it.
 
     Parameters:
-        img:
-        dp:
-        min_dist:
-        canny_th_high:
-        accumulator_threshold:
-        min_radius:
-        max_radius:
-        no_circles_to_avg:
+        img: the image
+        dp: see cv2.HoughCircles() 'dp'
+        min_dist: see cv2.HoughCircles() 'minDist'
+        canny_th_high: see cv2.HoughCircles() 'param1'
+        accumulator_threshold: see cv2.HoughCircles() 'param2'
+        min_radius: see cv2.HoughCircles() 'minRadius'
+        max_radius: see cv2.HoughCircles() 'maxRadius'
+        no_circles_to_avg: positive int. Number of circles to average (can be 1).
 
     Returns:
-        Center x coordinate, center y coordinate and radius.
+        Center x coordinate, center y coordinate, radius.
     """
 
     # tic = time.process_time()
@@ -201,15 +204,18 @@ def find_circles_hough(img, dp, min_dist, canny_th_high, accumulator_threshold,
 
 def fast_ols_circle_fit(x, y):
     r"""
-    Interpolate the points with a circle.
+    Fast method to find a circle using Ordinary Least Squares Linear Regression, implemented from https://dtcenter.org/met/users/docs/write_ups/circle_fit.pdf
+    See /report/report.pdf for details on how this function works.
 
     Parameters:
         x: list of x coordinates.
         y: list of y coordinates.
 
-    Return:
-        Center x coordinate, center y coordinate and radius.
+    Returns:
+        Center x coordinate, center y coordinate, radius.
     """
+
+    # tic = time.process_time()
 
     num_points = len(x)
 
@@ -264,19 +270,25 @@ def fast_ols_circle_fit(x, y):
     alfa = uc*uc + vc*vc + (suu+svv)/num_points
     r = math.sqrt(alfa)
 
+    # delta = time.process_time() - tic
+    # print("fast_ols_circle_fit: Delta = " + str(delta))
+
     return xc, yc, r
 
 def ols_circle_cook(x, y):
     r"""
-    Interpolate the points with a circle using cook's distance for a second iteration.
+    Finds a circle using Ordinary Least Squares Linear Regression and computes the Cook's distances of the given points.
+    Uses the statsmodels library.
 
     Parameters:
         x: list of x coordinates.
         y: list of y coordinates.
 
-    Return:
-        Center x coordinate, center y coordinate and radius
+    Returns:
+        Center x coordinate, center y coordinate, radius, list of Cook's distances.
     """
+
+    # tic = time.process_time()
     
     try:
         x = np.array(x)
@@ -309,6 +321,9 @@ def ols_circle_cook(x, y):
         cooks_distances = results.get_influence().summary_frame().cooks_d
         # print(sorted(cooks_distances, reverse=True))
 
+        # delta = time.process_time() - tic
+        # print("ols_circle_cook: Delta = " + str(delta))
+
         return x_center, y_center, radius, cooks_distances
     except:
         return None, None, None, []
@@ -316,15 +331,17 @@ def ols_circle_cook(x, y):
 
 def fast_ols_circle_cook(x_array, y_array):
     r"""
-    Interpolate the points with a circle using cook's distance for a second iteration.
+    Finds a circle using Ordinary Least Squares Linear Regression and computes the Cook's distances of the given points.
 
     Parameters:
         x: list of x coordinates.
         y: list of y coordinates.
 
-    Return:
-        Center x coordinate, center y coordinate and radius
+    Returns:
+        Center x coordinate, center y coordinate, radius, list of Cook's distances.
     """
+
+    # tic = time.process_time()
 
     x_array = np.array(x_array)
     y_array = np.array(y_array)
@@ -358,24 +375,27 @@ def fast_ols_circle_cook(x_array, y_array):
     diag_projection = projection.diagonal()
 
     cooks_d = residuals_squared * diag_projection / (p * MSE * (1 - diag_projection)**2)
+    
+    # delta = time.process_time() - tic
+    # print("fast_ols_circle_cook: Delta = " + str(delta))
 
     return x_center, y_center, radius, cooks_d
 
 
 def outliers_elimination_mean(circles, thresholds):
     r"""
-    Eliminate outliers circles based on the distance from the mean circles.
+    Eliminates circles based on the distance from the mean circle.
 
     Parameters:
-        circles: list containing in the following orded center x coordinate, center y coordinate, radius, number of points and tuple of two lists, x and y coordinates of points.
-        thresholds: tuple of two values. Maximum difference between centers and radii from the mean circle.
+        circles: list of circles. Each circle is a tuple: (center x, center y, radius, number of points). Additional elements in this tuple will be returned untouched.
+        thresholds: tuple of two values. (Max distance between centers, max radius difference)
 
     Returns:
         List of remaining circles.
     """
 
-    # circles: list of tuple (center x, center y, radius, number of pixels)
-    #thresholds: tuple of thresholds ((center x, center y), radius)
+    # circles: list of tuples (center x, center y, radius, number of pixels)
+    #thresholds: tuple of thresholds (max center distance, max radius)
 
     if len(circles) == 0:
         return []
@@ -390,13 +410,13 @@ def outliers_elimination_mean(circles, thresholds):
 
 def outliers_elimination_votes(img_height, img_width, circles, resolution_factor):
     r"""
-    Eliminate outliers circles based on similarity.
+    Eliminate circles by means of a voting process (= mode instead of mean) with the specified resolution.
 
     Parameters:
         img_height: int.
         imag_width: int.
-        circles: list containing in the following orded center x coordinate, center y coordinate, radius, number of points and tuple of two lists, x and y coordinates of points.
-        resolution_factor: 1 means that the functions uses as many bins as pixels, 2 means half, etc.
+        circles: list of circles. Each circle is a tuple: (center x, center y, radius, number of points). Additional elements in this tuple will be returned untouched.
+        resolution_factor: 1 means that there will be as many voting bins as pixels, 2 means half, etc.
     
     Returns:
         List of remaining circles.
