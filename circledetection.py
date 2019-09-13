@@ -7,7 +7,7 @@ import time
 
 def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation_method, 
         oe_thresholds=(20,20), oe_bins_factor=8):
-    """
+    r"""
     Finds a circle using Ordinary Least Squares Linear Regression methods.
     See /report/report.pdf for details on how this function works.
 
