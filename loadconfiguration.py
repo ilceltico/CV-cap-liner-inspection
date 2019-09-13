@@ -19,7 +19,11 @@ INNER_LEAST_SQUARES_CIRCLE_GENERATION = ''
 
 def parse_json():
     r"""
-    Load the program configuration from the json file.
+    Loads the program configuration from the JSON file.
+
+    Raises
+    ------
+        SystemExit.
     """
     global OUTER_METHOD
     global OUTER_HOUGH_NUMBER_AVG

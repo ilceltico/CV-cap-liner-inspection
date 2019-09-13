@@ -7,11 +7,15 @@ def binarize(img):
     r"""
     Divides the image in two regions using Otsu's algorithm.
 
-    Parameters:
-        img: the image.
+    Parameters
+    ----------
+        img: 2d array
+            the image.
 
-    Returns:
-        A binarized image.
+    Returns
+    -------
+        closing: 2d array
+            the binarized image.
     """
 
     # Show bimodal histogram
@@ -39,11 +43,15 @@ def haralick_circularity(binary):
     r"""
     Returns the Haralick's Circularity of the specified binarized image.
     
-    Parameters:
-        binary: the binarized image.
+    Parameters
+    ----------
+        binary: 2d array
+            the binarized image.
 
-    Returns:
-        A floating point number.
+    Returns
+    -------
+        haralick_circularity: float
+            haralick circularity value.
     """
 
     # Contours are simply a curve joining all the points (along the boundary), having same color or intensity.
@@ -88,13 +96,17 @@ def haralick_circularity(binary):
 
 def get_blobs(edges):
     r"""
-    Finds connected blobs from a contour/edge image (= everything but edges is 0)
+    Finds connected blobs from a contour/edge image (= everything but edges is 0).
 
-    Parameters:
-        edges: the image with edges/contours.
+    Parameters
+    ----------
+        edges: 2d array
+            the image with edges/contours.
 
-    Returns:
-        A list of tuples. Each tuple is a blob and is made of two lists: the first is for x coordinates, the second for y coordinates.
+    Returns
+    -------
+        blobs: list of tuples
+            each tuple is a blob and is made of two lists: the first is for x coordinates, the second for y coordinates.
     """
 
     ret_val, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
@@ -116,23 +128,30 @@ def get_blobs(edges):
         blobs_x[p - 1].append(x)
         blobs_y[p - 1].append(y)
 
-    result = [(x, y) for x, y in zip(blobs_x, blobs_y)]
+    blobs = [(x, y) for x, y in zip(blobs_x, blobs_y)]
 
-    return result
+    return blobs
 
 
 def circular_mask(img_height, img_width, center=None, radius=None):
     r"""
     Produces a binary circular mask with the specified parameters.
     
-    Parameters:
-        image_height: int.
-        image_width: int.
-        center: tuple of x and y center coordinates.
-        radius: positive number.
+    Parameters
+    ----------
+        image_height: int
+            image height.
+        image_width: int
+            image width.
+        center: tuple, optional
+            x and y coordinates of circle center.
+        radius: float, optional
+            radius of circle.
 
-    Returns:
-        A binary image with True inside the specified circle, False outside.
+    Returns
+    -------
+        mask: 2d array
+            a binary image with True inside the specified circle, False outside.
     """
 
     if center is None: # use the middle of the image
@@ -151,8 +170,10 @@ def get_missing_liner_threshold():
     r"""
     Computes the threshold to determine if a liner is missing or not by analyzing existing supervised examples.
 
-    Returns:
-        The found threshold.
+    Returns
+    -------
+        thresh: float
+            the found threshold.
     """
 
 	#First element is the average of perfect caps, second element of missing liners

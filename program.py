@@ -11,11 +11,19 @@ def outer_circle_detection(img):
     r"""
     Finds the outer circle of the cap using the settings specified in the configuration file.
 
-    Parameters:
-        img: the image, expected to be already binarized.
+    Parameters
+    ----------
+        img: 2d array
+            the image, expected to be already binarized.
 
-    Returns:
-        A tuple: center x coordinate, center y coordinate, radius.
+    Returns
+    -------
+        x: float
+            center x coordinate.
+        y: float
+            center y coordinate.
+        r: float
+            radius.
     """
 
     # Hough Transform
@@ -51,14 +59,25 @@ def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
     Specifying the outer circle is mandatory, and also provides a certain degree of invariance. 
     It also speeds up the detection and makes it more precise.
 
-    Parameters:
-        img: the image, better if already linearly stretched.
-        outer_xc: outer circle, center x coordinate.
-        outer_yc: outer circle, center y coordinate.
-        outer_yc: outer circle, radius.
+    Parameters
+    ----------
+        img: 2d array
+            the image, better if already linearly stretched.
+        outer_xc: float
+            center x coordinate of outer circle.
+        outer_yc: float
+            center y coordinate of outer circle.
+        outer_yc: float
+            radius of outer circle.
 
-    Returns:
-        A tuple: center x coordinate, center y coordinate, radius.
+    Returns
+    -------
+        x: float
+            center x coordinate.
+        y: float
+            center y coordinate.
+        r: float
+            radius.
     """
 
     # Hough Transform
@@ -111,14 +130,23 @@ def defects_enclosing_rectangles(img, liner_xc, liner_yc, liner_r):
     r"""
     Detects the defects inside the cap liner, if present, and returns the enclosing rectangles.
 
-    Parameters:
-        img: the image, better if linearly stretched.
-        liner_xc: cap liner, center x coordinate.
-        liner_yc: cap liner, center y coordinate.
-        liner_r: cap liner, radius.
+    Parameters
+    ----------
+        img: 2d array
+            the image, better if linearly stretched.
+        liner_xc: float
+            center x coordinate of cap liner.
+        liner_yc: float
+            center y coordinate of cap liner.
+        liner_r: float
+            radius of cap liner.
 
-    Returns:
-        Two values: a boolean and a list. If the first value is True the list will contain the enclosing rectangles (as lists of vertices), otherwise the list will be empty.
+    Returns
+    -------
+        has_defects: boolean
+            True if at least one defect is detected. False otherwise.
+        rectangles: list
+            the list contains the enclosing rectangles (in the form of list of vertices) if has_defects=True, otherwise the list will be empty.
     """
 
     gaussian = cv2.GaussianBlur(img, (7,7), 2, 2)
