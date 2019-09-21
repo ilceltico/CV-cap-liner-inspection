@@ -47,33 +47,39 @@ Please refers to the report for a detailed description of the methods.
 
 ## config.json structure
 
-```json 
+Please note that this is not a valid configuration file. It only show the structure of the configuration file. It aims to to clarify and show all the possibilities described in "Use and Configuration" section.
+
+The "|" means that for the attribute the user can specify one of the possibilites. Remember also that the numbers must be always > 0. 
+
+Please, refer to the next section ("Default structure") to have an example of configuration file. 
+
+```
 {
     "circle_detection":{
         "outer":{
-            "method": ["hough", "least_squares"],
+            "method": "hough" | "least_squares",
             "parameters": {
-				"hough": {
-					"average_best_circles": 3,
-                    "radius_computation": ["mean_radius", "border_distance"]
-				},
-				"least_squares": {
-					"circle_generation": ["mean", "interpolation"]
-				}
+			    "hough": {
+				    "average_best_circles": 3,
+                    "radius_computation": "mean_radius" | "border_distance"
+			    },
+			    "least_squares": {
+			        "circle_generation": "mean" | "interpolation"
+			    }
             }
         },
         "inner": {
-            "method": ["hough", "least_squares"],
+            "method": "hough" | "least_squares",
             "parameters": {
                 "hough": {
-					"canny_precision": ["precise", "normal"],
+			        "canny_precision": "precise" | "normal",
                     "average_best_circles": 2
                 },
                 "least_squares": {
                     "split_blobs": true,
-					"min_blob_dim": 200,
-                    "outliers_elimination_type": ["mean", "votes"],
-                    "circle_generation": ["mean", "interpolation", "interpolation_cook"]
+				    "min_blob_dim": 200,
+                    "outliers_elimination_type": "mean" | "votes",
+                    "circle_generation": "mean" | "interpolation" | "interpolation_cook"
                 }
             }
       }
@@ -110,7 +116,7 @@ Please refers to the report for a detailed description of the methods.
                 },
                 "least_squares": {
                     "split_blobs": false,
-					"min_blob_dim": 200,
+				    "min_blob_dim": 200,
                     "outliers_elimination_type": "votes",
                     "circle_generation": "mean"
                 }
