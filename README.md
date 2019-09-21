@@ -65,7 +65,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                 },
                 "least_squares": {
                     "circle_generation": "mean" | "interpolation"
-			    }
+                }
             }
         },
         "inner": {
