@@ -62,7 +62,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                 "hough": {
                     "average_best_circles": 3,
                     "radius_computation": "mean_radius" | "border_distance"
-			    },
+                },
                 "least_squares": {
                     "circle_generation": "mean" | "interpolation"
 			    }
