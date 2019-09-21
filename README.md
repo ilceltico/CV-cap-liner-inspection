@@ -82,7 +82,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                     "circle_generation": "mean" | "interpolation" | "interpolation_cook"
                 }
             }
-      }
+        }
     },
     "defect_detection":{
 
@@ -121,7 +121,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                     "circle_generation": "mean"
                 }
             }
-		}
+        }
     },
     "defect_detection":{
 
