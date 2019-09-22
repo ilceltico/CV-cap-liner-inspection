@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import statsmodels.api as sm
 import utils
 import cv2
 import time
@@ -339,6 +338,8 @@ def ols_circle_cook(x, y):
     # tic = time.process_time()
     
     try:
+        import statsmodels.api as sm
+
         x = np.array(x)
         y = np.array(y)
         indip1 = 2*x
