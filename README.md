@@ -41,7 +41,7 @@ Also here, the user can set parameters for both the methods:
 	* "canny_precision": "normal" => the program will uses a blurred image with a Gaussian filter as input to HoughCircles().
 
 In both cases, the user can also specify the number of circles the software will average to obtain the final one (1 - i.e. return the first Hough cirlce - or N - i.e. the circle returned is the mean between the best N found by Hough, with N positive integer > 1).
-* in case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination perform ("mean" or "votes"), the minimum blob dimension and the circle generation strategy.
+* in case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination to perform or even to not use it ("none", "mean" or "votes"), the minimum blob dimension and the circle generation strategy ("mean", "interpolation" or "interpolation_cook").
 
 Please refers to the report for a detailed description of the methods.
 
@@ -78,7 +78,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                 "least_squares": {
                     "split_blobs": true,
                     "min_blob_dim": 200,
-                    "outliers_elimination_type": "mean" | "votes",
+                    "outliers_elimination_type": "none" | "mean" | "votes",
                     "circle_generation": "mean" | "interpolation" | "interpolation_cook"
                 }
             }

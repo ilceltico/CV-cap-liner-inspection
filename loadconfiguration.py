@@ -82,7 +82,7 @@ def parse_json():
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> split_blobs")
             if not isinstance(INNER_LEAST_SQUARES_MIN_BLOB_DIM, int) or INNER_LEAST_SQUARES_MIN_BLOB_DIM < 1:
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> min_blob_dim")
-            if not (INNER_LEAST_SQUARES_OUTLIERS_TYPE in ['mean', 'votes']):
+            if not (INNER_LEAST_SQUARES_OUTLIERS_TYPE in ['none', 'mean', 'votes']):
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> outliers_elimination_type")
             if not (INNER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'interpolation', 'interpolation_cook']):
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> circle_generation")

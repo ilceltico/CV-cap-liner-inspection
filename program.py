@@ -202,6 +202,7 @@ def defects_enclosing_rectangles(img, liner_xc, liner_yc, liner_r):
 
     return has_defects, rectangles
 
+
 def main():
     r"""
     The main program.
@@ -300,6 +301,7 @@ def main():
                 cv2.imshow('caps/' + file + ' detected defects', coloured_image)
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     try:

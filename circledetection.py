@@ -88,7 +88,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         remaining_circles = outliers_elimination_votes(edges.shape[0], edges.shape[1], circles, oe_bins_factor) 
     
     # No outliers elimination
-    elif outliers_elimination == None:
+    elif outliers_elimination == 'none':
         remaining_circles = circles
 
     # Re-compute a weighted mean circle
@@ -311,6 +311,7 @@ def fast_ols_circle_fit(x, y):
 
     return xc, yc, r
 
+
 def ols_circle_cook(x, y):
     r"""
     Finds a circle using Ordinary Least Squares Linear Regression and computes the Cook's distances of the given points.
@@ -473,6 +474,7 @@ def outliers_elimination_mean(circles, thresholds):
 
     return remaining_circles
 
+
 def outliers_elimination_votes(img_height, img_width, circles, resolution_factor):
     r"""
     Eliminates circles by means of a voting process (= mode instead of mean) with the specified resolution.
@@ -536,7 +538,6 @@ def outliers_elimination_votes(img_height, img_width, circles, resolution_factor
         remaining_circles = max(list(votes_bins.values()), key = lambda x:x[0])[1]
 
     return remaining_circles
-
 
 
 if __name__ == '__main__':
