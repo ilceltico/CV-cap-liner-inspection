@@ -81,7 +81,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
     # Eliminate circles that are too far away from the weighted mean
     if outliers_elimination == 'mean':
-        remaining_circles = outliers_elimination_mean(circles, (20,20))
+        remaining_circles = outliers_elimination_mean(circles, oe_thresholds)
     
     # Eliminate outliers using a voting process
     elif outliers_elimination == 'votes':
@@ -103,7 +103,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
         # Delete single-point outliers by computing the Cook's distance
         if final_computation_method == 'interpolation_cook':
-            x, y, r, cook_d = ols_circle_cook(blob_x, blob_y)
+            x, y, r, cook_d = fast_ols_circle_cook(blob_x, blob_y)
 
             if x is None or y is None or r is None:
                 return x, y, r
@@ -255,7 +255,7 @@ def fast_ols_circle_fit(x, y):
 
     num_points = len(x)
 
-    if num_points == 0:
+    if num_points < 3:
         return None, None, None
     
     x_ = np.sum(x) / num_points
@@ -337,6 +337,11 @@ def ols_circle_cook(x, y):
     """
 
     # tic = time.process_time()
+
+    num_points = len(x)
+
+    if num_points < 3:
+        return None, None, None, []
     
     try:
         import statsmodels.api as sm
@@ -403,6 +408,11 @@ def fast_ols_circle_cook(x_array, y_array):
     """
 
     # tic = time.process_time()
+
+    num_points = len(x)
+
+    if num_points < 3:
+        return None, None, None, []
 
     x_array = np.array(x_array)
     y_array = np.array(y_array)
