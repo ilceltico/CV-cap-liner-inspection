@@ -103,7 +103,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
         # Delete single-point outliers by computing the Cook's distance
         if final_computation_method == 'interpolation_cook':
-            x, y, r, cook_d = ols_circle_cook(blob_x, blob_y)
+            x, y, r, cook_d = fast_ols_circle_cook(blob_x, blob_y)
 
             if x is None or y is None or r is None:
                 return x, y, r
