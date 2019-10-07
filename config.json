@@ -13,7 +13,7 @@
             }
         },
         "inner": {
-            "method": "hough",
+            "method": "least_squares",
             "parameters": {
                 "hough": {
                     "canny_precision": "precise",
