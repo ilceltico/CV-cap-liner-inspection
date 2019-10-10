@@ -114,15 +114,15 @@ def outer_circle_test(num_iterations):
     delta = time.process_time() - t
     print('find_circle_ols mean: ' + str(delta / num_iterations))
 
-    # least squares interpolation
+    # least squares regression
     t = time.process_time()
     for _ in range(num_iterations):
         for img in imgs:
             binary = utils.binarize(img)
             edges = cv2.Canny(binary, 100, 200, apertureSize=3, L2gradient=True)
-            x, y, r = circledetection.find_circle_ols(edges, 0, "mean", "interpolation", oe_thresholds=(20,20))
+            x, y, r = circledetection.find_circle_ols(edges, 0, "mean", "least_squares", oe_thresholds=(20,20))
     delta = time.process_time() - t
-    print('find_circle_ols interpolation: ' + str(delta / num_iterations))    
+    print('find_circle_ols least_squares: ' + str(delta / num_iterations))    
 
 
 def inner_circle_test(num_iterations):
@@ -130,7 +130,7 @@ def inner_circle_test(num_iterations):
 
     imgs = [cv2.imread('./caps/' + file, cv2.IMREAD_GRAYSCALE) for file in os.listdir('./caps')]
     edges = [cv2.Canny(img, 100, 200, apertureSize=3, L2gradient=True) for img in imgs]
-    outer_circles = [circledetection.find_circle_ols(edge, 0, "mean", "interpolation", oe_thresholds=(20,20)) for edge in edges]
+    outer_circles = [circledetection.find_circle_ols(edge, 0, "mean", "least_squares", oe_thresholds=(20,20)) for edge in edges]
     masks = [utils.binarize(img).astype(bool) for img in imgs]
     imgs_outer_circles = list(zip(imgs, outer_circles, masks))
 
@@ -193,7 +193,7 @@ def inner_circle_test(num_iterations):
     delta = time.process_time() - t
     print('naive mean: ' + str(delta / num_iterations))
 
-    # least squares interpolation
+    # least squares regression
     t = time.process_time()
     for _ in range(num_iterations):
         for img, outer_circle, mask in imgs_outer_circles:
@@ -234,10 +234,10 @@ def inner_circle_test(num_iterations):
 
             x, y, r = circledetection.fast_ols_circle_fit(blob_x, blob_y)
     delta = time.process_time() - t
-    print('least squares interpolation: ' + str(delta / num_iterations))
+    print('least squares regression: ' + str(delta / num_iterations))
 
 
-    # least squares interpolation cook
+    # least squares regression cook
     t = time.process_time()
     for _ in range(num_iterations):
         for img, outer_circle, mask in imgs_outer_circles:
@@ -300,7 +300,7 @@ def inner_circle_test(num_iterations):
 
             x, y, r = circledetection.fast_ols_circle_fit(blob_x, blob_y)
     delta = time.process_time() - t
-    print('least squares interpolation cook: ' + str(delta / num_iterations))
+    print('least squares regression cook: ' + str(delta / num_iterations))
 
 
 if __name__ == '__main__':

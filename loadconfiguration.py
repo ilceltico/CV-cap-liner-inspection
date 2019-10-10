@@ -56,7 +56,7 @@ def parse_json():
         
         else:
             OUTER_LEAST_SQUARES_CIRCLE_GENERATION = outer_parameters['circle_generation']
-            if not OUTER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'interpolation']:
+            if not OUTER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'least_squares']:
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> outer -> parameters -> least_squares -> circle_generation")
 
         inner = config['inner']
@@ -84,5 +84,5 @@ def parse_json():
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> min_blob_dim")
             if not (INNER_LEAST_SQUARES_OUTLIERS_TYPE in ['none', 'mean', 'votes']):
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> outliers_elimination_type")
-            if not (INNER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'interpolation', 'interpolation_cook']):
+            if not (INNER_LEAST_SQUARES_CIRCLE_GENERATION in ['mean', 'least_squares', 'least_squares_cook']):
                 raise SystemExit(ERROR_STRING + "\ncircle_detection -> inner -> parameters -> least_squares -> circle_generation")

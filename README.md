@@ -32,7 +32,7 @@ In both cases the user can set parameters for the method:
 * in case of "method": "hough" the user can set "average_best_circles" and "radius_computation" parameters.
     * "average_best_circles" allows to specify how many circles (found with HoughCircles()) to average to compute the radius and center. Note that to avoid circle average and obtain the best circle found with the Hough Transform, the parameter "average_best_circle" must be equal to 1.
 	* "radius_computation" allows the user to specify the method only for the radius computation. That means: take the center as an average of the best circles, and compute the radius subsequently. This is because, according to the official OpenCV doc, the radius computation in HoughCircles() function is not precise. In particular, if the value used is "border_distance" the radius is computed as the mean distance between edge points and the previously found center. Otherwise (i.e. "radius_computation": "mean_radius"), the method uses the previously found radius.
-* in case of "method": "least_squares" the user can set "circle_generation" equal to "mean" or "interpolation".
+* in case of "method": "least_squares" the user can set "circle_generation" equal to "mean" or "least_squares".
 
 For the inner circle detection ("inner" section) (i.e. liner border detection) the user can choose again to use the Hough Transform ("method": "hough") or an ad hoc method ("method": "least_squares").
 Also here, the user can set parameters for both the methods:
@@ -41,7 +41,7 @@ Also here, the user can set parameters for both the methods:
 	* "canny_precision": "normal" => the program will uses a blurred image with a Gaussian filter as input to HoughCircles().
 
 In both cases, the user can also specify the number of circles the software will average to obtain the final one (1 - i.e. return the first Hough cirlce - or N - i.e. the circle returned is the mean between the best N found by Hough, with N positive integer > 1).
-* in case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination to perform or even to not use it ("none", "mean" or "votes"), the minimum blob dimension and the circle generation strategy ("mean", "interpolation" or "interpolation_cook").
+* in case of "method": "least_squares" the user can specify if the blobs found should be splitted or not (true or false), which kind of outliers elimination to perform or even to not use it ("none", "mean" or "votes"), the minimum blob dimension and the circle generation strategy ("mean", "least_squares" or "least_squares_cook").
 
 Please refers to the report for a detailed description of the methods.
 
@@ -64,7 +64,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                     "radius_computation": "mean_radius" | "border_distance"
                 },
                 "least_squares": {
-                    "circle_generation": "mean" | "interpolation"
+                    "circle_generation": "mean" | "least_squares"
                 }
             }
         },
@@ -79,7 +79,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                     "split_blobs": true,
                     "min_blob_dim": 200,
                     "outliers_elimination_type": "none" | "mean" | "votes",
-                    "circle_generation": "mean" | "interpolation" | "interpolation_cook"
+                    "circle_generation": "mean" | "least_squares" | "least_squares_cook"
                 }
             }
         }
@@ -103,7 +103,7 @@ Please, refer to the next section ("Default structure") to have an example of co
                     "radius_computation": "border_distance"
                 },
                 "least_squares": {
-                    "circle_generation": "mean"
+                    "circle_generation": "least_squares"
                 }
             }
         },
@@ -115,10 +115,10 @@ Please, refer to the next section ("Default structure") to have an example of co
                     "average_best_circles": 2
                 },
                 "least_squares": {
-                    "split_blobs": false,
+                    "split_blobs": true,
                     "min_blob_dim": 200,
                     "outliers_elimination_type": "votes",
-                    "circle_generation": "mean"
+                    "circle_generation": "least_squares_cook"
                 }
             }
         }

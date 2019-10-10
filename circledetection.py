@@ -19,7 +19,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         outliers_elimination: string
             blob-wise outliers elimination. None is no elimination, 'mean' uses outliers_elimination_mean(), 'votes' uses outliers_elimination_votes().
         final_computation_method: string
-            'interpolation' interpolates the found circles, 'mean' averages them, 'interpolation_cook' produces point-wise outliers elimination using Cook's Distance.
+            'mean' averages the found circles, 'least_squares' fits a regression model on all the final points, 'least_squares_cook' also produces pixel-wise outliers elimination using Cook's Distance before regression.
         oe_threshold: tuple, optional
             thresholds for 'mean' outliers elimination as a tuple of two values in the form (max distance between centers, max radius difference). Not used for different methods.
         oe_bin_factor: int, optional
@@ -102,7 +102,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         blob_y = [y for circle in remaining_circles for y in circle[4][1]]
 
         # Delete single-point outliers by computing the Cook's distance
-        if final_computation_method == 'interpolation_cook':
+        if final_computation_method == 'least_squares_cook':
             x, y, r, cook_d = fast_ols_circle_cook(blob_x, blob_y)
 
             if x is None or y is None or r is None:
@@ -163,7 +163,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
             cv2.destroyAllWindows()
 
 
-        # Interpolate by fitting again
+        # Fitting again the regression model
         x, y, r = fast_ols_circle_fit(blob_x, blob_y)
 
     # delta = time.process_time() - tic

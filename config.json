@@ -8,22 +8,22 @@
                     "radius_computation": "border_distance"
                 },
                 "least_squares": {
-                    "circle_generation": "interpolation"
+                    "circle_generation": "least_squares"
                 }
             }
         },
         "inner": {
-            "method": "least_squares",
+            "method": "hough",
             "parameters": {
                 "hough": {
                     "canny_precision": "precise",
                     "average_best_circles": 2
                 },
                 "least_squares": {
-                    "split_blobs": false,
+                    "split_blobs": true,
                     "min_blob_dim": 200,
                     "outliers_elimination_type": "votes",
-                    "circle_generation": "interpolation_cook"
+                    "circle_generation": "least_squares_cook"
                 }
             }
         }
