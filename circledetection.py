@@ -120,10 +120,10 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         
             # Sort everything by Cook's distance
             # Not needed for the threshold cut
-            temp = [[x, y, c] for c, x, y in sorted(zip(cook_d, blob_x, blob_y), reverse=True)]
-            blob_x, blob_y, cook_d = np.transpose(temp)
-            blob_x = blob_x.astype("int")
-            blob_y = blob_y.astype("int")
+            # temp = [[x, y, c] for c, x, y in sorted(zip(cook_d, blob_x, blob_y), reverse=True)]
+            # blob_x, blob_y, cook_d = np.transpose(temp)
+            # blob_x = blob_x.astype("int")
+            # blob_y = blob_y.astype("int")
 
             print("Highest Cook's distances: " + str(cook_d[:5]))
 
