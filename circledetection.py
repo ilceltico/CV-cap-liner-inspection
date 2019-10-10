@@ -50,7 +50,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
 
     # Split the blobs and find a fit
     else:
-        # coloured_image = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+        coloured_image = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
 
         for blob in blobs:
             blob_x = blob[0]
@@ -62,12 +62,12 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
                 split_number = len(blob_x) // min_blob_dim
             length = len(blob_x) // split_number
 
+            img_copy = coloured_image.copy()
             for i in range(split_number):
-            #     img_copy = coloured_image.copy()
-            #     color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
-            #     for j in range(0, length):
-            #         if j+i*length < len(blobX):
-            #             img_copy[blob_x[j+i*length]][blob_y[j+i*length]] = color
+                color = (np.random.randint(0,255),np.random.randint(0,255),np.random.randint(0,255))
+                for j in range(0, length):
+                    if j+i*length < len(blob_x):
+                        img_copy[blob_y[j+i*length]][blob_x[j+i*length]] = color
 
                 if i == split_number-1: #last split
                     #max index (not included)
@@ -77,7 +77,15 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
                 x_temp, y_temp, r_temp = fast_ols_circle_fit(blob_x[i * length:max_index], blob_y[i * length:max_index])
                 if not (x_temp is None or y_temp is None or r_temp is None):
                     if x_temp >= 0 and x_temp < edges.shape[1] and y_temp >= 0 and y_temp < edges.shape[0]:
-                        circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), blob))
+                        circles.append((x_temp, y_temp, r_temp, len(blob_x[i * length:max_index]), [blob_x[i * length:max_index], blob_y[i * length:max_index]]))
+
+            print("Showing blob splitting: white is part of another blob, coloured is part of the current blob.")
+            cv2.imshow('img_copy', img_copy)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+
+    print(len(circles))
 
     # Eliminate circles that are too far away from the weighted mean
     if outliers_elimination == 'mean':
@@ -86,6 +94,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
     # Eliminate outliers using a voting process
     elif outliers_elimination == 'votes':
         remaining_circles = outliers_elimination_votes(edges.shape[0], edges.shape[1], circles, oe_bins_factor) 
+        print(len(remaining_circles))
     
     # No outliers elimination
     elif outliers_elimination == 'none':
@@ -104,6 +113,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         # Delete single-point outliers by computing the Cook's distance
         if final_computation_method == 'least_squares_cook':
             x, y, r, cook_d = fast_ols_circle_cook(blob_x, blob_y)
+            print("Number of points: " + str(len(blob_x)))
 
             if x is None or y is None or r is None:
                 return x, y, r
@@ -115,7 +125,7 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
             blob_x = blob_x.astype("int")
             blob_y = blob_y.astype("int")
 
-            # print("Highest Cook's distances: " + str(cook_d[:5]))
+            print("Highest Cook's distances: " + str(cook_d[:5]))
 
             normalizedCooks = np.array(cook_d)/max(cook_d) * 200 + 55
 
@@ -410,7 +420,7 @@ def fast_ols_circle_cook(x_array, y_array):
 
     # tic = time.process_time()
 
-    num_points = len(x)
+    num_points = len(x_array)
 
     if num_points < 3:
         return None, None, None, []

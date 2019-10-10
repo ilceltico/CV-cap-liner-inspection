@@ -121,7 +121,7 @@ def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
             min_blob_dim = 0
 
         x, y, r = circledetection.find_circle_ols(edges, min_blob_dim, config.INNER_LEAST_SQUARES_OUTLIERS_TYPE, 
-            config.INNER_LEAST_SQUARES_CIRCLE_GENERATION, oe_thresholds=(20,20), oe_bins_factor=8)
+            config.INNER_LEAST_SQUARES_CIRCLE_GENERATION, oe_thresholds=(20,20), oe_bins_factor=64)
 
     return x, y, r
     
