@@ -86,12 +86,12 @@ def inner_circle_detection(img, outer_xc, outer_yc, outer_r):
         # Precise Canny method:
         #   This method computes a precise Canny edge detection with L2 gradients, because the usual
         #   detection inside HoughCircles uses L1 gradients, which is quite imprecise for our purposes.
-        if config.INNER_CANNY_PRECISION == 'precise':
+        if config.INNER_CANNY_PRECISION == 'precise':            
             gaussian = cv2.GaussianBlur(img, (7,7), 2, 2)
             edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
 
             # Delete edge points that belong to the outer circle
-            mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (outer_xc, outer_yc), 0.95*outer_r)
+            mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (outer_xc, outer_yc), 0.98*outer_r)
             edges[~mask] = 0
 
             # Compute the HT and average out the best circles, as many as specified in the config
