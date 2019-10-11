@@ -84,9 +84,6 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-
-    print(len(circles))
-
     # Eliminate circles that are too far away from the weighted mean
     if outliers_elimination == 'mean':
         remaining_circles = outliers_elimination_mean(circles, oe_thresholds)
