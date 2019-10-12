@@ -91,7 +91,6 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
     # Eliminate outliers using a voting process
     elif outliers_elimination == 'votes':
         remaining_circles = outliers_elimination_votes(edges.shape[0], edges.shape[1], circles, oe_bins_factor) 
-        print(len(remaining_circles))
     
     # No outliers elimination
     elif outliers_elimination == 'none':
