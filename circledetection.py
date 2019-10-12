@@ -103,8 +103,11 @@ def find_circle_ols(edges, min_blob_dim, outliers_elimination, final_computation
         x, y, r, _ = [el/sums[3] for el in sums]
 
     else:
-        blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-        blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+        # blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+        # blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+
+        blob_x = np.concatenate([circle[4][0] for circle in remaining_circles])
+        blob_y = np.concatenate([circle[4][1] for circle in remaining_circles])
 
         # Delete single-point outliers by computing the Cook's distance
         if final_computation_method == 'least_squares_cook':
@@ -265,9 +268,11 @@ def fast_ols_circle_fit(x, y):
     if num_points < 3:
         return None, None, None
 
-    x = np.array(x)
-    y = np.array(y)
+    # x = np.array(x)
+    # y = np.array(y)
     
+    # print('{0}{1}'.format(type(x), type(y)))
+
     x_ = np.sum(x) / num_points
     y_ = np.sum(y) / num_points
 
@@ -356,8 +361,8 @@ def ols_circle_cook(x, y):
     try:
         import statsmodels.api as sm
 
-        x = np.array(x)
-        y = np.array(y)
+        # x = np.array(x)
+        # y = np.array(y)
         indip1 = 2*x
         #print(indip1)
         indip2 = 2*y

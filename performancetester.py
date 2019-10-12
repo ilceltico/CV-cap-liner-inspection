@@ -7,15 +7,15 @@ import os
 import numpy as np
 import cv2
 
-
+@profile
 def ols_circle_fit(x_array, y_array):
     num_points = len(x_array)
 
     if num_points < 3:
         return None, None, None, []
 
-    x_array = np.array(x_array)
-    y_array = np.array(y_array)
+    # x_array = np.array(x_array)
+    # y_array = np.array(y_array)
     indip1 = 2*x_array
     indip2 = 2*y_array
     dep = x_array**2 + y_array**2
@@ -43,7 +43,7 @@ def ols_test(num_iterations):
         sets_size = 100 * f
         random_range = 1000
 
-        random_points_sets = [([random.randrange(random_range) for _ in range(sets_size)], [random.randrange(random_range) for _ in range(sets_size)]) for i in range(sets_number)]
+        random_points_sets = [(np.array([random.randrange(random_range) for _ in range(sets_size)]), np.array([random.randrange(random_range) for _ in range(sets_size)])) for i in range(sets_number)]
 
         t = time.perf_counter()
         for _ in range(num_iterations):
@@ -68,7 +68,7 @@ def cook_test(num_iterations):
         sets_size = 10 * f
         random_range = 1000
 
-        random_points_sets = [([random.randrange(random_range) for _ in range(sets_size)], [random.randrange(random_range) for _ in range(sets_size)]) for i in range(sets_number)]
+        random_points_sets = [(np.array([random.randrange(random_range) for _ in range(sets_size)]), np.array([random.randrange(random_range) for _ in range(sets_size)])) for i in range(sets_number)]
 
         t = time.perf_counter()
         for _ in range(num_iterations):
@@ -236,8 +236,14 @@ def inner_circle_test(num_iterations):
 
             remaining_circles = circledetection.outliers_elimination_votes(edges.shape[0], edges.shape[1], circles, 64)
 
-            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+            # blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+            # blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+
+            if len(remaining_circles) == 0:
+                continue
+
+            blob_x = np.concatenate([circle[4][0] for circle in remaining_circles])
+            blob_y = np.concatenate([circle[4][1] for circle in remaining_circles])
 
             x, y, r = circledetection.fast_ols_circle_fit(blob_x, blob_y)
     delta = time.perf_counter() - t
@@ -283,8 +289,11 @@ def inner_circle_test(num_iterations):
             if len(remaining_circles) == 0:
                 continue
 
-            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+            # blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+            # blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+
+            blob_x = np.concatenate([circle[4][0] for circle in remaining_circles])
+            blob_y = np.concatenate([circle[4][1] for circle in remaining_circles])
 
             x, y, r, cook_d = circledetection.fast_ols_circle_cook(blob_x, blob_y)
 
@@ -327,8 +336,11 @@ def inner_circle_test(num_iterations):
             if len(remaining_circles) == 0:
                 continue
 
-            blob_x = [x for circle in remaining_circles for x in circle[4][0]]
-            blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+            # blob_x = [x for circle in remaining_circles for x in circle[4][0]]
+            # blob_y = [y for circle in remaining_circles for y in circle[4][1]]
+
+            blob_x = np.concatenate([circle[4][0] for circle in remaining_circles])
+            blob_y = np.concatenate([circle[4][1] for circle in remaining_circles])
 
             x, y, r, cook_d = circledetection.fast_ols_circle_cook(blob_x, blob_y)
 
@@ -348,8 +360,8 @@ def inner_circle_test(num_iterations):
     print('least squares no split regression cook: {0} s'.format(delta / num_iterations))
 
 if __name__ == '__main__':
-    ols_test(10)
-    # cook_test(1)
+    # ols_test(50)
+    cook_test(1)
 
     # outer_circle_test(1)
     # inner_circle_test(10)

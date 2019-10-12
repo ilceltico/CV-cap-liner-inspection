@@ -110,27 +110,31 @@ def get_blobs(edges):
     """
 
     ret_val, labels = cv2.connectedComponentsWithAlgorithm(edges, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
+
+    inverted_result = [np.where(labels == i) for i in range(1, ret_val)]
+
+    return [(res[1], res[0]) for res in inverted_result]
   
-    nonzero = np.nonzero(labels)
-    #print(nonzero)
-    #print(retVal)
+    # nonzero = np.nonzero(labels)
+    # #print(nonzero)
+    # #print(retVal)
 
-    # subtraction as ret_val contains also background label
-    blobs_x = [[] for i in range(ret_val - 1)]
-    blobs_y = [[] for i in range(ret_val - 1)]
+    # # subtraction as ret_val contains also background label
+    # blobs_x = [[] for i in range(ret_val - 1)]
+    # blobs_y = [[] for i in range(ret_val - 1)]
 
-    for i in range(len(nonzero[0])):
-        x = nonzero[1][i]
-        y = nonzero[0][i]
+    # for i in range(len(nonzero[0])):
+    #     x = nonzero[1][i]
+    #     y = nonzero[0][i]
 
-        p = labels[y][x]
+    #     p = labels[y][x]
 
-        blobs_x[p - 1].append(x)
-        blobs_y[p - 1].append(y)
+    #     blobs_x[p - 1].append(x)
+    #     blobs_y[p - 1].append(y)
 
-    blobs = [(x, y) for x, y in zip(blobs_x, blobs_y)]
+    # blobs = [(x, y) for x, y in zip(blobs_x, blobs_y)]
 
-    return blobs
+    # return blobs
 
 
 def circular_mask(img_height, img_width, center=None, radius=None):
