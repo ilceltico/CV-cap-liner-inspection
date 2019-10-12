@@ -7,7 +7,13 @@ import os
 import numpy as np
 import cv2
 
+
 def ols_circle_fit(x_array, y_array):
+    num_points = len(x_array)
+
+    if num_points < 3:
+        return None, None, None, []
+
     x_array = np.array(x_array)
     y_array = np.array(y_array)
     indip1 = 2*x_array
@@ -32,10 +38,10 @@ def ols_circle_fit(x_array, y_array):
 def ols_test(num_iterations):
     print('\nOLS TEST ({0} iterations)\n'.format(num_iterations))
 
-    for f in 1, 10, 100:
+    for f in 1, 10, 100, 1000:
         sets_number = 10
-        sets_size = 1000 * f
-        random_range = 500 * f
+        sets_size = 100 * f
+        random_range = 1000
 
         random_points_sets = [([random.randrange(random_range) for _ in range(sets_size)], [random.randrange(random_range) for _ in range(sets_size)]) for i in range(sets_number)]
 
@@ -59,8 +65,8 @@ def cook_test(num_iterations):
 
     for f in 1, 10, 100:
         sets_number = 10
-        sets_size = 1000 * f
-        random_range = 500 * f
+        sets_size = 10 * f
+        random_range = 1000
 
         random_points_sets = [([random.randrange(random_range) for _ in range(sets_size)], [random.randrange(random_range) for _ in range(sets_size)]) for i in range(sets_number)]
 
@@ -346,4 +352,4 @@ if __name__ == '__main__':
     # cook_test(1)
 
     # outer_circle_test(1)
-    # inner_circle_test(1)
+    # inner_circle_test(10)
