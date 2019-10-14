@@ -1,0 +1,37 @@
+Time tests on i7-8750H by Dome
+
+OLS TEST (1000 iterations)
+
+ols_circle_fit on 100 points: 0.0008201039000000001 s
+fast_ols_circle_fit on 100 points: 0.00041685530000000004 s
+ols_circle_fit on 1000 points: 0.0009976598000000002 s
+fast_ols_circle_fit on 1000 points: 0.0005409964999999999 s
+ols_circle_fit on 10000 points: 0.0032221754000000004 s
+fast_ols_circle_fit on 10000 points: 0.0013539953000000003 s
+ols_circle_fit on 100000 points: 0.0363607179 s
+fast_ols_circle_fit on 100000 points: 0.019751874599999993 s
+
+COOK TEST (100 iterations)
+
+ols_circle_cook 10 points: 0.055680459000000015 s
+fast_ols_circle_cook 10 points: 0.00237032499999998 s
+ols_circle_cook 100 points: 0.2781345780000001 s
+fast_ols_circle_cook 100 points: 0.008286944000000034 s
+ols_circle_cook 1000 points: 3.5018628789999995 s
+fast_ols_circle_cook 1000 points: 0.0952762789999997 s
+
+OUTER CIRCLE TEST (100 iterations)
+
+find_circles_hough avg: 1.783946344 s
+find_circles_hough avg + border distance: 1.856192076 s
+find_circle_ols mean: 0.04612029399999983 s
+find_circle_ols least_squares: 0.04740550799999994 s
+
+INNER CIRCLE TEST (100 iterations)
+
+hough normal: 0.8785359169999998 s
+hough precise: 0.4844453299999998 s
+naive mean: 0.20165225799999972 s
+least squares regression: 0.2181511169999999 s
+least squares regression cook: 0.40624157100000047 s
+least squares no split regression cook: 0.4270882210000002 s

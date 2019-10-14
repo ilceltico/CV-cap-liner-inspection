@@ -1,0 +1,37 @@
+Time tests on i5-4258U by Stella
+
+OLS TEST (1000 iterations)
+
+ols_circle_fit on 100 points: 0.0019397339142811793 s
+fast_ols_circle_fit on 100 points: 0.0004550162218251388 s
+ols_circle_fit on 1000 points: 0.002277574969408078 s
+fast_ols_circle_fit on 1000 points: 0.0006290428696502542 s
+ols_circle_fit on 10000 points: 0.005339831023365915 s
+fast_ols_circle_fit on 10000 points: 0.0018591679338634233 s
+ols_circle_fit on 100000 points: 0.0756549815765805 s
+fast_ols_circle_fit on 100000 points: 0.03854999752533965 s
+
+COOK TEST (10 iterations)
+
+ols_circle_cook 10 points: 0.620671264414898 s
+fast_ols_circle_cook 10 points: 0.004636574797035564 s
+ols_circle_cook 100 points: 0.41321041951465814 s
+fast_ols_circle_cook 100 points: 0.013915313710131726 s
+ols_circle_cook 1000 points: 5.464701274364737 s
+fast_ols_circle_cook 1000 points: 0.14580109874918606 s
+
+OUTER CIRCLE TEST (100 iterations)
+
+find_circles_hough avg: 4.040514055217352 s
+find_circles_hough avg + border distance: 4.113036979958664 s
+find_circle_ols mean: 0.08490752450340323 s
+find_circle_ols least_squares: 0.08595573515331921 s
+
+INNER CIRCLE TEST (100 iterations)
+
+hough normal: 1.9645234913531953 s
+hough precise: 0.9773291929706011 s
+naive mean: 0.39120041932692856 s
+least squares regression: 0.39843299387820025 s
+least squares regression cook: 0.6897621979421069 s
+least squares no split regression cook: 0.7326337809908545 s
