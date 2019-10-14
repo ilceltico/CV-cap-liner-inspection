@@ -238,7 +238,7 @@ def find_circles_hough(img, dp, min_dist, canny_th_high, accumulator_threshold,
 
     return x, y, r
 
-@profile
+#@profile
 def fast_ols_circle_fit(x, y):
     r"""
     Fast method to find a circle using Ordinary Least Squares Linear Regression, implemented from https://dtcenter.org/met/users/docs/write_ups/circle_fit.pdf

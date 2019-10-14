@@ -7,7 +7,7 @@ import os
 import numpy as np
 import cv2
 
-@profile
+#@profile
 def ols_circle_fit(x_array, y_array):
     num_points = len(x_array)
 
@@ -360,8 +360,8 @@ def inner_circle_test(num_iterations):
     print('least squares no split regression cook: {0} s'.format(delta / num_iterations))
 
 if __name__ == '__main__':
-    # ols_test(50)
-    cook_test(1)
+    # ols_test(1000)
+    cook_test(100)
 
-    # outer_circle_test(1)
-    # inner_circle_test(10)
+    # outer_circle_test(100)
+    # inner_circle_test(100)
