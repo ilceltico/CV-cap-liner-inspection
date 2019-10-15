@@ -170,6 +170,24 @@ def inner_circle_test(num_iterations):
     delta = time.perf_counter() - t
     print('hough precise: {0} s'.format(delta / num_iterations))
 
+    # hough precise 2
+    t = time.perf_counter()
+    for _ in range(num_iterations):
+        for img, outer_circle, mask in imgs_outer_circles:
+            stretched = ((255 / (img[mask].max() - img[mask].min()))*(img.astype(np.float)-img[mask].min())).astype(np.uint8)
+            stretched[~mask] = 0
+            gaussian = cv2.GaussianBlur(stretched, (7,7), 2, 2)
+            edges = cv2.Canny(gaussian, 45, 100, apertureSize=3, L2gradient=True)
+            mask = utils.circular_mask(gaussian.shape[0], gaussian.shape[1], (outer_circle[0], outer_circle[1]), 0.98*outer_circle[2])
+            edges[~mask] = 0
+
+            if all(edges.flatten() == 0):
+                continue
+
+            x, y, r = circledetection.find_circles_hough(edges, 1, 1, 100, 10, 0, np.round(0.98*outer_circle[2]).astype("int"), 2)
+    delta = time.perf_counter() - t
+    print('hough precise 2: {0} s'.format(delta / num_iterations))
+
     # naive mean
     t = time.perf_counter()
     for _ in range(num_iterations):
@@ -360,8 +378,8 @@ def inner_circle_test(num_iterations):
     print('least squares no split regression cook: {0} s'.format(delta / num_iterations))
 
 if __name__ == '__main__':
-    # ols_test(1000)
+    ols_test(1000)
     cook_test(100)
 
-    # outer_circle_test(100)
-    # inner_circle_test(100)
+    outer_circle_test(100)
+    inner_circle_test(100)
