@@ -16,7 +16,7 @@ Apart from these folders and the README.md, the root directory contains 5 Python
 
 * program.py, which contains the code for the main control flow and some internal functions for clarity and code reuse;
 * loadconfiguration.py, which is the only module that needs to know the details of the configuration file. Its purpose is to load the file and initialize the global constants for execution;
-* utils.py, which contains different useful functions that are be explained in detail in the [report](https://github.com/ilceltico/CV-cap-liner-inspection/tree/master/Report_CV_Cap_Liner_Inspection.pdf);
+* utils.py, which contains different useful functions that are explained in detail in the [report](https://github.com/ilceltico/CV-cap-liner-inspection/tree/master/Report_CV_Cap_Liner_Inspection.pdf);
 * circledetection.py, the richest file, in which all the non-library functions related to circle detection are contained.
 * performancetester.py, which can be executed to asses the performances of the algorithms.
 
